@@ -11,22 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('master_unit', function (Blueprint $table) {
+        Schema::create('master_tahunajaran', function (Blueprint $table) {
             $table->id();
-            $table->string('unit');
-            $table->foreignId('department_id')->constrained('master_departments');
-            $table->string('kode_unit', 10)->nullable();
-            $table->text('deskripsi')->nullable();
-            $table->foreignId('kepala_unit')->nullable()->constrained('users');
-            $table->enum('status', ['aktif', 'nonaktif'])->default('aktif');
+            $table->string('periode');
+            $table->date('awal_periode');
+            $table->date('akhir_periode');
+            $table->text('keterangan')->nullable();
+            $table->boolean('is_active')->default(false);
             $table->timestamps();
             $table->softDeletes();
             $table->foreignId('created_by')->nullable()->constrained('users');
             $table->foreignId('updated_by')->nullable()->constrained('users');
-            
+
             // Indexes
-            $table->index(['department_id', 'status', 'deleted_at']);
-            $table->index('kepala_unit');
+            $table->index(['is_active', 'deleted_at']);
+            $table->index(['awal_periode', 'akhir_periode']);
         });
     }
 
@@ -35,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('master_units');
+        Schema::dropIfExists('master_tahunajaran');
     }
 };

@@ -28,6 +28,12 @@ class DatabaseSeeder extends Seeder
             UnitSeeder::class,
             MapelSeeder::class,
             StatusKawinSeeder::class,
+            KontrakSeeder::class,
+            GolonganSeeder::class,
+            StatusPegawaiSeeder::class,
+            EducationLevelSeeder::class,
+            PengurusSeeder::class,
+            TahunAjaranSeeder::class,
         ]);
     }
 }
