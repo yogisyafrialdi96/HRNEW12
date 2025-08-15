@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('master_jabatan', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('department_id')->constrained('master_departments');
+            $table->foreignId('department_id')->constrained('master_department');
             $table->string('nama_jabatan');
             $table->string('kode_jabatan', 10)->nullable();
             $table->enum('jenis_jabatan', ['struktural', 'fungsional','pelaksana']);
@@ -39,6 +39,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('master_jabatans');
+        Schema::dropIfExists('master_jabatan');
     }
 };

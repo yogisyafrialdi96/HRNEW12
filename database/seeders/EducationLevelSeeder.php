@@ -197,7 +197,7 @@ class EducationLevelSeeder extends Seeder
         }
 
         // Insert data
-        DB::table('education_levels')->insert($educationLevels);
+        DB::table('master_educationlevel')->insert($educationLevels);
     }
 
 }

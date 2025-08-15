@@ -15,6 +15,10 @@
                 <flux:navlist.group :heading="__('Platform')" class="grid">
                     <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
                 </flux:navlist.group>
+                <flux:navlist.group :heading="__('Master Data')" expandable
+                    :expanded="request()->routeIs('companies.*') || request()->routeIs('departments.*') || request()->routeIs('units.*') || request()->routeIs('jabatan.*') || request()->routeIs('mapel.*') || request()->routeIs('statuskawin.*') || request()->routeIs('statuspegawai.*') || request()->routeIs('golongan.*') || request()->routeIs('kontrak.*')">
+                    <flux:navlist.item :href="route('department.index')" :current="request()->routeIs('departments.*')" wire:navigate>Departments</flux:navlist.item>
+                </flux:navlist.group>
             </flux:navlist>
 
             <flux:spacer />

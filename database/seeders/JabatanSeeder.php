@@ -13,7 +13,7 @@ class JabatanSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('master_jabatans')->insert([
+        DB::table('master_jabatan')->insert([
             [
                 'department_id' => 2, // Pastikan ID 1 ada di master_departments
                 'nama_jabatan' => 'Direktur Pendidikan',

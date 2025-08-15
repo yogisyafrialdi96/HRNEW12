@@ -14,18 +14,21 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
+        // 1 user admin
         User::factory()->create([
             'name' => 'Admin',
             'email' => 'info@ykpialittihad.or.id',
         ]);
+
+        // 9 user random
+        User::factory(9)->create();
 
         $this->call([
             WilayahSeeder::class,
             InstansiSeeder::class,
             DepartmentSeeder::class,
             UnitSeeder::class,
+            JabatanSeeder::class,
             MapelSeeder::class,
             StatusKawinSeeder::class,
             KontrakSeeder::class,

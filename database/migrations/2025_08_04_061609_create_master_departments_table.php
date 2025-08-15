@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('master_department', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('company_id')->constrained('master_companies');
+            $table->foreignId('company_id')->constrained('master_companies')->onDelete('cascade');
             $table->string('department');
             $table->string('kode_department', 10)->nullable();
             $table->text('deskripsi')->nullable();
@@ -35,6 +35,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('master_departments');
+        Schema::dropIfExists('master_department');
     }
 };

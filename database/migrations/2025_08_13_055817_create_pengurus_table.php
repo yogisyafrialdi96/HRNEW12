@@ -14,12 +14,12 @@ return new class extends Migration
         Schema::create('pengurus', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('department_id')->constrained('department')->onDelete('cascade');
-            $table->foreignId('jabatan_id')->constrained('jabatan')->onDelete('cascade');
+            $table->foreignId('department_id')->constrained('master_department')->onDelete('cascade');
+            $table->foreignId('jabatan_id')->constrained('master_jabatan')->onDelete('cascade');
             $table->string('nama_pengurus');
             $table->string('inisial',3)->unique();
             $table->string('hp',15);
-            $table->enum('jenis_kelamin',['L'=>'Laki-laki','P'=>'Perempuan']);
+            $table->enum('jenis_kelamin',['laki-laki','perempuan']);
             $table->string('gelar_depan',10)->nullable();
             $table->string('gelar_belakang',10)->nullable();
             $table->string('tempat_lahir');

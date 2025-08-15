@@ -13,7 +13,7 @@ class DepartmentSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('master_departments')->insert([
+        DB::table('master_department')->insert([
             [
                 'company_id' => 1, // Pastikan ID 1 sudah ada di tabel master_companies
                 'department' => 'YAYASAN',

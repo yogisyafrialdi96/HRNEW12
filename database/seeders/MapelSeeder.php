@@ -13,7 +13,7 @@ class MapelSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('mapels')->insert([
+        DB::table('master_mapel')->insert([
             [
                 'nama_mapel' => 'Matematika',
                 'kode_mapel' => 'MATH01',

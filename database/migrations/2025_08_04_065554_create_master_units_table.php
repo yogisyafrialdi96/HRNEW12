@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('master_unit', function (Blueprint $table) {
             $table->id();
             $table->string('unit');
-            $table->foreignId('department_id')->constrained('master_departments');
+            $table->foreignId('department_id')->constrained('master_department');
             $table->string('kode_unit', 10)->nullable();
             $table->text('deskripsi')->nullable();
             $table->foreignId('kepala_unit')->nullable()->constrained('users');
@@ -35,6 +35,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('master_units');
+        Schema::dropIfExists('master_unit');
     }
 };

@@ -13,7 +13,7 @@ class UnitSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('master_units')->insert([
+        DB::table('master_unit')->insert([
             [
                 'unit' => 'Ketua Umum',
                 'department_id' => 1, // Sesuaikan dengan ID yang ada di master_departments
