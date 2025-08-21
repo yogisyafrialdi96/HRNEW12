@@ -16,10 +16,10 @@ class MapelSeeder extends Seeder
         DB::table('master_mapel')->insert([
             [
                 'nama_mapel' => 'Matematika',
-                'kode_mapel' => 'MATH01',
+                'kode_mapel' => 'MTK',
                 'requirements' => 'S1 Pendidikan Matematika, mampu mengajar secara interaktif.',
                 'tugas_pokok' => 'Mengajar materi matematika sesuai kurikulum dan membuat evaluasi pembelajaran.',
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1, // pastikan user ID 1 ada
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -27,10 +27,10 @@ class MapelSeeder extends Seeder
             ],
             [
                 'nama_mapel' => 'Bahasa Indonesia',
-                'kode_mapel' => 'BIN01',
+                'kode_mapel' => 'BIN',
                 'requirements' => 'S1 Pendidikan Bahasa Indonesia, memiliki kemampuan komunikasi yang baik.',
                 'tugas_pokok' => 'Mengajarkan tata bahasa, membaca, menulis, dan sastra Indonesia.',
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -38,10 +38,10 @@ class MapelSeeder extends Seeder
             ],
             [
                 'nama_mapel' => 'Bahasa Inggris',
-                'kode_mapel' => 'ENG01',
+                'kode_mapel' => 'BIG',
                 'requirements' => 'S1 Pendidikan Bahasa Inggris, TOEFL minimal 500.',
                 'tugas_pokok' => 'Mengajar grammar, speaking, listening, reading dan writing.',
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -49,10 +49,10 @@ class MapelSeeder extends Seeder
             ],
             [
                 'nama_mapel' => 'Pendidikan Agama Islam',
-                'kode_mapel' => 'PAI01',
+                'kode_mapel' => 'PAI',
                 'requirements' => 'S1 PAI, memiliki akhlak dan komunikasi yang baik.',
                 'tugas_pokok' => 'Mengajarkan Al-Quran, Hadits, Akidah Akhlak, dan Fikih.',
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),

@@ -29,13 +29,13 @@ return new class extends Migration
             $table->string('ttd')->nullable();
             $table->date('tanggal_masuk');
             $table->date('tanggal_keluar')->nullable();
-            $table->enum('status',['active','inactive',])->default('active');
+            $table->boolean('is_active')->default(true);
             $table->enum('posisi',['ketua','anggota',])->default('anggota');
             $table->softDeletes();
             $table->timestamps();
 
             // Indexes
-            $table->index(['nama_pengurus', 'status','posisi']);
+            $table->index(['nama_pengurus', 'is_active','posisi']);
         });
     }
 

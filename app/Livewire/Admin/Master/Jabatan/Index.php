@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Livewire\Admin\Master\Department;
+namespace App\Livewire\Admin\Master\Jabatan;
 
-use App\Models\Master\Companies;
 use App\Models\Master\Departments;
+use App\Models\Master\Jabatans;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -16,22 +16,30 @@ class Index extends Component
 {
     use WithPagination;
 
-    public $departmentId;
-    public $company_id;
-    public $department = '';
-    public $kode_department = '';
-    public $deskripsi = '';
-    public $kepala_department = '';
+    public $jabatanId = '';
+    public $department_id = '';
+    public $nama_jabatan = '';
+    public $kode_jabatan = '';
+    public $jenis_jabatan = '';
+    public $level_jabatan = '';
+    public $tugas_pokok = '';
+    public $requirements = '';
+    public $min_salary = '';
+    public $max_salary = '';
     public $is_active = true;
 
     // Properties for search and filter
     public $search = '';
     public $statusFilter = '';
-    public $companyFilter = '';
+    public $jenisFilter = '';
+    public $levelFilter = '';
     public $perPage = 10;
 
+    // Modal properties
     public $showModal = false;
     public $isEdit = false;
+    public $showModalDetail = false;
+    public $selectedJabatan;
 
 
 
@@ -62,29 +70,39 @@ class Index extends Component
     public function rules()
     {
         return [
-            'company_id' => 'required|exists:master_companies,id',
-            'department' => [
+            'department_id' => [
+                'required',
+                'integer',
+                'exists:master_department,id'
+            ],
+            'nama_jabatan' => [
                 'required',
                 'string',
-                'min:2',
+                'min:3',
                 'max:255',
-                Rule::unique('master_department', 'department')
-                    ->ignore($this->departmentId) // saat edit, kalau create bisa null
-                    ->where(fn($query) => $query->where('company_id', $this->company_id)),
+                Rule::unique('master_jabatan', 'nama_jabatan')->ignore($this->jabatanId)
             ],
-            'kode_department' => 'nullable|string|max:10',
-            'deskripsi' => 'nullable|string',
-            'kepala_department' => 'nullable|exists:users,id',
+            'kode_jabatan' => 'nullable|string|max:10',
+            'jenis_jabatan' => 'required|in:struktural,fungsional,pelaksana',
+            'level_jabatan' => 'required|in:top_managerial,middle_manager,supervisor,staff,staff_operasional,operator,phl,jabatan_khusus',
+            'tugas_pokok' => 'nullable|string',
+            'requirements' => 'nullable|string',
+            'min_salary' => 'required|numeric|min:0|max:999999999999.99',
+            'max_salary' => 'required|numeric|gte:min_salary|max:999999999999.99', // max ≥ min
             'is_active' => 'boolean',
         ];
     }
 
     protected $validationAttributes = [
-        'company_id' => 'Company',
-        'department' => 'Department Name',
-        'kode_department' => 'Department Code',
-        'deskripsi' => 'Description',
-        'kepala_department' => 'Department Head',
+        'department_id' => 'Department',
+        'nama_jabatan' => 'Nama Jabatan',
+        'kode_jabatan' => 'Jabatan Code',
+        'jenis_jabatan' => 'Jenis Jabatan',
+        'level_jabatan' => 'Level Jabatan',
+        'tugas_pokok' => 'Tugas Pokok',
+        'requirements' => 'Requirements',
+        'min_salary' => 'Min Salary',
+        'max_salary' => 'Max Salary',
         'is_active' => 'Status',
     ];
 
@@ -98,7 +116,12 @@ class Index extends Component
         $this->resetPage();
     }
 
-    public function updatingCompanyFilter()
+    public function updatingJenisFilter()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingLevelFilter()
     {
         $this->resetPage();
     }
@@ -112,15 +135,19 @@ class Index extends Component
 
     public function edit($id)
     {
-        $department = Departments::findOrFail($id);
+        $jabatan = Jabatans::findOrFail($id);
 
-        $this->departmentId = $department->id;
-        $this->company_id = $department->company_id;
-        $this->department = $department->department;
-        $this->kode_department = $department->kode_department;
-        $this->deskripsi = $department->deskripsi;
-        $this->kepala_department = $department->kepala_department;
-        $this->is_active = $department->is_active;
+        $this->jabatanId = $jabatan->id;
+        $this->department_id = $jabatan->department_id;
+        $this->nama_jabatan = $jabatan->nama_jabatan;
+        $this->kode_jabatan = $jabatan->kode_jabatan;
+        $this->jenis_jabatan = $jabatan->jenis_jabatan;
+        $this->level_jabatan = $jabatan->level_jabatan;
+        $this->tugas_pokok = $jabatan->tugas_pokok;
+        $this->requirements = $jabatan->requirements;
+        $this->min_salary = $jabatan->min_salary ? number_format($jabatan->min_salary, 0, '', '') : null;
+        $this->max_salary = $jabatan->max_salary ? number_format($jabatan->max_salary, 0, '', '') : null;
+        $this->is_active = $jabatan->is_active;
 
         $this->isEdit = true;
         $this->showModal = true;
@@ -128,55 +155,56 @@ class Index extends Component
 
     public function save()
     {
-
         try {
             $this->validate();
 
+            // Fungsi helper untuk mengkonversi format rupiah ke decimal (untuk database decimal)
+            $convertRupiahToDecimal = function ($value) {
+                if (empty($value)) return null;
+                // Hapus semua karakter kecuali digit
+                $cleanValue = preg_replace('/[^0-9]/', '', $value);
+                return $cleanValue ? $cleanValue : null;
+            };
+
+            $data = [
+                'department_id' => $this->department_id,
+                'nama_jabatan' => $this->nama_jabatan,
+                'kode_jabatan' => $this->kode_jabatan,
+                'jenis_jabatan' => $this->jenis_jabatan,
+                'level_jabatan' => $this->level_jabatan,
+                'tugas_pokok' => $this->tugas_pokok,
+                'requirements' => $this->requirements,
+                'min_salary' => $convertRupiahToDecimal($this->min_salary),
+                'max_salary' => $convertRupiahToDecimal($this->max_salary),
+                'is_active' => $this->is_active,
+                'created_by' => Auth::id(),
+                'updated_by' => Auth::id(),
+            ];
+
             if ($this->isEdit) {
-                Departments::findOrFail($this->departmentId)->update([
-                    'company_id' => $this->company_id,
-                    'department' => strtoupper($this->department),
-                    'kode_department' => $this->kode_department,
-                    'deskripsi' => $this->deskripsi,
-                    'kepala_department' => $this->kepala_department ?: null,
-                    'is_active' => $this->is_active,
-                    'created_by' => Auth::id(),
-                    'updated_by' => Auth::id(),
-                ]);
+                Jabatans::findOrFail($this->jabatanId)->update($data);
                 $this->dispatch('toast', [
-                    'message' => "Data berhasi diedit",
+                    'message' => "Data berhasil diedit",
                     'type' => 'success',
                 ]);
             } else {
-                Departments::create([
-                    'company_id' => $this->company_id,
-                    'department' => strtoupper($this->department),
-                    'kode_department' => $this->kode_department,
-                    'deskripsi' => $this->deskripsi,
-                    'kepala_department' => $this->kepala_department ?: null,
-                    'is_active' => $this->is_active,
-                    'created_by' => Auth::id(),
-                    'updated_by' => Auth::id(),
-                ]);
+                Jabatans::create($data);
                 $this->dispatch('toast', [
-                    'message' => "Data berhasi disimpan",
+                    'message' => "Data berhasil disimpan",
                     'type' => 'success',
                 ]);
             }
 
             $this->closeModal();
         } catch (ValidationException $e) {
-
             $errors = $e->validator->errors()->all();
             $count = count($errors);
 
-            // Kirim semua pesan error ke Alpine (misal ditampilkan satu-satu atau semua sekaligus)
             $this->dispatch('toast', [
                 'message' => "Terdapat $count kesalahan:\n- " . implode("\n- ", $errors),
                 'type' => 'error',
             ]);
-            throw $e; // Masih melempar error agar tetap bisa ditampilkan di bawah input
-
+            throw $e;
         } catch (\Exception $e) {
             $this->dispatch('toast', [
                 'message' => 'Terjadi kesalahan server.',
@@ -200,7 +228,7 @@ class Index extends Component
 
     public function delete()
     {
-        Departments::find($this->deleteId)?->delete();
+        Jabatans::find($this->deleteId)?->delete();
 
         $this->deleteSuccess = true;
 
@@ -230,7 +258,7 @@ class Index extends Component
 
     public function restore()
     {
-        Departments::withTrashed()->find($this->restoreId)?->restore();
+        Jabatans::withTrashed()->find($this->restoreId)?->restore();
 
         $this->restoreSuccess = true;
 
@@ -262,11 +290,11 @@ class Index extends Component
     {
         // Reset success state setiap kali method dipanggil
         $this->forceDeleteSuccess = false;
-        
-        $department = Departments::withTrashed()->find($this->forceDeleteId);
 
-        // Cek apakah department ditemukan
-        if (!$department) {
+        $unit = Jabatans::withTrashed()->find($this->forceDeleteId);
+
+        // Cek apakah unit ditemukan
+        if (!$unit) {
             $this->dispatch('toast', [
                 'message' => 'Data tidak ditemukan.',
                 'type' => 'error',
@@ -274,21 +302,12 @@ class Index extends Component
             return;
         }
 
-        // Cek apakah department memiliki relasi dengan jabatan
-        if ($department->jabatan()->exists()) {
-            $this->dispatch('toast', [
-                'message' => 'Data Induk Tidak Bisa DiHapus karena masih memiliki relasi dengan Jabatan.',
-                'type' => 'error',
-            ]);
-            return; // STOP eksekusi di sini
-        }
-
         // Jika tidak ada masalah, baru lakukan force delete
-        $department->forceDelete();
-        
+        $unit->forceDelete();
+
         // Set success state dan dispatch modal success
         $this->forceDeleteSuccess = true;
-        
+
         $this->dispatch('toast', [
             'message' => 'Data berhasil dihapus permanen.',
             'type' => 'success',
@@ -303,45 +322,56 @@ class Index extends Component
     }
     // End Force Delete
 
+    public function showDetail($id)
+    {
+        $this->selectedJabatan = Jabatans::with(['department', 'creator', 'updater'])
+            ->find($id);
+        $this->showModalDetail = true;
+    }
+
     public function closeModal()
     {
         $this->showModal = false;
+        $this->showModalDetail = false;
         $this->resetForm();
     }
 
     private function resetForm()
     {
-        $this->departmentId = null;
-        $this->company_id = '';
-        $this->department = '';
-        $this->kode_department = '';
-        $this->deskripsi = '';
-        $this->kepala_department = '';
+        $this->jabatanId = null;
+        $this->department_id = '';
+        $this->nama_jabatan = '';
+        $this->kode_jabatan = '';
+        $this->jenis_jabatan = '';
+        $this->level_jabatan = '';
+        $this->tugas_pokok = '';
+        $this->requirements = '';
+        $this->min_salary = '';
+        $this->max_salary = '';
         $this->is_active = true;
         $this->resetValidation();
     }
 
     public function toggleStatus($id)
     {
-        $department = Departments::findOrFail($id);
-        $department->update(['is_active' => !$department->is_active]);
-        
+        $unit = Jabatans::findOrFail($id);
+        $unit->update(['is_active' => !$unit->is_active]);
+
         $this->dispatch('toast', [
-                    'message' => "Status berhasi diedit",
-                    'type' => 'success',
-                ]);
+            'message' => "Status berhasil diedit",
+            'type' => 'success',
+        ]);
     }
 
     public function getNextCode()
     {
-        return Departments::generateCode();
+        return Jabatans::generateCode();
     }
 
     public function render()
     {
-        $query = Departments::with([
-            'company:id,nama_companies,singkatan',
-            'kepalaDepartment:id,name',
+        $query = Jabatans::with([
+            'department:id,department',
             'creator:id,name',
             'updater:id,name'
         ]);
@@ -356,34 +386,35 @@ class Index extends Component
             $q->where('is_active', (bool) $this->statusFilter);
         });
 
-        // filter by company
-        $query->when($this->companyFilter, function ($q) {
-            $q->where('company_id', $this->companyFilter);
+        // filter by jenis
+        $query->when($this->jenisFilter !== '', function ($q) {
+            $q->where('jenis_jabatan', $this->jenisFilter);
+        });
+
+        // filter by level
+        $query->when($this->levelFilter !== '', function ($q) {
+            $q->where('level_jabatan', $this->levelFilter);
         });
 
         // pencarian
         $query->when($this->search, function ($q) {
             $search = '%' . $this->search . '%';
             $q->where(function ($q) use ($search) {
-                $q->where('department', 'like', $search)
-                    ->orWhere('kode_department', 'like', $search)
-                    ->orWhere('deskripsi', 'like', $search)
-                    ->orWhereHas('company', function ($company) use ($search) {
-                        $company->where('nama_companies', 'like', $search);
-                    })
-                    ->orWhereHas('kepalaDepartment', function ($kepala) use ($search) {
-                        $kepala->where('name', 'like', $search);
+                $q->where('nama_jabatan', 'like', $search)
+                    ->orWhere('kode_jabatan', 'like', $search)
+                    ->orWhereHas('department', function ($department) use ($search) {
+                        $department->where('department', 'like', $search);
                     });
             });
         });
 
         // urutkan & paginasi
-        $departments = $query
+        $jabatans = $query
             ->orderBy($this->sortField, $this->sortDirection)
             ->paginate($this->perPage);
 
-        $companies = Companies::orderBy('nama_companies')->get();
+        $departments = Departments::query()->where('is_active', 1)->orderBy('department')->get();
         $users = User::orderBy('name')->get();
-        return view('livewire.admin.master.department.index', compact('departments', 'companies', 'users'));
+        return view('livewire.admin.master.jabatan.index', compact('jabatans', 'departments', 'users'));
     }
 }

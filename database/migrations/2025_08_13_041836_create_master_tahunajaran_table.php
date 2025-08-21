@@ -17,7 +17,7 @@ return new class extends Migration
             $table->date('awal_periode');
             $table->date('akhir_periode');
             $table->text('keterangan')->nullable();
-            $table->boolean('is_active')->default(false);
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
             $table->softDeletes();
             $table->foreignId('created_by')->nullable()->constrained('users');

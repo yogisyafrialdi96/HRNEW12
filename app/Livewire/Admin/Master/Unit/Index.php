@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Livewire\Admin\Master\Department;
+namespace App\Livewire\Admin\Master\Unit;
 
-use App\Models\Master\Companies;
 use App\Models\Master\Departments;
+use App\Models\Master\Units;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -16,18 +16,17 @@ class Index extends Component
 {
     use WithPagination;
 
-    public $departmentId;
-    public $company_id;
-    public $department = '';
-    public $kode_department = '';
+    public $unitId = '';
+    public $department_id = '';
+    public $unit = '';
+    public $kode_unit = '';
     public $deskripsi = '';
-    public $kepala_department = '';
+    public $kepala_unit = '';
     public $is_active = true;
 
     // Properties for search and filter
     public $search = '';
     public $statusFilter = '';
-    public $companyFilter = '';
     public $perPage = 10;
 
     public $showModal = false;
@@ -62,29 +61,29 @@ class Index extends Component
     public function rules()
     {
         return [
-            'company_id' => 'required|exists:master_companies,id',
-            'department' => [
+            'department_id' => 'required|exists:master_department,id',
+            'unit' => [
                 'required',
                 'string',
                 'min:2',
                 'max:255',
-                Rule::unique('master_department', 'department')
-                    ->ignore($this->departmentId) // saat edit, kalau create bisa null
-                    ->where(fn($query) => $query->where('company_id', $this->company_id)),
+                Rule::unique('master_unit', 'unit')
+                    ->ignore($this->unitId) // saat edit, kalau create bisa null
+                    ->where(fn($query) => $query->where('department_id', $this->department_id)),
             ],
-            'kode_department' => 'nullable|string|max:10',
+            'kode_unit' => 'nullable|string|max:10',
             'deskripsi' => 'nullable|string',
-            'kepala_department' => 'nullable|exists:users,id',
+            'kepala_unit' => 'nullable|exists:users,id',
             'is_active' => 'boolean',
         ];
     }
 
     protected $validationAttributes = [
-        'company_id' => 'Company',
-        'department' => 'Department Name',
-        'kode_department' => 'Department Code',
+        'department_id' => 'Department',
+        'unit' => 'Unit Name',
+        'kode_unit' => 'Unit Code',
         'deskripsi' => 'Description',
-        'kepala_department' => 'Department Head',
+        'kepala_unit' => 'Unit Head',
         'is_active' => 'Status',
     ];
 
@@ -98,11 +97,6 @@ class Index extends Component
         $this->resetPage();
     }
 
-    public function updatingCompanyFilter()
-    {
-        $this->resetPage();
-    }
-
     public function create()
     {
         $this->resetForm();
@@ -112,15 +106,15 @@ class Index extends Component
 
     public function edit($id)
     {
-        $department = Departments::findOrFail($id);
+        $unit = Units::findOrFail($id);
 
-        $this->departmentId = $department->id;
-        $this->company_id = $department->company_id;
-        $this->department = $department->department;
-        $this->kode_department = $department->kode_department;
-        $this->deskripsi = $department->deskripsi;
-        $this->kepala_department = $department->kepala_department;
-        $this->is_active = $department->is_active;
+        $this->unitId = $unit->id;
+        $this->department_id = $unit->department_id;
+        $this->unit = $unit->unit;
+        $this->kode_unit = $unit->kode_unit;
+        $this->deskripsi = $unit->deskripsi;
+        $this->kepala_unit = $unit->kepala_unit;
+        $this->is_active = $unit->is_active;
 
         $this->isEdit = true;
         $this->showModal = true;
@@ -133,12 +127,12 @@ class Index extends Component
             $this->validate();
 
             if ($this->isEdit) {
-                Departments::findOrFail($this->departmentId)->update([
-                    'company_id' => $this->company_id,
-                    'department' => strtoupper($this->department),
-                    'kode_department' => $this->kode_department,
+                Units::findOrFail($this->unitId)->update([
+                    'department_id' => $this->department_id,
+                    'unit' => strtoupper($this->unit),
+                    'kode_unit' => $this->kode_unit,
                     'deskripsi' => $this->deskripsi,
-                    'kepala_department' => $this->kepala_department ?: null,
+                    'kepala_unit' => $this->kepala_unit ?: null,
                     'is_active' => $this->is_active,
                     'created_by' => Auth::id(),
                     'updated_by' => Auth::id(),
@@ -148,12 +142,12 @@ class Index extends Component
                     'type' => 'success',
                 ]);
             } else {
-                Departments::create([
-                    'company_id' => $this->company_id,
-                    'department' => strtoupper($this->department),
-                    'kode_department' => $this->kode_department,
+                Units::create([
+                    'department_id' => $this->department_id,
+                    'unit' => strtoupper($this->unit),
+                    'kode_unit' => $this->kode_unit,
                     'deskripsi' => $this->deskripsi,
-                    'kepala_department' => $this->kepala_department ?: null,
+                    'kepala_unit' => $this->kepala_unit ?: null,
                     'is_active' => $this->is_active,
                     'created_by' => Auth::id(),
                     'updated_by' => Auth::id(),
@@ -200,7 +194,7 @@ class Index extends Component
 
     public function delete()
     {
-        Departments::find($this->deleteId)?->delete();
+        Units::find($this->deleteId)?->delete();
 
         $this->deleteSuccess = true;
 
@@ -230,7 +224,7 @@ class Index extends Component
 
     public function restore()
     {
-        Departments::withTrashed()->find($this->restoreId)?->restore();
+        Units::withTrashed()->find($this->restoreId)?->restore();
 
         $this->restoreSuccess = true;
 
@@ -263,10 +257,10 @@ class Index extends Component
         // Reset success state setiap kali method dipanggil
         $this->forceDeleteSuccess = false;
         
-        $department = Departments::withTrashed()->find($this->forceDeleteId);
+        $unit = Units::withTrashed()->find($this->forceDeleteId);
 
-        // Cek apakah department ditemukan
-        if (!$department) {
+        // Cek apakah unit ditemukan
+        if (!$unit) {
             $this->dispatch('toast', [
                 'message' => 'Data tidak ditemukan.',
                 'type' => 'error',
@@ -274,17 +268,8 @@ class Index extends Component
             return;
         }
 
-        // Cek apakah department memiliki relasi dengan jabatan
-        if ($department->jabatan()->exists()) {
-            $this->dispatch('toast', [
-                'message' => 'Data Induk Tidak Bisa DiHapus karena masih memiliki relasi dengan Jabatan.',
-                'type' => 'error',
-            ]);
-            return; // STOP eksekusi di sini
-        }
-
         // Jika tidak ada masalah, baru lakukan force delete
-        $department->forceDelete();
+        $unit->forceDelete();
         
         // Set success state dan dispatch modal success
         $this->forceDeleteSuccess = true;
@@ -311,20 +296,20 @@ class Index extends Component
 
     private function resetForm()
     {
-        $this->departmentId = null;
-        $this->company_id = '';
-        $this->department = '';
-        $this->kode_department = '';
+        $this->unitId = null;
+        $this->department_id = '';
+        $this->unit = '';
+        $this->kode_unit = '';
         $this->deskripsi = '';
-        $this->kepala_department = '';
+        $this->kepala_unit = '';
         $this->is_active = true;
         $this->resetValidation();
     }
 
     public function toggleStatus($id)
     {
-        $department = Departments::findOrFail($id);
-        $department->update(['is_active' => !$department->is_active]);
+        $unit = Units::findOrFail($id);
+        $unit->update(['is_active' => !$unit->is_active]);
         
         $this->dispatch('toast', [
                     'message' => "Status berhasi diedit",
@@ -334,14 +319,14 @@ class Index extends Component
 
     public function getNextCode()
     {
-        return Departments::generateCode();
+        return Units::generateCode();
     }
 
     public function render()
     {
-        $query = Departments::with([
-            'company:id,nama_companies,singkatan',
-            'kepalaDepartment:id,name',
+        $query = Units::with([
+            'department:id,department',
+            'kepalaUnit:id,name',
             'creator:id,name',
             'updater:id,name'
         ]);
@@ -356,34 +341,29 @@ class Index extends Component
             $q->where('is_active', (bool) $this->statusFilter);
         });
 
-        // filter by company
-        $query->when($this->companyFilter, function ($q) {
-            $q->where('company_id', $this->companyFilter);
-        });
-
         // pencarian
         $query->when($this->search, function ($q) {
             $search = '%' . $this->search . '%';
             $q->where(function ($q) use ($search) {
-                $q->where('department', 'like', $search)
-                    ->orWhere('kode_department', 'like', $search)
+                $q->where('unit', 'like', $search)
+                    ->orWhere('kode_unit', 'like', $search)
                     ->orWhere('deskripsi', 'like', $search)
-                    ->orWhereHas('company', function ($company) use ($search) {
-                        $company->where('nama_companies', 'like', $search);
+                    ->orWhereHas('department', function ($department) use ($search) {
+                        $department->where('department', 'like', $search);
                     })
-                    ->orWhereHas('kepalaDepartment', function ($kepala) use ($search) {
+                    ->orWhereHas('kepalaUnit', function ($kepala) use ($search) {
                         $kepala->where('name', 'like', $search);
                     });
             });
         });
 
         // urutkan & paginasi
-        $departments = $query
+        $units = $query
             ->orderBy($this->sortField, $this->sortDirection)
             ->paginate($this->perPage);
 
-        $companies = Companies::orderBy('nama_companies')->get();
+        $departments = Departments::query()->where('is_active', 1)->orderBy('department')->get();
         $users = User::orderBy('name')->get();
-        return view('livewire.admin.master.department.index', compact('departments', 'companies', 'users'));
+        return view('livewire.admin.master.unit.index', compact('units', 'departments', 'users'));
     }
 }

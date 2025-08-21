@@ -20,14 +20,48 @@ class Departments extends Model
         'kode_department',
         'deskripsi',
         'kepala_department',
-        'status',
+        'is_active',
         'created_by',
         'updated_by',
     ];
 
     protected $casts = [
-        'status' => 'string',
+        'is_active' => 'boolean',
     ];
+
+    public static function generateCode(): string
+    {
+        $prefix = 'DPT-';
+        
+        // Cari kode terakhir
+        $lastDepartment = self::where('kode_department', 'like', $prefix . '%')
+            ->orderBy('kode_department', 'desc')
+            ->first();
+
+        if (!$lastDepartment) {
+            return $prefix . '001';
+        }
+
+        // Extract nomor dari kode terakhir
+        $lastNumber = (int) substr($lastDepartment->kode_department, strlen($prefix));
+        $newNumber = $lastNumber + 1;
+
+        return $prefix . str_pad($newNumber, 3, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Boot method untuk auto generate kode
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($department) {
+            if (empty($department->kode_department)) {
+                $department->kode_department = self::generateCode();
+            }
+        });
+    }
 
     /**
      * Relationship to Company
@@ -35,6 +69,16 @@ class Departments extends Model
     public function company(): BelongsTo
     {
         return $this->belongsTo(Companies::class, 'company_id');
+    }
+
+    public function unit()
+    {
+        return $this->hasMany(Units::class);
+    }
+
+    public function jabatan()
+    {
+        return $this->hasMany(Jabatans::class, 'department_id');
     }
 
     /**

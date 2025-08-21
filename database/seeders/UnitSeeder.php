@@ -17,10 +17,10 @@ class UnitSeeder extends Seeder
             [
                 'unit' => 'Ketua Umum',
                 'department_id' => 1, // Sesuaikan dengan ID yang ada di master_departments
-                'kode_unit' => 'YYSN01',
+                'kode_unit' => 'UNT-001',
                 'deskripsi' => 'Ketua Umum Yayasan',
                 'kepala_unit' => 1, // ID user yang menjabat kepala unit
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -29,10 +29,10 @@ class UnitSeeder extends Seeder
             [
                 'unit' => 'Dewan Pembina & Penasehat',
                 'department_id' => 1, // Sesuaikan dengan ID yang ada di master_departments
-                'kode_unit' => 'YYSN02',
+                'kode_unit' => 'UNT-002',
                 'deskripsi' => 'Dewan Pembina & Penasehat Yayasan',
                 'kepala_unit' => 1, // ID user yang menjabat kepala unit
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -41,10 +41,10 @@ class UnitSeeder extends Seeder
             [
                 'unit' => 'Dewan Pengawas',
                 'department_id' => 1, // Sesuaikan dengan ID yang ada di master_departments
-                'kode_unit' => 'YYSN03',
+                'kode_unit' => 'UNT-003',
                 'deskripsi' => 'Dewan Pengawas Yayasan',
                 'kepala_unit' => 1, // ID user yang menjabat kepala unit
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -53,10 +53,10 @@ class UnitSeeder extends Seeder
             [
                 'unit' => 'Sekretaris Umum',
                 'department_id' => 1, // Sesuaikan dengan ID yang ada di master_departments
-                'kode_unit' => 'YYSN04',
+                'kode_unit' => 'UNT-004',
                 'deskripsi' => 'Sekretaris Umum Yayasan',
                 'kepala_unit' => 1, // ID user yang menjabat kepala unit
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -65,10 +65,10 @@ class UnitSeeder extends Seeder
             [
                 'unit' => 'Keuangan',
                 'department_id' => 1, // Sesuaikan dengan ID yang ada di master_departments
-                'kode_unit' => 'YYSN05',
+                'kode_unit' => 'UNT-005',
                 'deskripsi' => 'Keuangan Yayasan',
                 'kepala_unit' => 1, // ID user yang menjabat kepala unit
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -77,10 +77,10 @@ class UnitSeeder extends Seeder
             [
                 'unit' => 'Bidang Legal',
                 'department_id' => 1, // Sesuaikan dengan ID yang ada di master_departments
-                'kode_unit' => 'YYSN06',
+                'kode_unit' => 'UNT-006',
                 'deskripsi' => 'Bidang Legal Yayasan',
                 'kepala_unit' => 1, // ID user yang menjabat kepala unit
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -89,10 +89,10 @@ class UnitSeeder extends Seeder
             [
                 'unit' => 'Adv Research & Development',
                 'department_id' => 1, // Sesuaikan dengan ID yang ada di master_departments
-                'kode_unit' => 'YYSN07',
+                'kode_unit' => 'UNT-007',
                 'deskripsi' => 'Adv Research & Development Yayasan',
                 'kepala_unit' => 1, // ID user yang menjabat kepala unit
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -101,10 +101,10 @@ class UnitSeeder extends Seeder
             [
                 'unit' => 'Bidang Pendidikan',
                 'department_id' => 1, // Sesuaikan dengan ID yang ada di master_departments
-                'kode_unit' => 'YYSN08',
+                'kode_unit' => 'UNT-008',
                 'deskripsi' => 'Bidang Pendidikan Yayasan',
                 'kepala_unit' => 1, // ID user yang menjabat kepala unit
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -113,10 +113,10 @@ class UnitSeeder extends Seeder
             [
                 'unit' => 'Bidang HR-GS',
                 'department_id' => 1, // Sesuaikan dengan ID yang ada di master_departments
-                'kode_unit' => 'YYSN09',
+                'kode_unit' => 'UNT-009',
                 'deskripsi' => 'Bidang HR-GS Yayasan',
                 'kepala_unit' => 1, // ID user yang menjabat kepala unit
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -125,10 +125,10 @@ class UnitSeeder extends Seeder
             [
                 'unit' => 'Bidang Muamalat',
                 'department_id' => 1, // Sesuaikan dengan ID yang ada di master_departments
-                'kode_unit' => 'YYSN10',
+                'kode_unit' => 'UNT-010',
                 'deskripsi' => 'Bidang Muamalat Yayasan',
                 'kepala_unit' => 1, // ID user yang menjabat kepala unit
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -137,10 +137,10 @@ class UnitSeeder extends Seeder
             [
                 'unit' => 'Bidang Sektor Riil',
                 'department_id' => 1, // Sesuaikan dengan ID yang ada di master_departments
-                'kode_unit' => 'YYSN11',
+                'kode_unit' => 'UNT-011',
                 'deskripsi' => 'Bidang Sektor Riil Yayasan',
                 'kepala_unit' => 1, // ID user yang menjabat kepala unit
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -149,10 +149,10 @@ class UnitSeeder extends Seeder
             [
                 'unit' => 'Bidang Masjid & Dakwah',
                 'department_id' => 1, // Sesuaikan dengan ID yang ada di master_departments
-                'kode_unit' => 'YYSN12',
+                'kode_unit' => 'UNT-012',
                 'deskripsi' => 'Bidang Masjid & Dakwah Yayasan',
                 'kepala_unit' => 1, // ID user yang menjabat kepala unit
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -161,10 +161,10 @@ class UnitSeeder extends Seeder
             [
                 'unit' => 'Bidang Project, Akuisisi Aset, Pendanaan, Sertifikasi Lahan',
                 'department_id' => 1, // Sesuaikan dengan ID yang ada di master_departments
-                'kode_unit' => 'YYSN13',
+                'kode_unit' => 'UNT-013',
                 'deskripsi' => 'Bidang Project, Akuisisi Aset, Pendanaan, Sertifikasi Lahan Yayasan',
                 'kepala_unit' => 1, // ID user yang menjabat kepala unit
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -173,10 +173,10 @@ class UnitSeeder extends Seeder
             [
                 'unit' => 'Bidang Infrastruktur & Pemeliharaan',
                 'department_id' => 1, // Sesuaikan dengan ID yang ada di master_departments
-                'kode_unit' => 'YYSN14',
+                'kode_unit' => 'UNT-014',
                 'deskripsi' => 'Bidang Infrastruktur & Pemeliharaan Yayasan',
                 'kepala_unit' => 1, // ID user yang menjabat kepala unit
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -185,10 +185,10 @@ class UnitSeeder extends Seeder
             [
                 'unit' => 'TPA',
                 'department_id' => 2, // Sesuaikan dengan ID yang ada di master_departments
-                'kode_unit' => 'PNDK01',
+                'kode_unit' => 'UNT-015',
                 'deskripsi' => 'Tempat Penitipan Anak, Daycare, Preschool, Toodler',
                 'kepala_unit' => 1, // ID user yang menjabat kepala unit
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -197,10 +197,10 @@ class UnitSeeder extends Seeder
             [
                 'unit' => 'TKIT',
                 'department_id' => 2, // Sesuaikan dengan ID yang ada di master_departments
-                'kode_unit' => 'PNDK02',
+                'kode_unit' => 'UNT-016',
                 'deskripsi' => 'Taman Kanak-kanak Islam Terpadu',
                 'kepala_unit' => 1, // ID user yang menjabat kepala unit
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -209,10 +209,10 @@ class UnitSeeder extends Seeder
             [
                 'unit' => 'SDIT',
                 'department_id' => 2, // Sesuaikan dengan ID yang ada di master_departments
-                'kode_unit' => 'PNDK03',
+                'kode_unit' => 'UNT-017',
                 'deskripsi' => 'Sekolah Dasar Islam Terpadu',
                 'kepala_unit' => 1, // ID user yang menjabat kepala unit
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -221,10 +221,10 @@ class UnitSeeder extends Seeder
             [
                 'unit' => 'MTs',
                 'department_id' => 2, // Sesuaikan dengan ID yang ada di master_departments
-                'kode_unit' => 'PNDK04',
+                'kode_unit' => 'UNT-018',
                 'deskripsi' => 'Madrasah Tsanawiyah',
                 'kepala_unit' => 1, // ID user yang menjabat kepala unit
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -233,10 +233,10 @@ class UnitSeeder extends Seeder
             [
                 'unit' => 'SMPIT',
                 'department_id' => 2, // Sesuaikan dengan ID yang ada di master_departments
-                'kode_unit' => 'PNDK05',
+                'kode_unit' => 'UNT-019',
                 'deskripsi' => 'Sekolah Menengah Pertama Islam Terpadu',
                 'kepala_unit' => 1, // ID user yang menjabat kepala unit
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -245,10 +245,10 @@ class UnitSeeder extends Seeder
             [
                 'unit' => 'SMAIT',
                 'department_id' => 2, // Sesuaikan dengan ID yang ada di master_departments
-                'kode_unit' => 'PNDK06',
+                'kode_unit' => 'UNT-020',
                 'deskripsi' => 'Sekolah Menengah Atas Islam Terpadu',
                 'kepala_unit' => 1, // ID user yang menjabat kepala unit
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -257,10 +257,10 @@ class UnitSeeder extends Seeder
             [
                 'unit' => 'SMAIT',
                 'department_id' => 2, // Sesuaikan dengan ID yang ada di master_departments
-                'kode_unit' => 'PNDK06',
+                'kode_unit' => 'UNT-021',
                 'deskripsi' => 'Sekolah Menengah Atas Islam Terpadu',
                 'kepala_unit' => 1, // ID user yang menjabat kepala unit
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -269,10 +269,10 @@ class UnitSeeder extends Seeder
             [
                 'unit' => 'DIREKTORAT',
                 'department_id' => 2, // Sesuaikan dengan ID yang ada di master_departments
-                'kode_unit' => 'PNDK07',
+                'kode_unit' => 'UNT-022',
                 'deskripsi' => 'Direktorat Pendidikan',
                 'kepala_unit' => 1, // ID user yang menjabat kepala unit
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -281,10 +281,10 @@ class UnitSeeder extends Seeder
             [
                 'unit' => 'KEUANGAN',
                 'department_id' => 3, // Sesuaikan dengan ID yang ada di master_departments
-                'kode_unit' => 'MUAT01',
+                'kode_unit' => 'UNT-023',
                 'deskripsi' => 'Keuangan Yayasan',
                 'kepala_unit' => 1, // ID user yang menjabat kepala unit
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -293,10 +293,10 @@ class UnitSeeder extends Seeder
             [
                 'unit' => 'BMT PUSAT',
                 'department_id' => 3, // Sesuaikan dengan ID yang ada di master_departments
-                'kode_unit' => 'MUAT02',
+                'kode_unit' => 'UNT-024',
                 'deskripsi' => 'BMT Pusat',
                 'kepala_unit' => 1, // ID user yang menjabat kepala unit
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -305,10 +305,10 @@ class UnitSeeder extends Seeder
             [
                 'unit' => 'BMT RUMBAI',
                 'department_id' => 3, // Sesuaikan dengan ID yang ada di master_departments
-                'kode_unit' => 'MUAT03',
+                'kode_unit' => 'UNT-025',
                 'deskripsi' => 'BMT Cabang Rumbai',
                 'kepala_unit' => 1, // ID user yang menjabat kepala unit
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -317,10 +317,10 @@ class UnitSeeder extends Seeder
             [
                 'unit' => 'BMT PANAM',
                 'department_id' => 3, // Sesuaikan dengan ID yang ada di master_departments
-                'kode_unit' => 'MUAT04',
+                'kode_unit' => 'UNT-026',
                 'deskripsi' => 'BMT Cabang Panam',
                 'kepala_unit' => 1, // ID user yang menjabat kepala unit
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -329,10 +329,10 @@ class UnitSeeder extends Seeder
             [
                 'unit' => 'BMT DURI',
                 'department_id' => 3, // Sesuaikan dengan ID yang ada di master_departments
-                'kode_unit' => 'MUAT05',
+                'kode_unit' => 'UNT-027',
                 'deskripsi' => 'BMT Cabang Duri',
                 'kepala_unit' => 1, // ID user yang menjabat kepala unit
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -341,10 +341,10 @@ class UnitSeeder extends Seeder
             [
                 'unit' => 'BMT CIBUBUR',
                 'department_id' => 3, // Sesuaikan dengan ID yang ada di master_departments
-                'kode_unit' => 'MUAT06',
+                'kode_unit' => 'UNT-028',
                 'deskripsi' => 'BMT Cabang Cibubur',
                 'kepala_unit' => 1, // ID user yang menjabat kepala unit
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -353,10 +353,10 @@ class UnitSeeder extends Seeder
             [
                 'unit' => 'DAPUR',
                 'department_id' => 3, // Sesuaikan dengan ID yang ada di master_departments
-                'kode_unit' => 'MUAT07',
+                'kode_unit' => 'UNT-029',
                 'deskripsi' => 'Dapur',
                 'kepala_unit' => 1, // ID user yang menjabat kepala unit
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -365,10 +365,10 @@ class UnitSeeder extends Seeder
             [
                 'unit' => 'WARUNG 1',
                 'department_id' => 3, // Sesuaikan dengan ID yang ada di master_departments
-                'kode_unit' => 'MUAT08',
+                'kode_unit' => 'UNT-030',
                 'deskripsi' => 'Warung Serba Ada 1',
                 'kepala_unit' => 1, // ID user yang menjabat kepala unit
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -377,10 +377,10 @@ class UnitSeeder extends Seeder
             [
                 'unit' => 'WARUNG 2',
                 'department_id' => 3, // Sesuaikan dengan ID yang ada di master_departments
-                'kode_unit' => 'MUAT09',
+                'kode_unit' => 'UNT-031',
                 'deskripsi' => 'Warung Serba Ada 2',
                 'kepala_unit' => 1, // ID user yang menjabat kepala unit
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -389,10 +389,10 @@ class UnitSeeder extends Seeder
             [
                 'unit' => 'HR',
                 'department_id' => 4, // Sesuaikan dengan ID yang ada di master_departments
-                'kode_unit' => 'HRGS01',
+                'kode_unit' => 'UNT-032',
                 'deskripsi' => 'Human Resources',
                 'kepala_unit' => 1, // ID user yang menjabat kepala unit
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -401,10 +401,10 @@ class UnitSeeder extends Seeder
             [
                 'unit' => 'GS',
                 'department_id' => 4, // Sesuaikan dengan ID yang ada di master_departments
-                'kode_unit' => 'HRGS02',
+                'kode_unit' => 'UNT-033',
                 'deskripsi' => 'General Services',
                 'kepala_unit' => 1, // ID user yang menjabat kepala unit
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -413,10 +413,10 @@ class UnitSeeder extends Seeder
             [
                 'unit' => 'MASJID',
                 'department_id' => 5, // Sesuaikan dengan ID yang ada di master_departments
-                'kode_unit' => 'BKMD01',
+                'kode_unit' => 'UNT-034',
                 'deskripsi' => 'Masjid & Dakwah',
                 'kepala_unit' => 1, // ID user yang menjabat kepala unit
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
@@ -425,10 +425,10 @@ class UnitSeeder extends Seeder
             [
                 'unit' => 'MAKAM',
                 'department_id' => 5, // Sesuaikan dengan ID yang ada di master_departments
-                'kode_unit' => 'BKMD02',
+                'kode_unit' => 'UNT-035',
                 'deskripsi' => 'Makam Yayasan & PHR',
                 'kepala_unit' => 1, // ID user yang menjabat kepala unit
-                'status' => 'aktif',
+                'is_active' => true,
                 'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),

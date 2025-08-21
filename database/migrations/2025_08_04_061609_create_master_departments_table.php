@@ -18,14 +18,14 @@ return new class extends Migration
             $table->string('kode_department', 10)->nullable();
             $table->text('deskripsi')->nullable();
             $table->foreignId('kepala_department')->nullable()->constrained('users');
-            $table->enum('status', ['aktif', 'nonaktif'])->default('aktif');
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
             $table->softDeletes();
             $table->foreignId('created_by')->nullable()->constrained('users');
             $table->foreignId('updated_by')->nullable()->constrained('users');
             
             // Indexes
-            $table->index(['company_id', 'status', 'deleted_at']);
+            $table->index(['company_id', 'is_active', 'deleted_at']);
             $table->index('kepala_department');
         });
     }

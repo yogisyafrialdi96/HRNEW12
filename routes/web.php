@@ -12,6 +12,15 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
    Route::prefix('department')->name('department.')->group(function () {
         Route::get('/', Admin\Master\Department\Index::class)->name('index');
     });
+   Route::prefix('unit')->name('unit.')->group(function () {
+        Route::get('/', Admin\Master\Unit\Index::class)->name('index');
+    });
+   Route::prefix('jabatan')->name('jabatan.')->group(function () {
+        Route::get('/', Admin\Master\Jabatan\Index::class)->name('index');
+    });
+   Route::prefix('mapel')->name('mapel.')->group(function () {
+        Route::get('/', Admin\Master\Mapel\Index::class)->name('index');
+    });
 });
 
 Route::view('dashboard', 'dashboard')

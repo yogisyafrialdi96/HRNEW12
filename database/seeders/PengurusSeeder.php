@@ -32,7 +32,7 @@ class PengurusSeeder extends Seeder
                 'ttd'            => null, // bisa isi path file jika ada
                 'tanggal_masuk'  => '2020-01-15',
                 'tanggal_keluar' => null,
-                'status'         => 'active',
+                'is_active'      => true,
                 'posisi'         => 'ketua',
                 'created_at'     => Carbon::now(),
                 'updated_at'     => Carbon::now(),
@@ -54,7 +54,7 @@ class PengurusSeeder extends Seeder
                 'ttd'            => null,
                 'tanggal_masuk'  => '2021-03-01',
                 'tanggal_keluar' => null,
-                'status'         => 'active',
+                'is_active'         => true,
                 'posisi'         => 'anggota',
                 'created_at'     => Carbon::now(),
                 'updated_at'     => Carbon::now(),

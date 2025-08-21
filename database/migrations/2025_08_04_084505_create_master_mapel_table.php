@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('kode_mapel');
             $table->text('requirements')->nullable();
             $table->text('tugas_pokok')->nullable();
-            $table->enum('status', ['aktif', 'nonaktif'])->default('aktif');
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
             $table->softDeletes(); // For soft delete functionality
             $table->foreignId('created_by')->nullable()->constrained('users');

@@ -1,37 +1,37 @@
 <?php
 
-namespace App\Livewire\Admin\Master\Department;
+namespace App\Livewire\Admin\Master\Mapel;
 
-use App\Models\Master\Companies;
-use App\Models\Master\Departments;
-use App\Models\User;
+use App\Models\Master\Mapel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Url;
+use Illuminate\Support\Str;
 
 class Index extends Component
 {
     use WithPagination;
 
-    public $departmentId;
-    public $company_id;
-    public $department = '';
-    public $kode_department = '';
-    public $deskripsi = '';
-    public $kepala_department = '';
+    public $mapelId = '';
+    public $nama_mapel = '';
+    public $kode_mapel = '';
+    public $requirements = '';
+    public $tugas_pokok = '';
     public $is_active = true;
 
     // Properties for search and filter
     public $search = '';
     public $statusFilter = '';
-    public $companyFilter = '';
     public $perPage = 10;
 
+    // Modal properties
     public $showModal = false;
     public $isEdit = false;
+    public $showModalDetail = false;
+    public $selectedMapel;
 
 
 
@@ -62,29 +62,26 @@ class Index extends Component
     public function rules()
     {
         return [
-            'company_id' => 'required|exists:master_companies,id',
-            'department' => [
+            'nama_mapel' => [
                 'required',
                 'string',
-                'min:2',
+                'min:3',
                 'max:255',
-                Rule::unique('master_department', 'department')
-                    ->ignore($this->departmentId) // saat edit, kalau create bisa null
-                    ->where(fn($query) => $query->where('company_id', $this->company_id)),
+                Rule::unique('master_mapel', 'nama_mapel')
+                    ->ignore($this->mapelId),
             ],
-            'kode_department' => 'nullable|string|max:10',
-            'deskripsi' => 'nullable|string',
-            'kepala_department' => 'nullable|exists:users,id',
+            'kode_mapel' => 'required|string|size:3|unique:master_mapel,kode_mapel,' . $this->mapelId,
+            'requirements' => 'nullable|string',
+            'tugas_pokok' => 'nullable|string',
             'is_active' => 'boolean',
         ];
     }
 
     protected $validationAttributes = [
-        'company_id' => 'Company',
-        'department' => 'Department Name',
-        'kode_department' => 'Department Code',
-        'deskripsi' => 'Description',
-        'kepala_department' => 'Department Head',
+        'nama_mapel' => 'Mapel Name',
+        'kode_mapel' => 'Kode Mapel',
+        'requirements' => 'Requirements',
+        'tugas_pokok' => 'Tugas Pokok',
         'is_active' => 'Status',
     ];
 
@@ -98,11 +95,6 @@ class Index extends Component
         $this->resetPage();
     }
 
-    public function updatingCompanyFilter()
-    {
-        $this->resetPage();
-    }
-
     public function create()
     {
         $this->resetForm();
@@ -112,15 +104,14 @@ class Index extends Component
 
     public function edit($id)
     {
-        $department = Departments::findOrFail($id);
+        $mapel = Mapel::findOrFail($id);
 
-        $this->departmentId = $department->id;
-        $this->company_id = $department->company_id;
-        $this->department = $department->department;
-        $this->kode_department = $department->kode_department;
-        $this->deskripsi = $department->deskripsi;
-        $this->kepala_department = $department->kepala_department;
-        $this->is_active = $department->is_active;
+        $this->mapelId = $mapel->id;
+        $this->nama_mapel = $mapel->nama_mapel;
+        $this->kode_mapel = $mapel->kode_mapel;
+        $this->requirements = $mapel->requirements;
+        $this->tugas_pokok = $mapel->tugas_pokok;
+        $this->is_active = $mapel->is_active;
 
         $this->isEdit = true;
         $this->showModal = true;
@@ -133,12 +124,11 @@ class Index extends Component
             $this->validate();
 
             if ($this->isEdit) {
-                Departments::findOrFail($this->departmentId)->update([
-                    'company_id' => $this->company_id,
-                    'department' => strtoupper($this->department),
-                    'kode_department' => $this->kode_department,
-                    'deskripsi' => $this->deskripsi,
-                    'kepala_department' => $this->kepala_department ?: null,
+                Mapel::findOrFail($this->mapelId)->update([
+                    'nama_mapel' => ucwords($this->nama_mapel),
+                    'kode_mapel' => strtoupper($this->kode_mapel),
+                    'requirements' => $this->requirements ?: null,
+                    'tugas_pokok' => $this->tugas_pokok ?: null,
                     'is_active' => $this->is_active,
                     'created_by' => Auth::id(),
                     'updated_by' => Auth::id(),
@@ -148,12 +138,11 @@ class Index extends Component
                     'type' => 'success',
                 ]);
             } else {
-                Departments::create([
-                    'company_id' => $this->company_id,
-                    'department' => strtoupper($this->department),
-                    'kode_department' => $this->kode_department,
-                    'deskripsi' => $this->deskripsi,
-                    'kepala_department' => $this->kepala_department ?: null,
+                Mapel::create([
+                    'nama_mapel' => ucwords($this->nama_mapel),
+                    'kode_mapel' => strtoupper($this->kode_mapel),
+                    'requirements' => $this->requirements ?: null,
+                    'tugas_pokok' => $this->tugas_pokok ?: null,
                     'is_active' => $this->is_active,
                     'created_by' => Auth::id(),
                     'updated_by' => Auth::id(),
@@ -200,7 +189,7 @@ class Index extends Component
 
     public function delete()
     {
-        Departments::find($this->deleteId)?->delete();
+        Mapel::find($this->deleteId)?->delete();
 
         $this->deleteSuccess = true;
 
@@ -230,7 +219,7 @@ class Index extends Component
 
     public function restore()
     {
-        Departments::withTrashed()->find($this->restoreId)?->restore();
+        Mapel::withTrashed()->find($this->restoreId)?->restore();
 
         $this->restoreSuccess = true;
 
@@ -263,10 +252,10 @@ class Index extends Component
         // Reset success state setiap kali method dipanggil
         $this->forceDeleteSuccess = false;
         
-        $department = Departments::withTrashed()->find($this->forceDeleteId);
+        $unit = Mapel::withTrashed()->find($this->forceDeleteId);
 
-        // Cek apakah department ditemukan
-        if (!$department) {
+        // Cek apakah unit ditemukan
+        if (!$unit) {
             $this->dispatch('toast', [
                 'message' => 'Data tidak ditemukan.',
                 'type' => 'error',
@@ -274,17 +263,8 @@ class Index extends Component
             return;
         }
 
-        // Cek apakah department memiliki relasi dengan jabatan
-        if ($department->jabatan()->exists()) {
-            $this->dispatch('toast', [
-                'message' => 'Data Induk Tidak Bisa DiHapus karena masih memiliki relasi dengan Jabatan.',
-                'type' => 'error',
-            ]);
-            return; // STOP eksekusi di sini
-        }
-
         // Jika tidak ada masalah, baru lakukan force delete
-        $department->forceDelete();
+        $unit->forceDelete();
         
         // Set success state dan dispatch modal success
         $this->forceDeleteSuccess = true;
@@ -303,28 +283,35 @@ class Index extends Component
     }
     // End Force Delete
 
+    public function showDetail($id)
+    {
+        $this->selectedMapel = Mapel::with(['creator', 'updater'])
+            ->find($id);
+        $this->showModalDetail = true;
+    }
+
     public function closeModal()
     {
         $this->showModal = false;
+        $this->showModalDetail = false;
         $this->resetForm();
     }
 
     private function resetForm()
     {
-        $this->departmentId = null;
-        $this->company_id = '';
-        $this->department = '';
-        $this->kode_department = '';
-        $this->deskripsi = '';
-        $this->kepala_department = '';
+        $this->mapelId = null;
+        $this->nama_mapel = '';
+        $this->kode_mapel = '';
+        $this->requirements = '';
+        $this->tugas_pokok = '';
         $this->is_active = true;
         $this->resetValidation();
     }
 
     public function toggleStatus($id)
     {
-        $department = Departments::findOrFail($id);
-        $department->update(['is_active' => !$department->is_active]);
+        $unit = Mapel::findOrFail($id);
+        $unit->update(['is_active' => !$unit->is_active]);
         
         $this->dispatch('toast', [
                     'message' => "Status berhasi diedit",
@@ -332,16 +319,9 @@ class Index extends Component
                 ]);
     }
 
-    public function getNextCode()
-    {
-        return Departments::generateCode();
-    }
-
     public function render()
     {
-        $query = Departments::with([
-            'company:id,nama_companies,singkatan',
-            'kepalaDepartment:id,name',
+        $query = Mapel::with([
             'creator:id,name',
             'updater:id,name'
         ]);
@@ -356,34 +336,21 @@ class Index extends Component
             $q->where('is_active', (bool) $this->statusFilter);
         });
 
-        // filter by company
-        $query->when($this->companyFilter, function ($q) {
-            $q->where('company_id', $this->companyFilter);
-        });
-
         // pencarian
         $query->when($this->search, function ($q) {
             $search = '%' . $this->search . '%';
             $q->where(function ($q) use ($search) {
-                $q->where('department', 'like', $search)
-                    ->orWhere('kode_department', 'like', $search)
-                    ->orWhere('deskripsi', 'like', $search)
-                    ->orWhereHas('company', function ($company) use ($search) {
-                        $company->where('nama_companies', 'like', $search);
-                    })
-                    ->orWhereHas('kepalaDepartment', function ($kepala) use ($search) {
-                        $kepala->where('name', 'like', $search);
-                    });
+                $q->where('nama_mapel', 'like', $search)
+                    ->orWhere('kode_mapel', 'like', $search)
+                    ->orWhere('status', 'like', $search);
             });
         });
 
         // urutkan & paginasi
-        $departments = $query
+        $mapels = $query
             ->orderBy($this->sortField, $this->sortDirection)
             ->paginate($this->perPage);
 
-        $companies = Companies::orderBy('nama_companies')->get();
-        $users = User::orderBy('name')->get();
-        return view('livewire.admin.master.department.index', compact('departments', 'companies', 'users'));
+        return view('livewire.admin.master.mapel.index', compact('mapels'));
     }
 }
