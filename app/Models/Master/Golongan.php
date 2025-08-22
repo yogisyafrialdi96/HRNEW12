@@ -8,16 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class StatusKawin extends Model
+class Golongan extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'master_statuskawin';
+    protected $table = 'master_golongan';
 
     protected $fillable = [
-        'nama',
-        'tarif_pkp',
-        'keterangan',
+        'nama_golongan',
+        'deskripsi',
         'created_by',
         'updated_by',
     ];

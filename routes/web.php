@@ -21,6 +21,21 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
    Route::prefix('mapel')->name('mapel.')->group(function () {
         Route::get('/', Admin\Master\Mapel\Index::class)->name('index');
     });
+   Route::prefix('status-kawin')->name('status-kawin.')->group(function () {
+        Route::get('/', Admin\Master\StatusKawin\Index::class)->name('index');
+    });
+   Route::prefix('status-kontrak')->name('status-kontrak.')->group(function () {
+        Route::get('/', Admin\Master\JenisKontrak\Index::class)->name('index');
+    });
+   Route::prefix('status-golongan')->name('status-golongan.')->group(function () {
+        Route::get('/', Admin\Master\Golongan\Index::class)->name('index');
+    });
+   Route::prefix('status-pegawai')->name('status-pegawai.')->group(function () {
+        Route::get('/', Admin\Master\Statuspegawai\Index::class)->name('index');
+    });
+   Route::prefix('tahun-ajaran')->name('tahun-ajaran.')->group(function () {
+        Route::get('/', Admin\Master\TahunAjaran\Index::class)->name('index');
+    });
 });
 
 Route::view('dashboard', 'dashboard')

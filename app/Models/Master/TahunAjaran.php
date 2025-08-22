@@ -8,18 +8,24 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class StatusKawin extends Model
+class TahunAjaran extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'master_statuskawin';
+    protected $table = 'master_tahunajaran';
 
     protected $fillable = [
-        'nama',
-        'tarif_pkp',
+        'periode',
+        'awal_periode',
+        'akhir_periode',
         'keterangan',
+        'is_active',
         'created_by',
         'updated_by',
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
     ];
 
     /**

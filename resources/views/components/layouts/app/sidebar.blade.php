@@ -16,11 +16,16 @@
                     <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
                 </flux:navlist.group>
                 <flux:navlist.group :heading="__('Master Data')" expandable
-                    :expanded="request()->routeIs('companies.*') || request()->routeIs('department.*') || request()->routeIs('unit.*') || request()->routeIs('jabatan.*') || request()->routeIs('mapel.*') || request()->routeIs('statuskawin.*') || request()->routeIs('statuspegawai.*') || request()->routeIs('golongan.*') || request()->routeIs('kontrak.*')">
+                    :expanded="request()->routeIs('companies.*') || request()->routeIs('department.*') || request()->routeIs('unit.*') || request()->routeIs('jabatan.*') || request()->routeIs('mapel.*') || request()->routeIs('status-kawin.*') || request()->routeIs('status-pegawai.*') || request()->routeIs('status-golongan.*') || request()->routeIs('status-kontrak.*') || request()->routeIs('tahun-ajaran.*')">
                     <flux:navlist.item :href="route('department.index')" :current="request()->routeIs('department.*')" wire:navigate>Departments</flux:navlist.item>
                     <flux:navlist.item :href="route('unit.index')" :current="request()->routeIs('unit.*')" wire:navigate>Unit</flux:navlist.item>
                     <flux:navlist.item :href="route('jabatan.index')" :current="request()->routeIs('jabatan.*')" wire:navigate>Jabatan</flux:navlist.item>
                     <flux:navlist.item :href="route('mapel.index')" :current="request()->routeIs('mapel.*')" wire:navigate>Mapel</flux:navlist.item>
+                    <flux:navlist.item :href="route('status-kawin.index')" :current="request()->routeIs('-kawin.*')" wire:navigate>Status Kawin</flux:navlist.item>
+                    <flux:navlist.item :href="route('status-kontrak.index')" :current="request()->routeIs('status-kontrak.*')" wire:navigate>Status Kontrak</flux:navlist.item>
+                    <flux:navlist.item :href="route('status-golongan.index')" :current="request()->routeIs('status-golongan.*')" wire:navigate>Status Golongan</flux:navlist.item>
+                    <flux:navlist.item :href="route('status-pegawai.index')" :current="request()->routeIs('status-pegawai.*')" wire:navigate>Status Pegawai</flux:navlist.item>
+                    <flux:navlist.item :href="route('tahun-ajaran.index')" :current="request()->routeIs('tahun-ajaran.*')" wire:navigate>Tahun Ajaran</flux:navlist.item>
                 </flux:navlist.group>
             </flux:navlist>
 
