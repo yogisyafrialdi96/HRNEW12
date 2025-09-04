@@ -17,7 +17,6 @@ class PengurusSeeder extends Seeder
         DB::table('pengurus')->insert([
             [
                 'user_id'        => 1, // pastikan user dengan id=1 ada
-                'department_id'  => 1, // pastikan department dengan id=1 ada
                 'jabatan_id'     => 1, // pastikan jabatan dengan id=1 ada
                 'nama_pengurus'  => 'Ahmad Fauzi',
                 'inisial'        => 'AFZ',
@@ -39,7 +38,6 @@ class PengurusSeeder extends Seeder
             ],
             [
                 'user_id'        => 2,
-                'department_id'  => 1,
                 'jabatan_id'     => 2,
                 'nama_pengurus'  => 'Siti Rahmawati',
                 'inisial'        => 'SRA',

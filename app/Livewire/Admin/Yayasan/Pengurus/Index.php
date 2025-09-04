@@ -14,6 +14,7 @@ use Livewire\WithPagination;
 use Livewire\Attributes\Url;
 use Livewire\WithFileUploads;
 
+
 class Index extends Component
 {
     use WithPagination;
@@ -27,7 +28,6 @@ class Index extends Component
     public $foto;
     public $ttd;
     public $pengurusId = '';
-    public $department_id = '';
     public $jabatan_id = '';
     public $nama_pengurus = '';
     public $inisial = null;
@@ -174,7 +174,6 @@ class Index extends Component
         $this->showModal = true;
     }
 
-    use Illuminate\Support\Facades\DB;
 
 public function save()
 {
@@ -205,7 +204,6 @@ public function save()
             }
 
             $data = [
-                'department_id'  => $this->department_id,
                 'jabatan_id'     => $this->jabatan_id,
                 'nama_pengurus'  => $this->nama_pengurus,
                 'inisial'        => $this->inisial ?: null,
@@ -243,7 +241,6 @@ public function save()
             // Create pengurus baru
             Pengurus::create([
                 'user_id'        => $user->id,
-                'department_id'  => $this->department_id, // jangan hardcode 1 kalau dinamis
                 'jabatan_id'     => $this->jabatan_id,
                 'nama_pengurus'  => $this->nama_pengurus,
                 'inisial'        => $this->inisial ?: null,
