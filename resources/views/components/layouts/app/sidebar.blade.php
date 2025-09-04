@@ -27,6 +27,9 @@
                     <flux:navlist.item :href="route('status-pegawai.index')" :current="request()->routeIs('status-pegawai.*')" wire:navigate>Status Pegawai</flux:navlist.item>
                     <flux:navlist.item :href="route('tahun-ajaran.index')" :current="request()->routeIs('tahun-ajaran.*')" wire:navigate>Tahun Ajaran</flux:navlist.item>
                 </flux:navlist.group>
+                <flux:navlist.group :heading="__('Users')" class="grid">
+                    <flux:navlist.item icon="home" :href="route('pengurus.index')" :current="request()->routeIs('pengurus.*')" wire:navigate>{{ __('Pengurus') }}</flux:navlist.item>
+                </flux:navlist.group>
             </flux:navlist>
 
             <flux:spacer />

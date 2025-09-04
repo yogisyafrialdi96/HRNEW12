@@ -36,6 +36,9 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
    Route::prefix('tahun-ajaran')->name('tahun-ajaran.')->group(function () {
         Route::get('/', Admin\Master\TahunAjaran\Index::class)->name('index');
     });
+   Route::prefix('pengurus')->name('pengurus.')->group(function () {
+        Route::get('/', Admin\Yayasan\Pengurus\Index::class)->name('index');
+    });
 });
 
 Route::view('dashboard', 'dashboard')
