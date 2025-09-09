@@ -7,6 +7,7 @@ use App\Models\Master\Jabatans;
 use App\Models\User;
 use App\Models\Yayasan\Pengurus;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
@@ -20,14 +21,15 @@ class Index extends Component
     use WithPagination;
     use WithFileUploads;
 
-    protected $rules = [
-        'foto' => 'nullable|image|max:2048', // 2MB max
-        // ... other rules
-    ];
-
     public $foto;
+    public $originalFoto; // Store original photo path
+
     public $ttd;
-    public $pengurusId = '';
+    public $originalTtd; // Store original ttd path
+
+    public $userId; // ID dari tabel users
+    public $pengurusId; // ID dari tabel pengurus
+
     public $jabatan_id = '';
     public $nama_pengurus = '';
     public $inisial = null;
@@ -49,6 +51,7 @@ class Index extends Component
     // Properties for search and filter
     public $search = '';
     public $statusFilter = '';
+    public $posisiFilter = '';
     public $jenisFilter = '';
     public $levelFilter = '';
     public $perPage = 10;
@@ -87,7 +90,7 @@ class Index extends Component
 
     public function rules()
     {
-        return [
+        $rules = [
             'jabatan_id' => [
                 'required',
                 'integer',
@@ -100,20 +103,70 @@ class Index extends Component
                 'max:255',
                 Rule::unique('pengurus', 'nama_pengurus')->ignore($this->pengurusId)
             ],
+            'inisial' => [
+                'required',
+                'string',
+                'size:3',
+                Rule::unique('pengurus', 'inisial')->ignore($this->pengurusId)
+            ],
             'hp' => [
-                    'nullable',
-                    'regex:/^\+62\s\d{3}-\d{4}-\d{4}$/',
-                    'max:17',
-                    Rule::unique('pengurus', 'hp')->ignore($this->pengurusId)
-                ],
-            'email' => 'required|email|max:255|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
+                'nullable',
+                'regex:/^\+62\s\d{3}-\d{4}-\d{4}$/',
+                'max:17',
+                Rule::unique('pengurus', 'hp')->ignore($this->pengurusId)
+            ],
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                Rule::unique('users', 'email')->ignore($this->userId)
+            ],
+            'password' => [
+                $this->pengurusId ? 'nullable' : 'required',
+                'string',
+                'min:8',
+                'confirmed'
+            ],
             'tempat_lahir' => 'nullable|string|max:255',
             'tanggal_lahir' => 'nullable|date',
             'tanggal_masuk' => 'required|date',
-            'tanggal_keluar' => 'nullable|date',
+            'tanggal_keluar' => 'nullable|date|after_or_equal:tanggal_masuk',
+            'gelar_depan' => 'nullable|string|max:10',
+            'gelar_belakang' => 'nullable|string|max:15',
+            'jenis_kelamin' => 'required|string|in:laki-laki,perempuan',
+            'posisi' => 'required|string|in:ketua,anggota',
             'is_active' => 'boolean',
         ];
+
+        // Validasi foto - berbeda untuk create dan edit
+        if ($this->foto instanceof \Illuminate\Http\UploadedFile) {
+            // Jika ada file yang diupload (create atau edit dengan file baru)
+            $rules['foto'] = [
+                'nullable',
+                'image',
+                'mimes:jpeg,png,jpg,gif',
+                'max:2048' // 2MB max
+            ];
+        } else {
+            // Jika tidak ada file upload (edit tanpa ganti foto)
+            $rules['foto'] = 'nullable|string';
+        }
+
+        // Validasi TTD - berbeda untuk create dan edit
+        if ($this->ttd instanceof \Illuminate\Http\UploadedFile) {
+            // Jika ada file yang diupload (create atau edit dengan file baru)
+            $rules['ttd'] = [
+                'nullable',
+                'image',
+                'mimes:jpeg,png,jpg,gif',
+                'max:2048' // 2MB max
+            ];
+        } else {
+            // Jika tidak ada file upload (edit tanpa ganti TTD)
+            $rules['ttd'] = 'nullable|string';
+        }
+
+        return $rules;
     }
 
     protected $validationAttributes = [
@@ -128,6 +181,11 @@ class Index extends Component
     }
 
     public function updatingStatusFilter()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingPosisiFilter()
     {
         $this->resetPage();
     }
@@ -151,12 +209,15 @@ class Index extends Component
 
     public function edit($id)
     {
-        $pengurus = Pengurus::findOrFail($id);
+        $pengurus = Pengurus::with('user')->find($id);
 
         $this->pengurusId = $pengurus->id;
-        $this->department_id = $pengurus->department_id;
+        $this->userId = $pengurus->user_id;
         $this->jabatan_id = $pengurus->jabatan_id;
+        $this->posisi = $pengurus->posisi;
         $this->nama_pengurus = $pengurus->nama_pengurus;
+        $this->email = $pengurus->user?->email;
+        $this->inisial = $pengurus->inisial;
         $this->hp = $pengurus->hp;
         $this->jenis_kelamin = $pengurus->jenis_kelamin;
         $this->gelar_depan = $pengurus->gelar_depan;
@@ -165,7 +226,9 @@ class Index extends Component
         $this->tanggal_lahir = $pengurus->tanggal_lahir;
         $this->alamat = $pengurus->alamat;
         $this->foto = $pengurus->foto;
+        $this->originalFoto = $pengurus->foto;
         $this->ttd = $pengurus->ttd;
+        $this->originalTtd = $pengurus->ttd;
         $this->tanggal_masuk = $pengurus->tanggal_masuk;
         $this->tanggal_keluar = $pengurus->tanggal_keluar;
         $this->is_active = $pengurus->is_active;
@@ -175,120 +238,183 @@ class Index extends Component
     }
 
 
-public function save()
-{
-    DB::beginTransaction(); // mulai transaksi
+    public function save()
+    {
+        DB::beginTransaction(); // mulai transaksi
 
-    try {
-        $this->validate();
+        try {
+            $this->validate();
 
-        // Normalisasi nomor HP
-        $plainHp = preg_replace('/[^\d+]/', '', $this->hp);
+            // Normalisasi nomor HP
+            $plainHp = preg_replace('/[^\d+]/', '', $this->hp);
 
-        // Siapkan path foto & ttd
-        $fotoPath = $this->foto ? $this->foto->store('fotos', 'public') : null;
-        $ttdPath  = $this->ttd ? $this->ttd->store('tandatangan', 'public') : null;
+            // Handle foto upload
+            $fotoPath = null;
+            if ($this->foto instanceof \Illuminate\Http\UploadedFile) {
+                // Ada foto baru yang diupload
+                $fotoPath = $this->foto->store('fotos', 'public');
 
-        if ($this->isEdit) {
-            // Edit Pengurus
-            $pengurus = Pengurus::findOrFail($this->pengurusId);
+                // Jika edit dan ada foto lama, hapus foto lama
+                if ($this->isEdit && $this->originalFoto && Storage::disk('public')->exists($this->originalFoto)) {
+                    Storage::disk('public')->delete($this->originalFoto);
+                }
+            } elseif ($this->isEdit && is_string($this->foto)) {
+                // Edit mode dan foto tidak diubah (tetap string path)
+                $fotoPath = $this->foto;
+            }
 
-            // Update user terkait
-            $user = $pengurus->user;
-            if ($user) {
-                $user->update([
+            // Handle TTD upload
+            $ttdPath = null;
+            if ($this->ttd instanceof \Illuminate\Http\UploadedFile) {
+                // Ada TTD baru yang diupload
+                $ttdPath = $this->ttd->store('tandatangan', 'public');
+
+                // Jika edit dan ada TTD lama, hapus TTD lama
+                if ($this->isEdit && $this->originalTtd && Storage::disk('public')->exists($this->originalTtd)) {
+                    Storage::disk('public')->delete($this->originalTtd);
+                }
+            } elseif ($this->isEdit && is_string($this->ttd)) {
+                // Edit mode dan TTD tidak diubah (tetap string path)
+                $ttdPath = $this->ttd;
+            }
+
+            if ($this->isEdit) {
+                // Edit Pengurus
+                $pengurus = Pengurus::findOrFail($this->pengurusId);
+
+                // Persiapkan data user untuk update
+                $userData = [];
+
+                // Hanya update field yang ada nilainya dan berbeda dari yang lama
+                if (!empty($this->email) && $this->email !== $pengurus->user->email) {
+                    $userData['email'] = $this->email;
+                }
+
+                if (!empty($this->nama_pengurus) && $this->nama_pengurus !== $pengurus->user->name) {
+                    $userData['name'] = $this->nama_pengurus;
+                }
+
+                // Hanya update password jika diisi
+                if (!empty($this->password)) {
+                    $userData['password'] = bcrypt($this->password);
+                }
+
+                // Update user hanya jika ada data yang berubah
+                if (!empty($userData)) {
+                    $pengurus->user->update($userData);
+                }
+
+                // Persiapkan data pengurus
+                $pengurusData = [
+                    'jabatan_id'     => $this->jabatan_id,
+                    'nama_pengurus'  => $this->nama_pengurus,
+                    'inisial'        => $this->inisial ?: null,
+                    'hp'             => $plainHp,
+                    'jenis_kelamin'  => $this->jenis_kelamin,
+                    'gelar_depan'    => $this->gelar_depan,
+                    'gelar_belakang' => $this->gelar_belakang,
+                    'tempat_lahir'   => $this->tempat_lahir,
+                    'tanggal_lahir'  => $this->tanggal_lahir ?: null,
+                    'alamat'         => $this->alamat,
+                    'tanggal_masuk'  => $this->tanggal_masuk ?: null,
+                    'tanggal_keluar' => $this->tanggal_keluar ?: null,
+                    'posisi'         => $this->posisi,
+                    'is_active'      => $this->is_active,
+                ];
+
+                // Update foto dan ttd hanya jika ada perubahan
+                if ($fotoPath !== null) {
+                    $pengurusData['foto'] = $fotoPath;
+                }
+                if ($ttdPath !== null) {
+                    $pengurusData['ttd'] = $ttdPath;
+                }
+
+                $pengurus->update($pengurusData);
+
+                $this->dispatch('toast', [
+                    'message' => "Data berhasil diedit",
+                    'type'    => 'success',
+                ]);
+            } else {
+                // Validasi field wajib untuk create
+                if (empty($this->email) || empty($this->nama_pengurus) || empty($this->password)) {
+                    throw new \Exception('Email, Nama, dan Password wajib diisi untuk pengurus baru.');
+                }
+
+                // Create user baru
+                $user = User::create([
                     'name'     => $this->nama_pengurus,
                     'email'    => $this->email,
-                    'password' => $this->password ? bcrypt($this->password) : $user->password,
+                    'password' => bcrypt($this->password),
+                ]);
+
+                // Create pengurus baru
+                Pengurus::create([
+                    'user_id'        => $user->id,
+                    'jabatan_id'     => $this->jabatan_id,
+                    'nama_pengurus'  => $this->nama_pengurus,
+                    'inisial'        => $this->inisial ?: null,
+                    'hp'             => $plainHp,
+                    'jenis_kelamin'  => $this->jenis_kelamin,
+                    'gelar_depan'    => $this->gelar_depan,
+                    'gelar_belakang' => $this->gelar_belakang,
+                    'tempat_lahir'   => $this->tempat_lahir,
+                    'tanggal_lahir'  => $this->tanggal_lahir ?: null,
+                    'alamat'         => $this->alamat,
+                    'foto'           => $fotoPath,
+                    'ttd'            => $ttdPath,
+                    'tanggal_masuk'  => $this->tanggal_masuk ?: null,
+                    'tanggal_keluar' => $this->tanggal_keluar ?: null,
+                    'posisi'         => $this->posisi,
+                    'is_active'      => $this->is_active,
+                ]);
+
+                $this->dispatch('toast', [
+                    'message' => "Data berhasil disimpan",
+                    'type'    => 'success',
                 ]);
             }
 
-            $data = [
-                'jabatan_id'     => $this->jabatan_id,
-                'nama_pengurus'  => $this->nama_pengurus,
-                'inisial'        => $this->inisial ?: null,
-                'hp'             => $plainHp,
-                'jenis_kelamin'  => $this->jenis_kelamin,
-                'gelar_depan'    => $this->gelar_depan,
-                'gelar_belakang' => $this->gelar_belakang,
-                'tempat_lahir'   => $this->tempat_lahir,
-                'tanggal_lahir'  => $this->tanggal_lahir ?: null,
-                'alamat'         => $this->alamat,
-                'tanggal_masuk'  => $this->tanggal_masuk ?: null,
-                'tanggal_keluar' => $this->tanggal_keluar ?: null,
-                'posisi'         => $this->posisi,
-                'is_active'      => $this->is_active,
-            ];
+            DB::commit(); // sukses → simpan perubahan
+            $this->closeModal();
+        } catch (ValidationException $e) {
+            DB::rollBack(); // rollback kalau error
 
-            if ($fotoPath) $data['foto'] = $fotoPath;
-            if ($ttdPath)  $data['ttd']  = $ttdPath;
+            // Hapus file yang baru diupload jika terjadi error
+            if (!empty($fotoPath) && ($this->isEdit ? $fotoPath !== $this->originalFoto : true)) {
+                Storage::disk('public')->delete($fotoPath);
+            }
+            if (!empty($ttdPath) && ($this->isEdit ? $ttdPath !== $this->originalTtd : true)) {
+                Storage::disk('public')->delete($ttdPath);
+            }
 
-            $pengurus->update($data);
+            $errors = $e->validator->errors()->all();
+            $count  = count($errors);
 
             $this->dispatch('toast', [
-                'message' => "Data berhasil diedit",
-                'type'    => 'success',
+                'message' => "Terdapat $count kesalahan:\n- " . implode("\n- ", $errors),
+                'type'    => 'error',
             ]);
+            throw $e;
+        } catch (\Exception $e) {
+            DB::rollBack(); // rollback kalau error
 
-        } else {
-            // Create user baru
-            $user = User::create([
-                'name'     => $this->nama_pengurus,
-                'email'    => $this->email,
-                'password' => bcrypt($this->password),
-            ]);
-
-            // Create pengurus baru
-            Pengurus::create([
-                'user_id'        => $user->id,
-                'jabatan_id'     => $this->jabatan_id,
-                'nama_pengurus'  => $this->nama_pengurus,
-                'inisial'        => $this->inisial ?: null,
-                'hp'             => $plainHp,
-                'jenis_kelamin'  => $this->jenis_kelamin,
-                'gelar_depan'    => $this->gelar_depan,
-                'gelar_belakang' => $this->gelar_belakang,
-                'tempat_lahir'   => $this->tempat_lahir,
-                'tanggal_lahir'  => $this->tanggal_lahir ?: null,
-                'alamat'         => $this->alamat,
-                'foto'           => $fotoPath,
-                'ttd'            => $ttdPath,
-                'tanggal_masuk'  => $this->tanggal_masuk ?: null,
-                'tanggal_keluar' => $this->tanggal_keluar ?: null,
-                'posisi'         => $this->posisi,
-                'is_active'      => $this->is_active,
-            ]);
+            // Hapus file yang baru diupload jika terjadi error
+            if (!empty($fotoPath) && ($this->isEdit ? $fotoPath !== $this->originalFoto : true)) {
+                Storage::disk('public')->delete($fotoPath);
+            }
+            if (!empty($ttdPath) && ($this->isEdit ? $ttdPath !== $this->originalTtd : true)) {
+                Storage::disk('public')->delete($ttdPath);
+            }
 
             $this->dispatch('toast', [
-                'message' => "Data berhasil disimpan",
-                'type'    => 'success',
+                'message' => $e->getMessage() ?: 'Terjadi kesalahan server.',
+                'type'    => 'error',
             ]);
+            throw $e;
         }
-
-        DB::commit(); // sukses → simpan perubahan
-        $this->closeModal();
-
-    } catch (ValidationException $e) {
-        DB::rollBack(); // rollback kalau error
-        $errors = $e->validator->errors()->all();
-        $count  = count($errors);
-
-        $this->dispatch('toast', [
-            'message' => "Terdapat $count kesalahan:\n- " . implode("\n- ", $errors),
-            'type'    => 'error',
-        ]);
-        throw $e;
-
-    } catch (\Exception $e) {
-        DB::rollBack(); // rollback kalau error
-        $this->dispatch('toast', [
-            'message' => 'Terjadi kesalahan server.',
-            'type'    => 'error',
-        ]);
-        throw $e;
     }
-}
-
 
 
     // SoftDelete
@@ -368,10 +494,10 @@ public function save()
         // Reset success state setiap kali method dipanggil
         $this->forceDeleteSuccess = false;
 
-        $unit = Pengurus::withTrashed()->find($this->forceDeleteId);
+        $pengurus = Pengurus::withTrashed()->find($this->forceDeleteId);
 
-        // Cek apakah unit ditemukan
-        if (!$unit) {
+        // Cek apakah pengurus ditemukan
+        if (!$pengurus) {
             $this->dispatch('toast', [
                 'message' => 'Data tidak ditemukan.',
                 'type' => 'error',
@@ -379,8 +505,23 @@ public function save()
             return;
         }
 
+        // Hapus file foto jika ada
+        if ($pengurus->foto && Storage::disk('public')->exists($pengurus->foto)) {
+            Storage::disk('public')->delete($pengurus->foto);
+        }
+
+        // Hapus file TTD jika ada
+        if ($pengurus->ttd && Storage::disk('public')->exists($pengurus->ttd)) {
+            Storage::disk('public')->delete($pengurus->ttd);
+        }
+
+        // Hapus user yang terkait
+        if ($pengurus->user) {
+            $pengurus->user->forceDelete();
+        }
+
         // Jika tidak ada masalah, baru lakukan force delete
-        $unit->forceDelete();
+        $pengurus->forceDelete();
 
         // Set success state dan dispatch modal success
         $this->forceDeleteSuccess = true;
@@ -415,17 +556,29 @@ public function save()
 
     private function resetForm()
     {
-        $this->jabatanId = null;
-        $this->department_id = '';
-        $this->nama_jabatan = '';
-        $this->kode_jabatan = '';
-        $this->jenis_jabatan = '';
-        $this->level_jabatan = '';
-        $this->tugas_pokok = '';
-        $this->requirements = '';
-        $this->min_salary = '';
-        $this->max_salary = '';
+        $this->pengurusId = null;
+        $this->userId = null;
+        $this->jabatan_id = '';
+        $this->nama_pengurus = '';
+        $this->inisial = null;
+        $this->gelar_depan = '';
+        $this->gelar_belakang = '';
+        $this->hp = '';
+        $this->jenis_kelamin = '';
+        $this->tempat_lahir = '';
+        $this->tanggal_lahir = null;
+        $this->alamat = '';
+        $this->foto = null;
+        $this->originalFoto = null;
+        $this->ttd = null;
+        $this->originalTtd = null;
+        $this->tanggal_masuk = '';
+        $this->tanggal_keluar = null;
+        $this->posisi = '';
         $this->is_active = true;
+        $this->email = '';
+        $this->password = '';
+        $this->password_confirmation = '';
         $this->resetValidation();
     }
 
@@ -457,14 +610,21 @@ public function save()
             $q->where('is_active', (bool) $this->statusFilter);
         });
 
-        // filter by jenis
-        $query->when($this->jenisFilter !== '', function ($q) {
-            $q->where('jenis_jabatan', $this->jenisFilter);
+        // filter by posisi
+        $query->when($this->posisiFilter !== '', function ($q) {
+            $q->where('posisi', 'like', '%' . $this->posisiFilter . '%');
         });
 
-        // filter by level
-        $query->when($this->levelFilter !== '', function ($q) {
-            $q->where('level_jabatan', $this->levelFilter);
+        // filter by jenis & level (kolom ada di tabel jabatan)
+        $query->when($this->jenisFilter !== '' || $this->levelFilter !== '', function ($q) {
+            $q->whereHas('jabatan', function ($sub) {
+                if ($this->jenisFilter !== '') {
+                    $sub->where('jenis_jabatan', $this->jenisFilter);
+                }
+                if ($this->levelFilter !== '') {
+                    $sub->where('level_jabatan', $this->levelFilter);
+                }
+            });
         });
 
         // pencarian
@@ -486,7 +646,7 @@ public function save()
 
         $jabatans = Jabatans::with('department')
             ->where('is_active', 1)
-            ->whereHas('department', function($q) {
+            ->whereHas('department', function ($q) {
                 $q->where('department', 'YAYASAN'); // sesuaikan field penanda
             })
             ->orderBy('nama_jabatan') // urut berdasarkan nama jabatan

@@ -9,12 +9,19 @@
             <!-- Filters and Actions Row -->
             <div class="grid grid-cols-1 lg:grid-cols-5 gap-4">
                 <!-- Filters Grid (3 columns) -->
-                <div class="lg:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div class="lg:col-span-3 grid grid-cols-1 sm:grid-cols-4 gap-3">
                     <select wire:model.live="statusFilter"
                         class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm">
                         <option value="">All Status</option>
                         <option value="1">Active</option>
                         <option value="0">Inactive</option>
+                    </select>
+
+                    <select wire:model.live="posisiFilter"
+                        class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm">
+                        <option value="">All Posisi</option>
+                        <option value="ketua">Ketua</option>
+                        <option value="anggota">Anggota</option>
                     </select>
 
                     <select wire:model.live="jenisFilter"
@@ -408,26 +415,8 @@
                     <!-- Form -->
                     <div class="px-6 py-6">
                         <form wire:submit.prevent="save" class="space-y-5">
-                            <div class="grid grid-cols-4 gap-4">
-                                <!-- Gelar Depan -->
-                                <div class="space-y-2">
-                                    <label class="text-sm font-medium text-gray-700">
-                                        Gelar Depan <span class="text-red-500">*</span>
-                                    </label>
-                                    <input wire:model="gelar_depan" type="text" placeholder="Enter Gelar Depan"
-                                        class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all capitalize">
-                                    @error('gelar_depan')
-                                        <p class="text-xs text-red-500 flex items-center gap-1">
-                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd"
-                                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                                                    clip-rule="evenodd"></path>
-                                            </svg>
-                                            {{ $message }}
-                                        </p>
-                                    @enderror
-                                </div>
-                                
+
+                            <div class="grid grid-cols-2 gap-4">
                                 <!-- Nama Pengurus -->
                                 <div class="space-y-2">
                                     <label class="text-sm font-medium text-gray-700">
@@ -435,7 +424,7 @@
                                     </label>
                                     <input wire:model="nama_pengurus" type="text"
                                         placeholder="Enter Pengurus name"
-                                        class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all capitalize">
+                                        class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
                                     @error('nama_pengurus')
                                         <p class="text-xs text-red-500 flex items-center gap-1">
                                             <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
@@ -447,6 +436,7 @@
                                         </p>
                                     @enderror
                                 </div>
+
                                 <!-- Inisial -->
                                 <div class="space-y-2">
                                     <label class="text-sm font-medium text-gray-700">
@@ -465,14 +455,36 @@
                                         </p>
                                     @enderror
                                 </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <!-- Gelar Depan -->
+                                <div class="space-y-2">
+                                    <label class="text-sm font-medium text-gray-700">
+                                        Gelar Depan
+                                    </label>
+                                    <input wire:model="gelar_depan" type="text" placeholder="Enter Gelar Depan"
+                                        class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                                    @error('gelar_depan')
+                                        <p class="text-xs text-red-500 flex items-center gap-1">
+                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd"
+                                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                                    clip-rule="evenodd"></path>
+                                            </svg>
+                                            {{ $message }}
+                                        </p>
+                                    @enderror
+                                </div>
+
                                 <!-- Gelar Belakang -->
                                 <div class="space-y-2">
                                     <label class="text-sm font-medium text-gray-700">
-                                        Gelar Belakang <span class="text-red-500">*</span>
+                                        Gelar Belakang
                                     </label>
                                     <input wire:model="gelar_belakang" type="text"
                                         placeholder="Enter Gelar Belakang"
-                                        class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all capitalize">
+                                        class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
                                     @error('gelar_belakang')
                                         <p class="text-xs text-red-500 flex items-center gap-1">
                                             <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
@@ -486,6 +498,7 @@
                                 </div>
                             </div>
 
+
                             <div class="grid grid-cols-2 gap-4">
                                 <!-- Email -->
                                 <div class="space-y-2">
@@ -493,7 +506,7 @@
                                         Email <span class="text-red-500">*</span>
                                     </label>
                                     <input wire:model="email" type="email" placeholder="Enter email"
-                                        class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all capitalize">
+                                        class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
                                     @error('email')
                                         <p class="text-xs text-red-500 flex items-center gap-1">
                                             <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
@@ -509,10 +522,43 @@
                                 <!-- Hp -->
                                 <div class="space-y-2">
                                     <label class="text-sm font-medium text-gray-700">
-                                        HP
+                                        HP <span class="text-red-500">*</span>
                                     </label>
-                                    <input wire:model="hp" type="text" placeholder="Enter phone number"
-                                        class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all capitalize">
+                                    <input wire:model="hp" type="text" placeholder="+62 999-9999-9999"
+                                        class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                                        x-data="{
+                                            formatPhone(value) {
+                                                // Remove all non-digits
+                                                const digits = value.replace(/\D/g, '');
+                                        
+                                                // Ensure it starts with 62 if digits are provided
+                                                let formattedDigits = digits;
+                                                if (digits.length > 0 && !digits.startsWith('62')) {
+                                                    if (digits.startsWith('0')) {
+                                                        formattedDigits = '62' + digits.substring(1);
+                                                    } else {
+                                                        formattedDigits = '62' + digits;
+                                                    }
+                                                }
+                                        
+                                                // Apply the mask pattern +62 999-9999-9999
+                                                let formatted = '+62';
+                                                if (formattedDigits.length > 2) {
+                                                    formatted += ' ' + formattedDigits.substring(2, 5);
+                                                }
+                                                if (formattedDigits.length > 5) {
+                                                    formatted += '-' + formattedDigits.substring(5, 9);
+                                                }
+                                                if (formattedDigits.length > 9) {
+                                                    formatted += '-' + formattedDigits.substring(9, 13);
+                                                }
+                                        
+                                                return formatted;
+                                            }
+                                        }" x-init="$nextTick(() => { if ($el.value) { $el.value = formatPhone($el.value);
+                                                $wire.set('hp', $el.value); } })"
+                                        x-on:input="$event.target.value = formatPhone($event.target.value); $wire.set('hp', $event.target.value)"
+                                        maxlength="17">
                                     @error('hp')
                                         <p class="text-xs text-red-500 flex items-center gap-1">
                                             <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
@@ -531,7 +577,7 @@
                                         Password <span class="text-red-500">*</span>
                                     </label>
                                     <input wire:model="password" type="password" placeholder="Enter password"
-                                        class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all capitalize">
+                                        class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
                                     @error('password')
                                         <p class="text-xs text-red-500 flex items-center gap-1">
                                             <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
@@ -551,7 +597,7 @@
                                     </label>
                                     <input wire:model="password_confirmation" type="password"
                                         placeholder="Enter Password Confirmation"
-                                        class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all capitalize">
+                                        class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
                                     @error('password_confirmation')
                                         <p class="text-xs text-red-500 flex items-center gap-1">
                                             <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
@@ -570,7 +616,7 @@
                                         Tempat Lahir
                                     </label>
                                     <input wire:model="tempat_lahir" type="text" placeholder="Enter Tempat Lahir"
-                                        class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all capitalize">
+                                        class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
                                     @error('tempat_lahir')
                                         <p class="text-xs text-red-500 flex items-center gap-1">
                                             <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
@@ -623,7 +669,7 @@
                                                 d="M19 9l-7 7-7-7"></path>
                                         </svg>
                                     </div>
-                                    @error('department_id')
+                                    @error('jabatan_id')
                                         <p class="text-xs text-red-500 flex items-center gap-1">
                                             <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd"
@@ -770,61 +816,64 @@
                                 </label>
 
                                 <div class="relative">
-                                    <input wire:model="foto" type="file" accept="image/*"
-                                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                                        id="photoUpload">
+                                <input wire:model="foto" type="file" accept="image/*"
+                                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                    id="photoUpload">
 
-                                    <!-- Upload Area -->
-                                    <div
-                                        class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 hover:bg-blue-50/50 transition-all cursor-pointer">
-                                        @if ($foto)
-                                            <!-- Preview Image -->
-                                            <div class="space-y-3">
-                                                <div
-                                                    class="mx-auto w-24 h-24 rounded-lg overflow-hidden border-2 border-gray-200">
-                                                    <img src="{{ $foto->temporaryUrl() }}" alt="Preview"
-                                                        class="w-full h-full object-cover">
-                                                </div>
-                                                <div>
-                                                    <p class="text-sm font-medium text-gray-700">
-                                                        {{ $foto->getClientOriginalName() }}</p>
-                                                    <p class="text-xs text-gray-500">
-                                                        {{ number_format($foto->getSize() / 1024, 1) }} KB</p>
-                                                </div>
-                                                <button type="button" wire:click="$set('foto', null)"
-                                                    class="text-xs text-red-600 hover:text-red-700 font-medium">
-                                                    Hapus Foto
-                                                </button>
+                                <!-- Upload Area -->
+                                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 hover:bg-blue-50/50 transition-all cursor-pointer">
+                                    @if ($foto)
+                                        <!-- Preview Image -->
+                                        <div class="space-y-3">
+                                            <div class="mx-auto w-24 h-24 rounded-lg overflow-hidden border-2 border-gray-200">
+                                                @if (is_string($foto))
+                                                    <!-- Existing image from database -->
+                                                    <img src="{{ asset('storage/' . $foto) }}" alt="Preview" class="w-full h-full object-cover">
+                                                @else
+                                                    <!-- New uploaded image -->
+                                                    <img src="{{ $foto->temporaryUrl() }}" alt="Preview" class="w-full h-full object-cover">
+                                                @endif
                                             </div>
-                                        @else
-                                            <!-- Default State -->
-                                            <div class="space-y-3">
-                                                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none"
-                                                    stroke="currentColor" viewBox="0 0 48 48">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02">
+                                            <div>
+                                                @if (is_string($foto))
+                                                    <!-- Existing image info -->
+                                                    <p class="text-sm font-medium text-gray-700">{{ basename($foto) }}</p>
+                                                    <p class="text-xs text-gray-500">Foto tersimpan</p>
+                                                @else
+                                                    <!-- New uploaded image info -->
+                                                    <p class="text-sm font-medium text-gray-700">{{ $foto->getClientOriginalName() }}</p>
+                                                    <p class="text-xs text-gray-500">{{ number_format($foto->getSize() / 1024, 1) }} KB</p>
+                                                @endif
+                                            </div>
+                                            <button type="button" wire:click="$set('foto', null)"
+                                                class="text-xs text-red-600 hover:text-red-700 font-medium">
+                                                Hapus Foto
+                                            </button>
+                                        </div>
+                                    @else
+                                        <!-- Default State -->
+                                        <div class="space-y-3">
+                                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 48 48">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02">
+                                                </path>
+                                            </svg>
+                                            <div>
+                                                <p class="text-sm font-medium text-gray-700">Upload Foto</p>
+                                                <p class="text-xs text-gray-500">PNG, JPG, JPEG maksimal 2MB</p>
+                                            </div>
+                                            <div class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
                                                     </path>
                                                 </svg>
-                                                <div>
-                                                    <p class="text-sm font-medium text-gray-700">Upload Foto</p>
-                                                    <p class="text-xs text-gray-500">PNG, JPG, JPEG maksimal 2MB</p>
-                                                </div>
-                                                <div
-                                                    class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                                        viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                                        </path>
-                                                    </svg>
-                                                    Pilih Foto
-                                                </div>
+                                                Pilih Foto
                                             </div>
-                                        @endif
-                                    </div>
+                                        </div>
+                                    @endif
                                 </div>
+                            </div>
 
                                 @error('foto')
                                     <p class="text-xs text-red-500 flex items-center gap-1">
@@ -850,47 +899,50 @@
                                         id="ttdUpload">
 
                                     <!-- Upload Area -->
-                                    <div
-                                        class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 hover:bg-blue-50/50 transition-all cursor-pointer">
+                                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 hover:bg-blue-50/50 transition-all cursor-pointer">
                                         @if ($ttd)
                                             <!-- Preview Image -->
                                             <div class="space-y-3">
-                                                <div
-                                                    class="mx-auto w-24 h-24 rounded-lg overflow-hidden border-2 border-gray-200">
-                                                    <img src="{{ $ttd->temporaryUrl() }}" alt="Preview"
-                                                        class="w-full h-full object-cover">
+                                                <div class="mx-auto w-24 h-24 rounded-lg overflow-hidden border-2 border-gray-200">
+                                                    @if (is_string($ttd))
+                                                        <!-- Existing image from database -->
+                                                        <img src="{{ asset('storage/' . $ttd) }}" alt="Preview" class="w-full h-full object-cover">
+                                                    @else
+                                                        <!-- New uploaded image -->
+                                                        <img src="{{ $ttd->temporaryUrl() }}" alt="Preview" class="w-full h-full object-cover">
+                                                    @endif
                                                 </div>
                                                 <div>
-                                                    <p class="text-sm font-medium text-gray-700">
-                                                        {{ $ttd->getClientOriginalName() }}</p>
-                                                    <p class="text-xs text-gray-500">
-                                                        {{ number_format($ttd->getSize() / 1024, 1) }} KB</p>
+                                                    @if (is_string($ttd))
+                                                        <!-- Existing image info -->
+                                                        <p class="text-sm font-medium text-gray-700">{{ basename($ttd) }}</p>
+                                                        <p class="text-xs text-gray-500">ttd tersimpan</p>
+                                                    @else
+                                                        <!-- New uploaded image info -->
+                                                        <p class="text-sm font-medium text-gray-700">{{ $ttd->getClientOriginalName() }}</p>
+                                                        <p class="text-xs text-gray-500">{{ number_format($ttd->getSize() / 1024, 1) }} KB</p>
+                                                    @endif
                                                 </div>
                                                 <button type="button" wire:click="$set('ttd', null)"
                                                     class="text-xs text-red-600 hover:text-red-700 font-medium">
-                                                    Hapus TTD
+                                                    Hapus ttd
                                                 </button>
                                             </div>
                                         @else
                                             <!-- Default State -->
                                             <div class="space-y-3">
-                                                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none"
-                                                    stroke="currentColor" viewBox="0 0 48 48">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
+                                                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 48 48">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02">
                                                     </path>
                                                 </svg>
                                                 <div>
-                                                    <p class="text-sm font-medium text-gray-700">Upload TTD</p>
+                                                    <p class="text-sm font-medium text-gray-700">Upload ttd</p>
                                                     <p class="text-xs text-gray-500">PNG, JPG, JPEG maksimal 2MB</p>
                                                 </div>
-                                                <div
-                                                    class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                                        viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
+                                                <div class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                             d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
                                                         </path>
                                                     </svg>

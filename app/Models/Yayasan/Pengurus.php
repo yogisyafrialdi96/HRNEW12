@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 class Pengurus extends Model
 {
@@ -36,6 +37,11 @@ class Pengurus extends Model
         'posisi',
     ];
 
+
+    public function getFotoUrlAttribute()
+    {
+        return $this->foto ? Storage::url($this->foto) : null;
+    }
 
     public function department()
     {
