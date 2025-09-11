@@ -1,7 +1,7 @@
 <div>
 
-    <flux:heading size="xl">Pengurus</flux:heading>
-    <flux:text class="mt-2">This Page Show List of Pengurus</flux:text>
+    <flux:heading size="xl">Karyawan</flux:heading>
+    <flux:text class="mt-2">This Page Show List of Karyawan</flux:text>
 
     <div class="relative overflow-x-auto bg-white rounded-lg shadow-md p-6 mb-4 mt-4">
         <div class="space-y-4">
@@ -65,7 +65,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                         </svg>
-                        <span>Add Pengurus</span>
+                        <span>Add Karyawan</span>
                     </button>
                 </div>
             </div>
@@ -262,10 +262,10 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($penguruss as $pengurus)
+                    @forelse($karyawans as $pengurus)
                         <tr class="hover:bg-gray-50">
                             <td class="px-2 py-4 whitespace-nowrap text-center text-sm">
-                                {{ $penguruss->firstItem() + $loop->index }}.
+                                {{ $karyawans->firstItem() + $loop->index }}.
                             </td>
                             <td class="px-6 py-4 w-72">
                                 <div class="flex items-center space-x-3">
@@ -384,7 +384,7 @@
                 </tbody>
             </table>
             <div class="py-3 px-4 text-xs">
-                {{ $penguruss->links() }}
+                {{ $karyawans->links() }}
             </div>
         </div>
     </div>
@@ -399,7 +399,7 @@
                     <div class="px-6 py-5 border-b border-gray-100 bg-gray-50/50">
                         <div class="flex items-center justify-between">
                             <h3 class="text-xl font-semibold text-gray-900">
-                                {{ $isEdit ? 'Edit Pengurus' : 'Create Pengurus' }}
+                                {{ $isEdit ? 'Edit Karyawan' : 'Create Karyawan' }}
                             </h3>
                             <button wire:click="closeModal"
                                 class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
@@ -417,15 +417,14 @@
                         <form wire:submit.prevent="save" class="space-y-5">
 
                             <div class="grid grid-cols-2 gap-4">
-                                <!-- Nama Pengurus -->
+                                <!-- Nama Lengkap -->
                                 <div class="space-y-2">
                                     <label class="text-sm font-medium text-gray-700">
-                                        Nama Pengurus <span class="text-red-500">*</span>
+                                        Nama Lengkap <span class="text-red-500">*</span>
                                     </label>
-                                    <input wire:model="nama_pengurus" type="text"
-                                        placeholder="Enter Pengurus name"
+                                    <input wire:model="full_name" type="text" placeholder="Enter Nama Lengkap"
                                         class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
-                                    @error('nama_pengurus')
+                                    @error('full_name')
                                         <p class="text-xs text-red-500 flex items-center gap-1">
                                             <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd"
@@ -437,69 +436,6 @@
                                     @enderror
                                 </div>
 
-                                <!-- Inisial -->
-                                <div class="space-y-2">
-                                    <label class="text-sm font-medium text-gray-700">
-                                        Inisial <span class="text-red-500">*</span>
-                                    </label>
-                                    <input wire:model="inisial" type="text" placeholder="Enter Inisial"
-                                        class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all capitalize">
-                                    @error('inisial')
-                                        <p class="text-xs text-red-500 flex items-center gap-1">
-                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd"
-                                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                                                    clip-rule="evenodd"></path>
-                                            </svg>
-                                            {{ $message }}
-                                        </p>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-4">
-                                <!-- Gelar Depan -->
-                                <div class="space-y-2">
-                                    <label class="text-sm font-medium text-gray-700">
-                                        Gelar Depan
-                                    </label>
-                                    <input wire:model="gelar_depan" type="text" placeholder="Enter Gelar Depan"
-                                        class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
-                                    @error('gelar_depan')
-                                        <p class="text-xs text-red-500 flex items-center gap-1">
-                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd"
-                                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                                                    clip-rule="evenodd"></path>
-                                            </svg>
-                                            {{ $message }}
-                                        </p>
-                                    @enderror
-                                </div>
-
-                                <!-- Gelar Belakang -->
-                                <div class="space-y-2">
-                                    <label class="text-sm font-medium text-gray-700">
-                                        Gelar Belakang
-                                    </label>
-                                    <input wire:model="gelar_belakang" type="text"
-                                        placeholder="Enter Gelar Belakang"
-                                        class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
-                                    @error('gelar_belakang')
-                                        <p class="text-xs text-red-500 flex items-center gap-1">
-                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd"
-                                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                                                    clip-rule="evenodd"></path>
-                                            </svg>
-                                            {{ $message }}
-                                        </p>
-                                    @enderror
-                                </div>
-                            </div>
-
-
-                            <div class="grid grid-cols-2 gap-4">
                                 <!-- Email -->
                                 <div class="space-y-2">
                                     <label class="text-sm font-medium text-gray-700">
@@ -519,62 +455,9 @@
                                     @enderror
                                 </div>
 
-                                <!-- Hp -->
-                                <div class="space-y-2">
-                                    <label class="text-sm font-medium text-gray-700">
-                                        HP <span class="text-red-500">*</span>
-                                    </label>
-                                    <input wire:model="hp" type="text" placeholder="+62 999-9999-9999"
-                                        class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-                                        x-data="{
-                                            formatPhone(value) {
-                                                // Remove all non-digits
-                                                const digits = value.replace(/\D/g, '');
-                                        
-                                                // Ensure it starts with 62 if digits are provided
-                                                let formattedDigits = digits;
-                                                if (digits.length > 0 && !digits.startsWith('62')) {
-                                                    if (digits.startsWith('0')) {
-                                                        formattedDigits = '62' + digits.substring(1);
-                                                    } else {
-                                                        formattedDigits = '62' + digits;
-                                                    }
-                                                }
-                                        
-                                                // Apply the mask pattern +62 999-9999-9999
-                                                let formatted = '+62';
-                                                if (formattedDigits.length > 2) {
-                                                    formatted += ' ' + formattedDigits.substring(2, 5);
-                                                }
-                                                if (formattedDigits.length > 5) {
-                                                    formatted += '-' + formattedDigits.substring(5, 9);
-                                                }
-                                                if (formattedDigits.length > 9) {
-                                                    formatted += '-' + formattedDigits.substring(9, 13);
-                                                }
-                                        
-                                                return formatted;
-                                            }
-                                        }" x-init="$nextTick(() => {
-                                            if ($el.value) {
-                                                $el.value = formatPhone($el.value);
-                                                $wire.set('hp', $el.value);
-                                            }
-                                        })"
-                                        x-on:input="$event.target.value = formatPhone($event.target.value); $wire.set('hp', $event.target.value)"
-                                        maxlength="17">
-                                    @error('hp')
-                                        <p class="text-xs text-red-500 flex items-center gap-1">
-                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd"
-                                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                                                    clip-rule="evenodd"></path>
-                                            </svg>
-                                            {{ $message }}
-                                        </p>
-                                    @enderror
-                                </div>
+                            </div>
 
+                            <div class="grid grid-cols-2 gap-4">
                                 <!-- Password -->
                                 <div class="space-y-2">
                                     <label class="text-sm font-medium text-gray-700">
@@ -614,14 +497,14 @@
                                     @enderror
                                 </div>
 
-                                <!-- Tempat Lahir -->
+                                <!-- NIP -->
                                 <div class="space-y-2">
                                     <label class="text-sm font-medium text-gray-700">
-                                        Tempat Lahir
+                                        NIP
                                     </label>
-                                    <input wire:model="tempat_lahir" type="text" placeholder="Enter Tempat Lahir"
+                                    <input wire:model="nip" type="text" placeholder="Enter Nomor Induk Pegawai"
                                         class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
-                                    @error('tempat_lahir')
+                                    @error('nip')
                                         <p class="text-xs text-red-500 flex items-center gap-1">
                                             <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd"
@@ -633,15 +516,14 @@
                                     @enderror
                                 </div>
 
-                                <!-- Tanggal Lahir -->
+                                <!-- Inisial -->
                                 <div class="space-y-2">
                                     <label class="text-sm font-medium text-gray-700">
-                                        Tanggal Lahir
+                                        Inisial
                                     </label>
-                                    <input wire:model="tanggal_lahir" type="date"
-                                        placeholder="Enter Tanggal Lahir"
+                                    <input wire:model="inisial" type="text" placeholder="Enter Inisial"
                                         class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
-                                    @error('tanggal_lahir')
+                                    @error('inisial')
                                         <p class="text-xs text-red-500 flex items-center gap-1">
                                             <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd"
@@ -653,17 +535,60 @@
                                     @enderror
                                 </div>
 
-                                <!-- Jabatan Selection -->
-                                <div class="space-y-2">
-                                    <label class="text-sm font-medium text-gray-700">
-                                        Jabatan <span class="text-red-500">*</span>
-                                    </label>
+                                <!-- Gender -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Jenis Kelamin <span
+                                            class="text-red-500">*</span></label>
                                     <div class="relative">
-                                        <select wire:model="jabatan_id"
+                                        <select wire:model="gender"
                                             class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none">
-                                            <option value="" class="text-gray-400">Select Jabatan</option>
-                                            @foreach ($jabatans as $jabatan)
-                                                <option value="{{ $jabatan->id }}">{{ $jabatan->nama_jabatan }}
+                                            <option value="" class="text-gray-400">Pilih Gender</option>
+                                            <option value="laki-laki">Laki-laki</option>
+                                            <option value="perempuan">Perempuan</option>
+                                        </select>
+                                        <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+                                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 9l-7 7-7-7"></path>
+                                        </svg>
+                                    </div>
+                                    @error('gender')
+                                        <span class="text-red-500 text-sm">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <!-- Jenis -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Jenis Karyawan <span
+                                            class="text-red-500">*</span></label>
+                                    <div class="relative">
+                                        <select wire:model="jenis_karyawan"
+                                            class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none">
+                                            <option value="" class="text-gray-400">Pilih jenis</option>
+                                            <option value="Guru">Guru</option>
+                                            <option value="Pegawai">Pegawai</option>
+                                        </select>
+                                        <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+                                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 9l-7 7-7-7"></path>
+                                        </svg>
+                                    </div>
+                                    @error('jenis_karyawan')
+                                        <span class="text-red-500 text-sm">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <!-- Status Karyawan -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Status Karyawan <span
+                                            class="text-red-500">*</span></label>
+                                    <div class="relative">
+                                        <select wire:model="statuskaryawan_id"
+                                            class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none">
+                                            <option value="" class="text-gray-400">Pilih Status</option>
+                                            @foreach ($statusKaryawan as $status)
+                                                <option value="{{ $status->id }}">{{ $status->nama_status }}
                                                 </option>
                                             @endforeach
                                         </select>
@@ -673,48 +598,19 @@
                                                 d="M19 9l-7 7-7-7"></path>
                                         </svg>
                                     </div>
-                                    @error('jabatan_id')
-                                        <p class="text-xs text-red-500 flex items-center gap-1">
-                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd"
-                                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                                                    clip-rule="evenodd"></path>
-                                            </svg>
-                                            {{ $message }}
-                                        </p>
-                                    @enderror
-                                </div>
-                                <!-- Posisi -->
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Posisi <span
-                                            class="text-red-500">*</span></label>
-                                    <div class="relative">
-                                        <select wire:model="posisi"
-                                            class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none">
-                                            <option value="" class="text-gray-400">Pilih Posisi</option>
-                                            <option value="ketua">Ketua</option>
-                                            <option value="anggota">Anggota</option>
-                                        </select>
-                                        <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
-                                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19 9l-7 7-7-7"></path>
-                                        </svg>
-                                    </div>
-                                    @error('posisi')
+                                    @error('statuskaryawan_id')
                                         <span class="text-red-500 text-sm">{{ $message }}</span>
                                     @enderror
                                 </div>
 
-                                <!-- Tanggal Masuk -->
+                                <!-- Tanggal Efektif -->
                                 <div class="space-y-2">
                                     <label class="text-sm font-medium text-gray-700">
-                                        Tanggal Masuk <span class="text-red-500">*</span>
+                                        Tanggal Efektif <span class="text-red-500">*</span>
                                     </label>
-                                    <input wire:model="tanggal_masuk" type="date"
-                                        placeholder="Enter Tanggal Masuk"
+                                    <input wire:model="tgl_masuk" type="date" placeholder="Enter Tanggal Masuk"
                                         class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
-                                    @error('tanggal_masuk')
+                                    @error('tgl_masuk')
                                         <p class="text-xs text-red-500 flex items-center gap-1">
                                             <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd"
@@ -726,97 +622,11 @@
                                     @enderror
                                 </div>
 
-                                <!-- Tanggal Keluar -->
-                                <div class="space-y-2">
-                                    <label class="text-sm font-medium text-gray-700">
-                                        Tanggal Keluar
-                                    </label>
-                                    <input wire:model="tanggal_keluar" type="date"
-                                        placeholder="Enter Tanggal Keluar"
-                                        class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
-                                    @error('tanggal_keluar')
-                                        <p class="text-xs text-red-500 flex items-center gap-1">
-                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd"
-                                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                                                    clip-rule="evenodd"></path>
-                                            </svg>
-                                            {{ $message }}
-                                        </p>
-                                    @enderror
-                                </div>
                             </div>
-
-                            <div class="grid grid-cols-2 gap-4">
-
-                                <!-- Jenis Kelamin -->
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Jenis Kelamin <span
-                                            class="text-red-500">*</span></label>
-                                    <div class="relative">
-                                        <select wire:model="jenis_kelamin"
-                                            class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none">
-                                            <option value="" class="text-gray-400">Pilih Jenis Kelamin</option>
-                                            <option value="laki-laki">Laki-Laki</option>
-                                            <option value="perempuan">Perempuan</option>
-                                        </select>
-                                        <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
-                                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19 9l-7 7-7-7"></path>
-                                        </svg>
-                                    </div>
-                                    @error('jenis_kelamin')
-                                        <span class="text-red-500 text-sm">{{ $message }}</span>
-                                    @enderror
-                                </div>
-
-                                <!-- Status -->
-                                <div class="space-y-2">
-                                    <label class="text-sm font-medium text-gray-700">
-                                        Status <span class="text-red-500">*</span>
-                                    </label>
-                                    <div class="flex gap-4">
-                                        <label class="flex items-center cursor-pointer">
-                                            <input wire:model="is_active" type="radio" value="1"
-                                                class="sr-only peer">
-                                            <div
-                                                class="w-4 h-4 border-2 border-gray-300 rounded-full peer-checked:border-green-500 peer-checked:bg-green-50 relative">
-                                                <div
-                                                    class="absolute inset-0.5 bg-green-500 rounded-full opacity-0 peer-checked:opacity-100 transition-opacity">
-                                                </div>
-                                            </div>
-                                            <span class="ml-2 text-sm text-gray-700">Active</span>
-                                        </label>
-                                        <label class="flex items-center cursor-pointer">
-                                            <input wire:model="is_active" type="radio" value="0"
-                                                class="sr-only peer">
-                                            <div
-                                                class="w-4 h-4 border-2 border-gray-300 rounded-full peer-checked:border-red-500 peer-checked:bg-red-50 relative">
-                                                <div
-                                                    class="absolute inset-0.5 bg-red-500 rounded-full opacity-0 peer-checked:opacity-100 transition-opacity">
-                                                </div>
-                                            </div>
-                                            <span class="ml-2 text-sm text-gray-700">Inactive</span>
-                                        </label>
-                                    </div>
-                                    @error('is_active')
-                                        <p class="text-xs text-red-500 flex items-center gap-1">
-                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd"
-                                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                                                    clip-rule="evenodd"></path>
-                                            </svg>
-                                            {{ $message }}
-                                        </p>
-                                    @enderror
-                                </div>
-                            </div>
-
                             <!-- Photo Upload Field -->
                             <div class="space-y-2">
                                 <label class="text-sm font-medium text-gray-700">
-                                    Foto Pengurus <span class="text-red-500">*</span>
+                                    Foto <span class="text-red-500">*</span>
                                 </label>
 
                                 <div class="relative">
@@ -902,96 +712,6 @@
                                     </p>
                                 @enderror
                             </div>
-
-                            <!-- TTD Upload Field -->
-                            <div class="space-y-2">
-                                <label class="text-sm font-medium text-gray-700">
-                                    TTD Pengurus <span class="text-red-500">*</span>
-                                </label>
-
-                                <div class="relative">
-                                    <input wire:model="ttd" type="file" accept="image/*"
-                                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                                        id="ttdUpload">
-
-                                    <!-- Upload Area -->
-                                    <div
-                                        class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 hover:bg-blue-50/50 transition-all cursor-pointer">
-                                        @if ($ttd)
-                                            <!-- Preview Image -->
-                                            <div class="space-y-3">
-                                                <div
-                                                    class="mx-auto w-24 h-24 rounded-lg overflow-hidden border-2 border-gray-200">
-                                                    @if (is_string($ttd))
-                                                        <!-- Existing image from database -->
-                                                        <img src="{{ asset('storage/' . $ttd) }}" alt="Preview"
-                                                            class="w-full h-full object-cover">
-                                                    @else
-                                                        <!-- New uploaded image -->
-                                                        <img src="{{ $ttd->temporaryUrl() }}" alt="Preview"
-                                                            class="w-full h-full object-cover">
-                                                    @endif
-                                                </div>
-                                                <div>
-                                                    @if (is_string($ttd))
-                                                        <!-- Existing image info -->
-                                                        <p class="text-sm font-medium text-gray-700">
-                                                            {{ basename($ttd) }}</p>
-                                                        <p class="text-xs text-gray-500">ttd tersimpan</p>
-                                                    @else
-                                                        <!-- New uploaded image info -->
-                                                        <p class="text-sm font-medium text-gray-700">
-                                                            {{ $ttd->getClientOriginalName() }}</p>
-                                                        <p class="text-xs text-gray-500">
-                                                            {{ number_format($ttd->getSize() / 1024, 1) }} KB</p>
-                                                    @endif
-                                                </div>
-                                                <button type="button" wire:click="$set('ttd', null)"
-                                                    class="text-xs text-red-600 hover:text-red-700 font-medium">
-                                                    Hapus ttd
-                                                </button>
-                                            </div>
-                                        @else
-                                            <!-- Default State -->
-                                            <div class="space-y-3">
-                                                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none"
-                                                    stroke="currentColor" viewBox="0 0 48 48">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02">
-                                                    </path>
-                                                </svg>
-                                                <div>
-                                                    <p class="text-sm font-medium text-gray-700">Upload ttd</p>
-                                                    <p class="text-xs text-gray-500">PNG, JPG, JPEG maksimal 2MB</p>
-                                                </div>
-                                                <div
-                                                    class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                                        viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                                        </path>
-                                                    </svg>
-                                                    Pilih ttd
-                                                </div>
-                                            </div>
-                                        @endif
-                                    </div>
-                                </div>
-
-                                @error('ttd')
-                                    <p class="text-xs text-red-500 flex items-center gap-1">
-                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd"
-                                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                                                clip-rule="evenodd"></path>
-                                        </svg>
-                                        {{ $message }}
-                                    </p>
-                                @enderror
-                            </div>
                         </form>
                     </div>
 
@@ -1005,7 +725,7 @@
                             <button type="submit" wire:click="save"
                                 class="px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500/20 transition-all">
                                 <span wire:loading.remove wire:target="save">
-                                    {{ $isEdit ? 'Update Pengurus' : 'Create Pengurus' }}
+                                    {{ $isEdit ? 'Update Karyawan' : 'Create Karyawan' }}
                                 </span>
                                 <span wire:loading wire:target="save" class="flex items-center gap-2">
                                     <svg class="animate-spin w-4 h-4" fill="none" stroke="currentColor"

@@ -1,22 +1,25 @@
 <?php
 
-namespace App\Livewire\Admin\Yayasan\Pengurus;
+namespace App\Livewire\Admin\Karyawan;
 
+use App\Models\Employee\Karyawan;
 use App\Models\Master\Departments;
+use App\Models\Master\Golongan;
 use App\Models\Master\Jabatans;
+use App\Models\Master\Mapel;
+use App\Models\Master\StatusKawin;
+use App\Models\Master\StatusPegawai;
+use App\Models\Master\Units;
 use App\Models\User;
-use App\Models\Yayasan\Pengurus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Url;
 use Livewire\WithFileUploads;
 
-
-class Index extends Component
+class KaryawanTable extends Component
 {
     use WithPagination;
     use WithFileUploads;
@@ -24,26 +27,16 @@ class Index extends Component
     public $foto;
     public $originalFoto; // Store original photo path
 
-    public $ttd;
-    public $originalTtd; // Store original ttd path
-
     public $userId; // ID dari tabel users
-    public $pengurusId; // ID dari tabel pengurus
+    public $karyawanId; // ID dari tabel karyawan
 
-    public $jabatan_id = '';
-    public $nama_pengurus = '';
+    public $full_name = '';
+    public $nip = '';
+    public $gender = '';
     public $inisial = null;
-    public $gelar_depan = '';
-    public $gelar_belakang = '';
-    public $hp = '';
-    public $jenis_kelamin = '';
-    public $tempat_lahir = '';
-    public $tanggal_lahir = null;
-    public $alamat = '';
-    public $tanggal_masuk = '';
-    public $tanggal_keluar = null;
-    public $posisi = '';
-    public $is_active = true;
+    public $jenis_karyawan = '';
+    public $statuskaryawan_id = '';
+    public $tgl_masuk = '';
     public $email = '';
     public $password = '';
     public $password_confirmation = '';
@@ -60,7 +53,7 @@ class Index extends Component
     public $showModal = false;
     public $isEdit = false;
     public $showModalDetail = false;
-    public $selectedPengurus;
+    public $selectedKaryawan = null;
 
 
 
@@ -91,29 +84,24 @@ class Index extends Component
     public function rules()
     {
         $rules = [
-            'jabatan_id' => [
-                'required',
-                'integer',
-                'exists:master_jabatan,id'
-            ],
-            'nama_pengurus' => [
+            'full_name' => [
                 'required',
                 'string',
                 'min:3',
                 'max:255',
-                Rule::unique('pengurus', 'nama_pengurus')->ignore($this->pengurusId)
+                Rule::unique('karyawan', 'full_name')->ignore($this->karyawanId)
             ],
             'inisial' => [
                 'required',
                 'string',
                 'size:3',
-                Rule::unique('pengurus', 'inisial')->ignore($this->pengurusId)
+                Rule::unique('karyawan', 'inisial')->ignore($this->karyawanId)
             ],
-            'hp' => [
-                'nullable',
-                'regex:/^\+62\s\d{3}-\d{4}-\d{4}$/',
-                'max:17',
-                Rule::unique('pengurus', 'hp')->ignore($this->pengurusId)
+            'nip' => [
+                'required',
+                'string',
+                'size:6',
+                Rule::unique('karyawan', 'nip')->ignore($this->karyawanId)
             ],
             'email' => [
                 'required',
@@ -122,20 +110,15 @@ class Index extends Component
                 Rule::unique('users', 'email')->ignore($this->userId)
             ],
             'password' => [
-                $this->pengurusId ? 'nullable' : 'required',
+                $this->karyawanId ? 'nullable' : 'required',
                 'string',
                 'min:8',
                 'confirmed'
             ],
-            'tempat_lahir' => 'nullable|string|max:255',
-            'tanggal_lahir' => 'nullable|date',
-            'tanggal_masuk' => 'required|date',
-            'tanggal_keluar' => 'nullable|date|after_or_equal:tanggal_masuk',
-            'gelar_depan' => 'nullable|string|max:10',
-            'gelar_belakang' => 'nullable|string|max:15',
-            'jenis_kelamin' => 'required|string|in:laki-laki,perempuan',
-            'posisi' => 'required|string|in:ketua,anggota',
-            'is_active' => 'boolean',
+            'gender' => 'required|string|in:laki-laki,perempuan',
+            'jenis_karyawan' => 'required|string|in:Guru,Pegawai',
+            'statuskaryawan_id' => 'required|exists:master_statuspegawai,id',
+            'tgl_masuk' => 'required|date',
         ];
 
         // Validasi foto - berbeda untuk create dan edit
@@ -150,20 +133,6 @@ class Index extends Component
         } else {
             // Jika tidak ada file upload (edit tanpa ganti foto)
             $rules['foto'] = 'nullable|string';
-        }
-
-        // Validasi TTD - berbeda untuk create dan edit
-        if ($this->ttd instanceof \Illuminate\Http\UploadedFile) {
-            // Jika ada file yang diupload (create atau edit dengan file baru)
-            $rules['ttd'] = [
-                'nullable',
-                'image',
-                'mimes:jpeg,png,jpg,gif',
-                'max:2048' // 2MB max
-            ];
-        } else {
-            // Jika tidak ada file upload (edit tanpa ganti TTD)
-            $rules['ttd'] = 'nullable|string';
         }
 
         return $rules;
@@ -270,20 +239,7 @@ class Index extends Component
                 $fotoPath = $this->foto;
             }
 
-            // Handle TTD upload
-            $ttdPath = null;
-            if ($this->ttd instanceof \Illuminate\Http\UploadedFile) {
-                // Ada TTD baru yang diupload
-                $ttdPath = $this->ttd->store('tandatangan', 'public');
-
-                // Jika edit dan ada TTD lama, hapus TTD lama
-                if ($this->isEdit && $this->originalTtd && Storage::disk('public')->exists($this->originalTtd)) {
-                    Storage::disk('public')->delete($this->originalTtd);
-                }
-            } elseif ($this->isEdit && is_string($this->ttd)) {
-                // Edit mode dan TTD tidak diubah (tetap string path)
-                $ttdPath = $this->ttd;
-            }
+            
 
             if ($this->isEdit) {
                 // Edit Pengurus
@@ -333,9 +289,7 @@ class Index extends Component
                 if ($fotoPath !== null) {
                     $pengurusData['foto'] = $fotoPath;
                 }
-                if ($ttdPath !== null) {
-                    $pengurusData['ttd'] = $ttdPath;
-                }
+                
 
                 $pengurus->update($pengurusData);
 
@@ -351,16 +305,15 @@ class Index extends Component
 
                 // Create user baru
                 $user = User::create([
-                    'name'     => $this->nama_pengurus,
+                    'name'     => $this->full_name,
                     'email'    => $this->email,
                     'password' => bcrypt($this->password),
                 ]);
 
                 // Create pengurus baru
-                Pengurus::create([
+                Karyawan::create([
                     'user_id'        => $user->id,
-                    'jabatan_id'     => $this->jabatan_id,
-                    'nama_pengurus'  => $this->nama_pengurus,
+                    'full_name'  => $this->full_name,
                     'inisial'        => $this->inisial ?: null,
                     'hp'             => $plainHp,
                     'jenis_kelamin'  => $this->jenis_kelamin,
@@ -603,7 +556,7 @@ class Index extends Component
 
     public function render()
     {
-        $query = Pengurus::with([
+        $query = Karyawan::with([
             'jabatan.department'
         ]);
 
@@ -647,18 +600,13 @@ class Index extends Component
         });
 
         // urutkan & paginasi
-        $penguruss = $query
+        $karyawans = $query
             ->orderBy($this->sortField, $this->sortDirection)
             ->paginate($this->perPage);
 
-        $jabatans = Jabatans::with('department')
-            ->where('is_active', 1)
-            ->whereHas('department', function ($q) {
-                $q->where('department', 'YAYASAN'); // sesuaikan field penanda
-            })
-            ->orderBy('nama_jabatan') // urut berdasarkan nama jabatan
-            ->get();
+        $statusKaryawan = StatusPegawai::orderBy('nama_status')->get();
 
-        return view('livewire.admin.yayasan.pengurus.index', compact('penguruss', 'jabatans'));
+        return view('livewire.admin.karyawan.karyawan-table', compact('karyawans','statusKaryawan'));
     }
+
 }

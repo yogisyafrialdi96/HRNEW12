@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('nip', 20)->unique();
             $table->string('inisial',3)->unique();
             $table->string('full_name');
+            $table->string('panggilan')->nullable();
             $table->string('hp',15)->nullable();
             $table->string('whatsapp',15)->nullable();
             $table->enum('gender',['laki-laki','perempuan']);

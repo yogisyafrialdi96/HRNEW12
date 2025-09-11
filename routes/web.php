@@ -1,6 +1,9 @@
 <?php
 
 use App\Livewire\Admin;
+use App\Livewire\Admin\Karyawan\KaryawanForm;
+use App\Livewire\Admin\Karyawan\KaryawanProfile;
+use App\Livewire\Admin\Karyawan\KaryawanTable;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
@@ -9,35 +12,41 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
-   Route::prefix('department')->name('department.')->group(function () {
+    Route::prefix('department')->name('department.')->group(function () {
         Route::get('/', Admin\Master\Department\Index::class)->name('index');
     });
-   Route::prefix('unit')->name('unit.')->group(function () {
+    Route::prefix('unit')->name('unit.')->group(function () {
         Route::get('/', Admin\Master\Unit\Index::class)->name('index');
     });
-   Route::prefix('jabatan')->name('jabatan.')->group(function () {
+    Route::prefix('jabatan')->name('jabatan.')->group(function () {
         Route::get('/', Admin\Master\Jabatan\Index::class)->name('index');
     });
-   Route::prefix('mapel')->name('mapel.')->group(function () {
+    Route::prefix('mapel')->name('mapel.')->group(function () {
         Route::get('/', Admin\Master\Mapel\Index::class)->name('index');
     });
-   Route::prefix('status-kawin')->name('status-kawin.')->group(function () {
+    Route::prefix('status-kawin')->name('status-kawin.')->group(function () {
         Route::get('/', Admin\Master\StatusKawin\Index::class)->name('index');
     });
-   Route::prefix('status-kontrak')->name('status-kontrak.')->group(function () {
+    Route::prefix('status-kontrak')->name('status-kontrak.')->group(function () {
         Route::get('/', Admin\Master\JenisKontrak\Index::class)->name('index');
     });
-   Route::prefix('status-golongan')->name('status-golongan.')->group(function () {
+    Route::prefix('status-golongan')->name('status-golongan.')->group(function () {
         Route::get('/', Admin\Master\Golongan\Index::class)->name('index');
     });
-   Route::prefix('status-pegawai')->name('status-pegawai.')->group(function () {
+    Route::prefix('status-pegawai')->name('status-pegawai.')->group(function () {
         Route::get('/', Admin\Master\Statuspegawai\Index::class)->name('index');
     });
-   Route::prefix('tahun-ajaran')->name('tahun-ajaran.')->group(function () {
+    Route::prefix('tahun-ajaran')->name('tahun-ajaran.')->group(function () {
         Route::get('/', Admin\Master\TahunAjaran\Index::class)->name('index');
     });
-   Route::prefix('pengurus')->name('pengurus.')->group(function () {
+    Route::prefix('pengurus')->name('pengurus.')->group(function () {
         Route::get('/', Admin\Yayasan\Pengurus\Index::class)->name('index');
+    });
+
+    Route::prefix('karyawan')->name('karyawan.')->group(function () {
+        Route::get('/', KaryawanTable::class)->name('index');
+        // Route::get('/create', KaryawanForm::class)->name('create');
+        Route::get('/{karyawan}', KaryawanProfile::class)->name('show');
     });
 });
 
@@ -53,4 +62,4 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
