@@ -2,8 +2,10 @@
 
 namespace App\Models\Employee;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -64,6 +66,11 @@ class Karyawan extends Model
     ];
 
     // Relationships
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function contracts(): HasMany
     {
         return $this->hasMany(KaryawanKontrak::class);
@@ -79,10 +86,38 @@ class Karyawan extends Model
         return $this->contracts()
             ->where('status', 'active')
             ->where('start_date', '<=', now())
-            ->where(function($query) {
+            ->where(function ($query) {
                 $query->whereNull('end_date')
-                      ->orWhere('end_date', '>=', now());
+                    ->orWhere('end_date', '>=', now());
             })
             ->first();
+    }
+
+    public function getStatusBadgeAttribute()
+    {
+        $statusConfig = [
+            1 => ['text' => 'Aktif', 'class' => 'bg-green-100 text-green-800'],
+            2 => ['text' => 'Resign', 'class' => 'bg-red-100 text-red-800'],
+            3 => ['text' => 'Pensiun Dini', 'class' => 'bg-gray-100 text-gray-800'],
+            4 => ['text' => 'LWP', 'class' => 'bg-yellow-100 text-yellow-800'],
+            5 => ['text' => 'Tugas Belajar', 'class' => 'bg-blue-100 text-blue-800'],
+            6 => ['text' => 'Habis Kontrak', 'class' => 'bg-orange-100 text-orange-800'],
+            7 => ['text' => 'Meninggal', 'class' => 'bg-black text-white']
+        ];
+
+        return $statusConfig[$this->statuskaryawan_id] ?? ['text' => 'Unknown', 'class' => 'bg-gray-100 text-gray-800'];
+    }
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * Relationship to Updater (User)
+     */
+    public function updater(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 }

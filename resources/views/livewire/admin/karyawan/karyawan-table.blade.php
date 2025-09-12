@@ -262,7 +262,7 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($karyawans as $pengurus)
+                    @forelse($karyawans as $karyawan)
                         <tr class="hover:bg-gray-50">
                             <td class="px-2 py-4 whitespace-nowrap text-center text-sm">
                                 {{ $karyawans->firstItem() + $loop->index }}.
@@ -270,43 +270,42 @@
                             <td class="px-6 py-4 w-72">
                                 <div class="flex items-center space-x-3">
                                     <img class="w-8 h-8 rounded-full object-cover"
-                                        src="{{ $pengurus->foto
-                                            ? asset('storage/' . $pengurus->foto)
-                                            : 'https://ui-avatars.com/api/?name=' . urlencode($pengurus->nama_pengurus) }}"
-                                        alt="{{ $pengurus->nama_pengurus }}">
+                                        src="{{ $karyawan->foto
+                                            ? asset('storage/' . $karyawan->foto)
+                                            : 'https://ui-avatars.com/api/?name=' . urlencode($karyawan->full_name) }}"
+                                        alt="{{ $karyawan->full_name }}">
                                     <div class="text-sm">
-                                        <div class="font-semibold text-gray-900">{{ $pengurus->nama_pengurus }}</div>
-                                        <div class="text-gray-500">{{ $pengurus->jabatan->nama_jabatan }}</div>
+                                        <div class="font-semibold text-gray-900">{{ $karyawan->full_name }}</div>
+                                        <div class="text-gray-500"></div>
                                     </div>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ [
-                                    'anggota' => 'Anggota',
-                                    'ketua' => 'Ketua',
-                                ][$pengurus->posisi] ?? '-' }}
+                                {{ $karyawan->nip ?? '-' }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ $pengurus->hp ?? '-' }}
+                                {{ [
+                                    'laki-laki' => 'Laki-laki',
+                                    'perempuan' => 'Perempuan',
+                                ][$karyawan->gender] ?? '-' }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <button wire:click="toggleStatus({{ $pengurus->id }})"
-                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                {{ $pengurus->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                    {{ $pengurus->is_active ? 'Aktif' : 'Nonaktif' }}
+                                <button wire:click="toggleStatus({{ $karyawan->id }})"
+                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $karyawan->statusBadge['class'] }}">
+                                    {{ $karyawan->statusBadge['text'] }}
                                 </button>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div>{{ $pengurus->created_at->format('d M Y') }}</div>
-                                <div class="text-xs text-gray-500">by {{ $pengurus->creator->name ?? 'System' }}
+                                <div>{{ $karyawan->created_at->format('d M Y') }}</div>
+                                <div class="text-xs text-gray-500">by {{ $karyawan->creator->name ?? 'System' }}
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 @if ($showDeleted)
                                     <div class="flex justify-end gap-2">
-                                        <button wire:click="confirmRestore({{ $pengurus->id }})"
+                                        <button wire:click="confirmRestore({{ $karyawan->id }})"
                                             class="text-blue-600 hover:text-blue-900 p-1 rounded transition duration-200"
-                                            title="Reset pengurus">
+                                            title="Reset karyawan">
 
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
@@ -316,7 +315,7 @@
                                             </svg>
 
                                         </button>
-                                        <button wire:click="confirmForceDelete({{ $pengurus->id }})"
+                                        <button wire:click="confirmForceDelete({{ $karyawan->id }})"
                                             class="text-red-600 hover:text-red-900 p-1 rounded transition duration-200"
                                             title="Hard Delete">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor"
@@ -330,7 +329,7 @@
                                 @else
                                     <div class="flex justify-end gap-2">
                                         <!-- Detail Button -->
-                                        <button wire:click="showDetail({{ $pengurus->id }})"
+                                        <button wire:click="showDetail({{ $karyawan->id }})"
                                             class="text-blue-600 hover:text-blue-900 p-1 rounded-md hover:bg-blue-50"
                                             title="Detail">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor"
@@ -342,7 +341,7 @@
                                                 </path>
                                             </svg>
                                         </button>
-                                        <button wire:click="edit({{ $pengurus->id }})"
+                                        <button wire:click="edit({{ $karyawan->id }})"
                                             class="text-yellow-600 hover:text-yellow-900 p-1 rounded-md hover:bg-yellow-50 transition duration-200">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
@@ -351,7 +350,7 @@
                                                 </path>
                                             </svg>
                                         </button>
-                                        <button wire:click="confirmDelete({{ $pengurus->id }})"
+                                        <button wire:click="confirmDelete({{ $karyawan->id }})"
                                             class="text-red-600 hover:text-red-900 p-1 rounded-md hover:bg-red-50 transition duration-200">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
@@ -375,8 +374,8 @@
                                             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
                                         </path>
                                     </svg>
-                                    <p class="text-lg font-medium">No Pengurus found</p>
-                                    <p class="text-sm">Get started by creating a new Pengurus.</p>
+                                    <p class="text-lg font-medium">No Karyawan found</p>
+                                    <p class="text-sm">Get started by creating a new Karyawan.</p>
                                 </div>
                             </td>
                         </tr>
@@ -744,258 +743,7 @@
         </div>
     @endif
 
-    <!-- Detail modal -->
-    @if ($showModalDetail)
-        <div
-            class="fixed inset-0 bg-black/40 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
-            <div class="relative w-full max-w-lg mx-auto">
-                <div class="bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden">
-                    <div class="flex flex-col h-full">
-                        <!-- Header dengan Pagination Controls -->
-                        <div
-                            class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-                            <div class="flex items-center space-x-4">
-                                <div class="flex items-center space-x-2">
-                                    <svg class="w-6 h-6 text-blue-600" xmlns="http://www.w3.org/2000/svg"
-                                        fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                                        class="size-6">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
-                                    </svg>
 
-                                    <h2 class="text-xl font-bold text-gray-900 dark:text-white">Detail Pengurus
-                                    </h2>
-                                </div>
-
-
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <button wire:click="closeModal"
-                                    class="p-2 bg-gray-100 hover:bg-gray-100 rounded-lg transition-colors">
-                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M6 18L18 6M6 6l12 12"></path>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-
-
-                        <!-- Content Area -->
-                        <div class="flex-1 overflow-y-auto p-4">
-                            @if (!empty($selectedPengurus))
-                                <!-- Company Header -->
-                                <div
-                                    class="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                                    <div class="flex items-start justify-between">
-                                        <div>
-                                            <h3
-                                                class="text-lg font-bold text-gray-900 dark:text-white mb-1 capitalize">
-                                                {{ $selectedPengurus->gelar_depan }}
-                                                {{ $selectedPengurus->nama_pengurus ?? 'Pengurus tidak diketahui' }},
-                                                {{ $selectedPengurus->gelar_belakang }}
-                                            </h3>
-                                            <p class="text-blue-600 dark:text-blue-400 font-medium capitalize">
-                                                {{ $selectedPengurus->jabatan?->nama_jabatan ?? 'tidak diketahui' }}
-                                            </p>
-                                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                                Posisi: {{ $selectedPengurus->posisi ?? 'tidak diketahui' }}
-                                            </p>
-                                        </div>
-                                        <div class="flex-shrink-0 ml-4">
-                                            <div
-                                                class="w-20 h-20 rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700">
-                                                @if ($selectedPengurus->foto)
-                                                    <img src="{{ asset('storage/' . $selectedPengurus->foto) }}"
-                                                        alt="Foto {{ $selectedPengurus->nama_pengurus }}"
-                                                        class="w-full h-full object-cover">
-                                                @else
-                                                    <div
-                                                        class="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-700 text-gray-400">
-                                                        <svg class="w-10 h-10" fill="none" stroke="currentColor"
-                                                            viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z">
-                                                            </path>
-                                                        </svg>
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- selectedPengurus Information -->
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div
-                                        class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-                                        <div
-                                            class="px-4 py-3 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
-                                            <h4 class="font-semibold text-gray-900 dark:text-white">Data Kepengurusan
-                                            </h4>
-                                        </div>
-                                        <div class="p-4 space-y-3">
-                                            <div>
-                                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                                    HP
-                                                </dt>
-                                                <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">
-                                                    {{ $selectedPengurus->hp ?? 'N/A' }}
-                                                </dd>
-                                            </div>
-                                            <div>
-                                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                                    Tanggal Masuk
-                                                </dt>
-                                                <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">
-                                                    {{ $selectedPengurus->tanggal_masuk ? \Carbon\Carbon::parse($selectedPengurus->tanggal_masuk)->format('d F Y') : 'N/A' }}
-                                                </dd>
-                                            </div>
-                                            <div>
-                                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                                    Tanggal Keluar
-                                                </dt>
-                                                <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">
-                                                    {{ $selectedPengurus->tanggal_keluar ? \Carbon\Carbon::parse($selectedPengurus->tanggal_keluar)->format('d F Y') : 'N/A' }}
-                                                </dd>
-                                            </div>
-                                            <div>
-                                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Status
-                                                </dt>
-                                                <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">
-
-                                                    <span
-                                                        class="inline-flex px-3 py-1 text-sm font-semibold rounded-full
-                                        {{ $selectedPengurus->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                                        {{ $selectedPengurus->is_active ? 'Aktif' : 'Tidak Aktif' }}
-                                                    </span>
-                                                </dd>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-                                        <div
-                                            class="px-4 py-3 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
-                                            <h4 class="font-semibold text-gray-900 dark:text-white">Data Pengurus
-                                            </h4>
-                                        </div>
-                                        <div class="p-4 space-y-3">
-                                            <div>
-                                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                                    Jenis Kelamin
-                                                </dt>
-                                                <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">
-                                                    {{ $selectedPengurus->jenis_kelamin ?? 'N/A' }}
-                                                </dd>
-                                            </div>
-                                            <div>
-                                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                                    Tempat Lahir
-                                                </dt>
-                                                <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">
-                                                    {{ $selectedPengurus->tempat_lahir ?? 'N/A' }}
-                                                </dd>
-                                            </div>
-                                            <div>
-                                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                                    Tanggal Lahir
-                                                </dt>
-                                                <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">
-                                                    {{ $selectedPengurus->tanggal_lahir ? \Carbon\Carbon::parse($selectedPengurus->tanggal_lahir)->format('d F Y') : 'N/A' }}
-                                                </dd>
-                                            </div>
-                                            <div>
-                                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                                    Tanda Tangan
-                                                </dt>
-                                                <div class="flex-shrink-0">
-                                                    <div
-                                                        class="w-20 h-20 rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700">
-                                                        @if ($selectedPengurus->ttd)
-                                                            <img src="{{ asset('storage/' . $selectedPengurus->ttd) }}"
-                                                                alt="Tanda Tangan {{ $selectedPengurus->nama_pengurus }}"
-                                                                class="w-full h-full object-cover">
-                                                        @else
-                                                            <div
-                                                                class="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-700 text-gray-400">
-                                                                <svg class="w-10 h-10" fill="none"
-                                                                    stroke="currentColor" viewBox="0 0 24 24">
-                                                                    <path stroke-linecap="round"
-                                                                        stroke-linejoin="round" stroke-width="2"
-                                                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z">
-                                                                    </path>
-                                                                </svg>
-                                                            </div>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div
-                                    class="mt-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-                                    <div
-                                        class="px-4 py-3 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
-                                        <h4 class="font-semibold text-gray-900 dark:text-white">Alamat</h4>
-                                    </div>
-                                    <div class="p-4">
-                                        <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                                            {{ $selectedPengurus->alamat }}</p>
-                                    </div>
-                                </div>
-
-                                <div
-                                    class="mt-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-                                    <div
-                                        class="px-4 py-3 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
-                                        <h4 class="font-semibold text-gray-900 dark:text-white">Log Informasi</h4>
-                                    </div>
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 space-y-3">
-                                        <div>
-                                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Created
-                                            </dt>
-                                            <dd class="mt-1 text-sm text-gray-600 dark:text-gray-100">
-                                                {{ $selectedPengurus->created_at ? \Carbon\Carbon::parse($selectedPengurus->created_at)->format('d F Y') : 'N/A' }}
-                                            </dd>
-                                        </div>
-                                        <div>
-                                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Edited
-                                            </dt>
-                                            <dd class="mt-1 text-sm text-gray-600 dark:text-gray-100">
-                                                {{ $selectedPengurus->updated_at ? \Carbon\Carbon::parse($selectedPengurus->updated_at)->format('d F Y') : 'N/A' }}
-                                            </dd>
-                                        </div>
-
-                                    </div>
-                                </div>
-                            @else
-                                <div class="flex items-center justify-center py-12">
-                                    <div class="text-center">
-                                        <div
-                                            class="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                                            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                        </div>
-                                        <p class="text-gray-500 dark:text-gray-400">Memuat data...</p>
-                                    </div>
-                                </div>
-                            @endif
-                        </div>
-
-
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
 
 
     <!-- Modal Konfirmasi Floating (Tanpa overlay) -->
