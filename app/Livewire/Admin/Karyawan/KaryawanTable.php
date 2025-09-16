@@ -47,7 +47,6 @@ class KaryawanTable extends Component
 
     // Modal properties
     public $showModal = false;
-    public $isEdit = false;
 
 
 
@@ -168,10 +167,8 @@ class KaryawanTable extends Component
     public function create()
     {
         $this->resetForm();
-        $this->isEdit = false;
         $this->showModal = true;
     }
-
 
     public function save()
     {

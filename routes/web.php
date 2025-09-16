@@ -45,8 +45,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
 
     Route::prefix('karyawan')->name('karyawan.')->group(function () {
         Route::get('/', KaryawanTable::class)->name('index');
-        // Route::get('/create', KaryawanForm::class)->name('create');
-        Route::get('/{karyawan}', KaryawanProfile::class)->name('show');
+        Route::get('/{karyawan}/edit', KaryawanProfile::class)->name('edit');
     });
 });
 

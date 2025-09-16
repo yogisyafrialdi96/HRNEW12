@@ -341,7 +341,7 @@
                                                 </path>
                                             </svg>
                                         </button>
-                                        <button wire:click="edit({{ $karyawan->id }})"
+                                        <button wire:navigate href="{{ route('karyawan.edit', ['karyawan' => $karyawan->id, 'tab' => 'profile']) }}"
                                             class="text-yellow-600 hover:text-yellow-900 p-1 rounded-md hover:bg-yellow-50 transition duration-200">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
