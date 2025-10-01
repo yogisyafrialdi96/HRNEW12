@@ -3,7 +3,6 @@
 namespace App\Livewire\Admin\Karyawan;
 
 use Livewire\Component;
-use App\Models\Employee;
 use App\Models\Employee\Karyawan;
 use App\Models\Master\Golongan;
 use App\Models\Master\StatusKawin;
@@ -19,6 +18,8 @@ use Illuminate\Validation\ValidationException;
 
 class KaryawanForm extends Component
 {
+    use WithFileUploads;
+
     public Karyawan $karyawan;
     public string $activeTab;
 
@@ -71,7 +72,7 @@ class KaryawanForm extends Component
     public $kabktp_id;
     public $kecktp_id;
     public $desaktp_id;
-    
+
     // Data alamat domisili
     public bool $domisili_sama_ktp = false;
     public $alamat_dom;
@@ -81,30 +82,48 @@ class KaryawanForm extends Component
     public $kabdom_id;
     public $kecdom_id;
     public $desdom_id;
+    public bool $isMounting = true;
 
     // Lists untuk dropdown KTP
     public $provinsiList = [];
     public $kabupatenList = [];
     public $kecamatanList = [];
     public $desaList = [];
-    
+
     // Lists untuk dropdown Domisili
     public $kabDomisiliList = [];
     public $kecDomisiliList = [];
     public $desaDomisiliList = [];
+
+    // Cache untuk menghindari duplicate queries
+    private $wilayahCache = [];
 
     public function mount(Karyawan $karyawan)
     {
         $this->activeTab = 'profile';
         $this->karyawanId = $karyawan->id;
 
-        $karyawanemail = Karyawan::with('user')->find($karyawan->id);
-        $this->userId = $karyawanemail->user?->id;
+        // Load karyawan dengan relasi user sekaligus
+        $karyawanWithUser = Karyawan::with('user')->find($karyawan->id);
+        $this->userId = $karyawanWithUser->user?->id;
 
+        // Set semua data karyawan
+        $this->setKaryawanData($karyawan, $karyawanWithUser);
+
+        // Load data wilayah secara optimal
+        $this->loadWilayahDataOptimized();
+    }
+
+    /**
+     * Set data karyawan dari model
+     */
+    private function setKaryawanData(Karyawan $karyawan, $karyawanWithUser)
+    {
+        // Data dasar
         $this->full_name = $karyawan->full_name;
         $this->panggilan = $karyawan->panggilan;
         $this->inisial = $karyawan->inisial;
-        $this->email = $karyawanemail->user?->email;
+        $this->email = $karyawanWithUser->user?->email;
         $this->nip = $karyawan->nip;
         $this->jenis_karyawan = $karyawan->jenis_karyawan;
         $this->statuskaryawan_id = $karyawan->statuskaryawan_id;
@@ -115,6 +134,7 @@ class KaryawanForm extends Component
         $this->tgl_karyawan_tetap = $karyawan->tgl_karyawan_tetap;
         $this->tgl_berhenti = $karyawan->tgl_berhenti;
 
+        // Data personal
         $this->nik = $karyawan->nik;
         $this->nkk = $karyawan->nkk;
         $this->hp = $karyawan->hp;
@@ -131,7 +151,7 @@ class KaryawanForm extends Component
         $this->emergency_contact_name = $karyawan->emergency_contact_name;
         $this->emergency_contact_phone = $karyawan->emergency_contact_phone;
 
-        // Set data alamat KTP
+        // Data alamat KTP
         $this->alamat_ktp = $karyawan->alamat_ktp;
         $this->rt_ktp = $karyawan->rt_ktp;
         $this->rw_ktp = $karyawan->rw_ktp;
@@ -139,57 +159,153 @@ class KaryawanForm extends Component
         $this->kabktp_id = $karyawan->kab_id;
         $this->kecktp_id = $karyawan->kec_id;
         $this->desaktp_id = $karyawan->desa_id;
-        
-        // Set data alamat domisili
+
+        // Data alamat domisili
         $this->alamat_dom = $karyawan->alamat_dom;
         $this->rt_dom = $karyawan->rt_dom;
         $this->rw_dom = $karyawan->rw_dom;
         $this->provdom_id = $karyawan->provdom_id;
         $this->kabdom_id = $karyawan->kabdom_id;
         $this->kecdom_id = $karyawan->kecdom_id;
-        $this->desdom_id = $karyawan->desadom_id;
+        $this->desdom_id = $karyawan->desdom_id;
 
-        // Load provinsi list
+        // File paths
+        $this->foto = $karyawan->foto;
+        $this->originalFoto = $karyawan->foto;
+        $this->ttd = $karyawan->ttd;
+        $this->originalTtd = $karyawan->ttd;
+    }
+
+    /**
+     * Load data wilayah secara optimal dengan menghindari duplicate queries
+     */
+    private function loadWilayahDataOptimized()
+    {
+        // Load provinsi (selalu diperlukan)
         $this->loadProvinsiList();
-        
-        // Load data yang sudah ada untuk KTP
-        if ($this->provktp_id) {
-            $this->loadKabupatenList($this->provktp_id);
-        }
-        
-        if ($this->kabktp_id) {
-            $this->loadKecamatanList($this->kabktp_id);
-        }
-        
-        if ($this->kecktp_id) {
-            $this->loadDesaList($this->kecktp_id);
+
+        // Kumpulkan semua ID yang diperlukan untuk batch query
+        $provinsiIds = array_filter([$this->provktp_id, $this->provdom_id]);
+        $kabupatenIds = array_filter([$this->kabktp_id, $this->kabdom_id]);
+        $kecamatanIds = array_filter([$this->kecktp_id, $this->kecdom_id]);
+
+        // Batch load kabupaten
+        if (!empty($provinsiIds)) {
+            $this->batchLoadKabupaten($provinsiIds);
         }
 
-        // Load data yang sudah ada untuk Domisili
-        if ($this->provdom_id) {
-            $this->loadKabDomisiliList($this->provdom_id);
+        // Batch load kecamatan
+        if (!empty($kabupatenIds)) {
+            $this->batchLoadKecamatan($kabupatenIds);
         }
-        
-        if ($this->kabdom_id) {
-            $this->loadKecDomisiliList($this->kabdom_id);
+
+        // Batch load desa
+        if (!empty($kecamatanIds)) {
+            $this->batchLoadDesa($kecamatanIds);
         }
-        
-        if ($this->kecdom_id) {
-            $this->loadDesaDomisiliList($this->kecdom_id);
+
+        // Set data untuk dropdown yang sudah terisi
+        $this->setExistingWilayahData();
+    }
+
+    /**
+     * Batch load kabupaten untuk menghindari duplicate queries
+     */
+    private function batchLoadKabupaten(array $provinsiIds)
+    {
+        $kabupatenData = \App\Models\Wilayah\Kabupaten::whereIn('provinsi_id', array_unique($provinsiIds))
+            ->orderBy('nama')
+            ->get()
+            ->groupBy('provinsi_id');
+
+        foreach ($kabupatenData as $provinsiId => $kabupaten) {
+            $this->wilayahCache['kabupaten'][$provinsiId] = $kabupaten;
         }
     }
 
-    // Methods untuk load data dropdown
+    /**
+     * Batch load kecamatan untuk menghindari duplicate queries
+     */
+    private function batchLoadKecamatan(array $kabupatenIds)
+    {
+        $kecamatanData = \App\Models\Wilayah\Kecamatan::whereIn('kabupaten_id', array_unique($kabupatenIds))
+            ->orderBy('nama')
+            ->get()
+            ->groupBy('kabupaten_id');
+
+        foreach ($kecamatanData as $kabupatenId => $kecamatan) {
+            $this->wilayahCache['kecamatan'][$kabupatenId] = $kecamatan;
+        }
+    }
+
+    /**
+     * Batch load desa untuk menghindari duplicate queries
+     */
+    private function batchLoadDesa(array $kecamatanIds)
+    {
+        $desaData = \App\Models\Wilayah\Desa::whereIn('kecamatan_id', array_unique($kecamatanIds))
+            ->orderBy('nama')
+            ->get()
+            ->groupBy('kecamatan_id');
+
+        foreach ($desaData as $kecamatanId => $desa) {
+            $this->wilayahCache['desa'][$kecamatanId] = $desa;
+        }
+    }
+
+    /**
+     * Set data dropdown untuk wilayah yang sudah ada
+     */
+    private function setExistingWilayahData()
+    {
+        // Set kabupaten untuk KTP
+        if ($this->provktp_id && isset($this->wilayahCache['kabupaten'][$this->provktp_id])) {
+            $this->kabupatenList = $this->wilayahCache['kabupaten'][$this->provktp_id];
+        }
+
+        // Set kabupaten untuk domisili
+        if ($this->provdom_id && isset($this->wilayahCache['kabupaten'][$this->provdom_id])) {
+            $this->kabDomisiliList = $this->wilayahCache['kabupaten'][$this->provdom_id];
+        }
+
+        // Set kecamatan untuk KTP
+        if ($this->kabktp_id && isset($this->wilayahCache['kecamatan'][$this->kabktp_id])) {
+            $this->kecamatanList = $this->wilayahCache['kecamatan'][$this->kabktp_id];
+        }
+
+        // Set kecamatan untuk domisili
+        if ($this->kabdom_id && isset($this->wilayahCache['kecamatan'][$this->kabdom_id])) {
+            $this->kecDomisiliList = $this->wilayahCache['kecamatan'][$this->kabdom_id];
+        }
+
+        // Set desa untuk KTP
+        if ($this->kecktp_id && isset($this->wilayahCache['desa'][$this->kecktp_id])) {
+            $this->desaList = $this->wilayahCache['desa'][$this->kecktp_id];
+        }
+
+        // Set desa untuk domisili
+        if ($this->kecdom_id && isset($this->wilayahCache['desa'][$this->kecdom_id])) {
+            $this->desaDomisiliList = $this->wilayahCache['desa'][$this->kecdom_id];
+        }
+    }
+
+    // Methods untuk load data dropdown dengan cache
     private function loadProvinsiList()
     {
-        $this->provinsiList = \App\Models\Wilayah\Provinsi::orderBy('nama')->get();
+        if (!isset($this->wilayahCache['provinsi'])) {
+            $this->wilayahCache['provinsi'] = \App\Models\Wilayah\Provinsi::orderBy('nama')->get();
+        }
+        $this->provinsiList = $this->wilayahCache['provinsi'];
     }
 
     private function loadKabupatenList($provinsiId)
     {
         if ($provinsiId) {
-            $this->kabupatenList = \App\Models\Wilayah\Kabupaten::where('provinsi_id', $provinsiId)
-                ->orderBy('nama')->get();
+            if (!isset($this->wilayahCache['kabupaten'][$provinsiId])) {
+                $this->wilayahCache['kabupaten'][$provinsiId] = \App\Models\Wilayah\Kabupaten::where('provinsi_id', $provinsiId)
+                    ->orderBy('nama')->get();
+            }
+            $this->kabupatenList = $this->wilayahCache['kabupaten'][$provinsiId];
         } else {
             $this->kabupatenList = collect();
         }
@@ -198,8 +314,11 @@ class KaryawanForm extends Component
     private function loadKecamatanList($kabupatenId)
     {
         if ($kabupatenId) {
-            $this->kecamatanList = \App\Models\Wilayah\Kecamatan::where('kabupaten_id', $kabupatenId)
-                ->orderBy('nama')->get();
+            if (!isset($this->wilayahCache['kecamatan'][$kabupatenId])) {
+                $this->wilayahCache['kecamatan'][$kabupatenId] = \App\Models\Wilayah\Kecamatan::where('kabupaten_id', $kabupatenId)
+                    ->orderBy('nama')->get();
+            }
+            $this->kecamatanList = $this->wilayahCache['kecamatan'][$kabupatenId];
         } else {
             $this->kecamatanList = collect();
         }
@@ -208,8 +327,11 @@ class KaryawanForm extends Component
     private function loadDesaList($kecamatanId)
     {
         if ($kecamatanId) {
-            $this->desaList = \App\Models\Wilayah\Desa::where('kecamatan_id', $kecamatanId)
-                ->orderBy('nama')->get();
+            if (!isset($this->wilayahCache['desa'][$kecamatanId])) {
+                $this->wilayahCache['desa'][$kecamatanId] = \App\Models\Wilayah\Desa::where('kecamatan_id', $kecamatanId)
+                    ->orderBy('nama')->get();
+            }
+            $this->desaList = $this->wilayahCache['desa'][$kecamatanId];
         } else {
             $this->desaList = collect();
         }
@@ -218,8 +340,11 @@ class KaryawanForm extends Component
     private function loadKabDomisiliList($provinsiId)
     {
         if ($provinsiId) {
-            $this->kabDomisiliList = \App\Models\Wilayah\Kabupaten::where('provinsi_id', $provinsiId)
-                ->orderBy('nama')->get();
+            if (!isset($this->wilayahCache['kabupaten'][$provinsiId])) {
+                $this->wilayahCache['kabupaten'][$provinsiId] = \App\Models\Wilayah\Kabupaten::where('provinsi_id', $provinsiId)
+                    ->orderBy('nama')->get();
+            }
+            $this->kabDomisiliList = $this->wilayahCache['kabupaten'][$provinsiId];
         } else {
             $this->kabDomisiliList = collect();
         }
@@ -228,8 +353,11 @@ class KaryawanForm extends Component
     private function loadKecDomisiliList($kabupatenId)
     {
         if ($kabupatenId) {
-            $this->kecDomisiliList = \App\Models\Wilayah\Kecamatan::where('kabupaten_id', $kabupatenId)
-                ->orderBy('nama')->get();
+            if (!isset($this->wilayahCache['kecamatan'][$kabupatenId])) {
+                $this->wilayahCache['kecamatan'][$kabupatenId] = \App\Models\Wilayah\Kecamatan::where('kabupaten_id', $kabupatenId)
+                    ->orderBy('nama')->get();
+            }
+            $this->kecDomisiliList = $this->wilayahCache['kecamatan'][$kabupatenId];
         } else {
             $this->kecDomisiliList = collect();
         }
@@ -238,8 +366,11 @@ class KaryawanForm extends Component
     private function loadDesaDomisiliList($kecamatanId)
     {
         if ($kecamatanId) {
-            $this->desaDomisiliList = \App\Models\Wilayah\Desa::where('kecamatan_id', $kecamatanId)
-                ->orderBy('nama')->get();
+            if (!isset($this->wilayahCache['desa'][$kecamatanId])) {
+                $this->wilayahCache['desa'][$kecamatanId] = \App\Models\Wilayah\Desa::where('kecamatan_id', $kecamatanId)
+                    ->orderBy('nama')->get();
+            }
+            $this->desaDomisiliList = $this->wilayahCache['desa'][$kecamatanId];
         } else {
             $this->desaDomisiliList = collect();
         }
@@ -249,7 +380,7 @@ class KaryawanForm extends Component
     public function updatedProvktpId($value)
     {
         $this->loadKabupatenList($value);
-        
+
         // Reset nilai dan list di bawahnya
         $this->kabktp_id = null;
         $this->kecktp_id = null;
@@ -261,7 +392,7 @@ class KaryawanForm extends Component
     public function updatedKabktpId($value)
     {
         $this->loadKecamatanList($value);
-        
+
         // Reset nilai dan list di bawahnya
         $this->kecktp_id = null;
         $this->desaktp_id = null;
@@ -271,7 +402,7 @@ class KaryawanForm extends Component
     public function updatedKecktpId($value)
     {
         $this->loadDesaList($value);
-        
+
         // Reset nilai di bawahnya
         $this->desaktp_id = null;
     }
@@ -280,7 +411,7 @@ class KaryawanForm extends Component
     public function updatedProvdomId($value)
     {
         $this->loadKabDomisiliList($value);
-        
+
         // Reset nilai dan list di bawahnya
         $this->kabdom_id = null;
         $this->kecdom_id = null;
@@ -292,7 +423,7 @@ class KaryawanForm extends Component
     public function updatedKabdomId($value)
     {
         $this->loadKecDomisiliList($value);
-        
+
         // Reset nilai dan list di bawahnya
         $this->kecdom_id = null;
         $this->desdom_id = null;
@@ -302,7 +433,7 @@ class KaryawanForm extends Component
     public function updatedKecdomId($value)
     {
         $this->loadDesaDomisiliList($value);
-        
+
         // Reset nilai di bawahnya
         $this->desdom_id = null;
     }
@@ -320,7 +451,7 @@ class KaryawanForm extends Component
             $this->kecdom_id = $this->kecktp_id;
             $this->desdom_id = $this->desaktp_id;
 
-            // Load dropdown lists untuk domisili
+            // Load dropdown lists untuk domisili menggunakan cache
             if ($this->provdom_id) {
                 $this->loadKabDomisiliList($this->provdom_id);
             }
@@ -425,10 +556,10 @@ class KaryawanForm extends Component
             'alamat_ktp' => 'required|string|max:255',
             'rt_ktp' => 'required|string|max:5',
             'rw_ktp' => 'required|string|max:5',
-            'desaktp_id' => 'required|string|exists:desa,id',
-            'kecktp_id' => 'required|string|exists:kecamatan,id',
-            'kabktp_id' => 'required|string|exists:kabupaten,id',
-            'provktp_id' => 'required|string|exists:provinsi,id',
+            'desaktp_id' => 'required|exists:desa,id',
+            'kecktp_id' => 'required|exists:kecamatan,id',
+            'kabktp_id' => 'required|exists:kabupaten,id',
+            'provktp_id' => 'required|exists:provinsi,id',
         ];
 
         // Jika domisili beda, validasi tambahan
@@ -437,10 +568,10 @@ class KaryawanForm extends Component
                 'alamat_dom' => 'required|string|max:255',
                 'rt_dom' => 'required|string|max:5',
                 'rw_dom' => 'required|string|max:5',
-                'provdom_id' => 'required|string|exists:provinsi,id',
-                'kabdom_id' => 'required|string|exists:kabupaten,id',
-                'kecdom_id' => 'required|string|exists:kecamatan,id',
-                'desdom_id' => 'required|string|exists:desa,id',
+                'provdom_id' => 'required|exists:provinsi,id',
+                'kabdom_id' => 'required|exists:kabupaten,id',
+                'kecdom_id' => 'required|exists:kecamatan,id',
+                'desdom_id' => 'required|exists:desa,id',
             ]);
         }
 
@@ -473,7 +604,8 @@ class KaryawanForm extends Component
 
     protected $validationAttributes = [
         'full_name' => 'Nama Lengkap',
-        'inisial' => 'Inisial',
+        'panggilan' => 'Panggilan',
+        'inisial' => 'Insiail',
         'email' => 'Email',
         'password' => 'Password',
         'nip' => 'NIP',
@@ -516,120 +648,166 @@ class KaryawanForm extends Component
         'desdom_id' => 'Desa Domisili',
         'foto' => 'Foto',
         'ttd' => 'Tanda Tangan',
-        'jabatan_id' => 'Jabatan',
-        'nama_pengurus' => 'Nama Pengurus',
-        'is_active' => 'Status'
     ];
 
+    // Property untuk mencegah double submit
+    public $isUpdating = false;
 
     public function save()
     {
-        DB::beginTransaction(); // mulai transaksi
+        // Cegah double submit
+        if ($this->isUpdating) {
+            return;
+        }
+
+        $this->isUpdating = true;
+
+        DB::beginTransaction();
 
         try {
             $this->validate();
 
             // Normalisasi nomor HP
             $plainHp = preg_replace('/[^\d+]/', '', $this->hp);
+            // Normalisasi nomor Whatsapp
+            $plainWhatsapp = preg_replace('/[^\d+]/', '', $this->whatsapp);
+            // Normalisasi nomor Emergency
+            $plainCEmergency = preg_replace('/[^\d+]/', '', $this->emergency_contact_phone);
 
-            // Handle foto upload
-            $fotoPath = null;
+            // Handle foto upload dengan logika yang benar
+            $fotoPath = $this->originalFoto; // default tetap pakai foto lama
+            $newFotoPath = null; // untuk tracking file baru
+
             if ($this->foto instanceof \Illuminate\Http\UploadedFile) {
                 // Ada foto baru yang diupload
-                $fotoPath = $this->foto->store('fotos', 'public');
+                $newFotoPath = $this->foto->store('karyawan/foto', 'public');
 
-                // Jika edit dan ada foto lama, hapus foto lama
-                if ($this->isEdit && $this->originalFoto && Storage::disk('public')->exists($this->originalFoto)) {
+                // Hapus foto lama HANYA jika ada foto lama dan berbeda dari foto baru
+                if (
+                    $this->originalFoto &&
+                    $this->originalFoto !== $newFotoPath &&
+                    Storage::disk('public')->exists($this->originalFoto)
+                ) {
                     Storage::disk('public')->delete($this->originalFoto);
                 }
-            } elseif ($this->isEdit && is_string($this->foto)) {
-                // Edit mode dan foto tidak diubah (tetap string path)
-                $fotoPath = $this->foto;
+
+                $fotoPath = $newFotoPath;
             }
 
-            // Handle TTD upload
-            $ttdPath = null;
+            // Handle TTD upload dengan logika yang benar
+            $ttdPath = $this->originalTtd; // default tetap pakai ttd lama
+            $newTtdPath = null; // untuk tracking file baru
+
             if ($this->ttd instanceof \Illuminate\Http\UploadedFile) {
                 // Ada TTD baru yang diupload
-                $ttdPath = $this->ttd->store('tandatangan', 'public');
+                $newTtdPath = $this->ttd->store('karyawan/ttd', 'public');
 
-                // Jika edit dan ada TTD lama, hapus TTD lama
-                if ($this->isEdit && $this->originalTtd && Storage::disk('public')->exists($this->originalTtd)) {
+                // Hapus TTD lama HANYA jika ada TTD lama dan berbeda dari TTD baru
+                if (
+                    $this->originalTtd &&
+                    $this->originalTtd !== $newTtdPath &&
+                    Storage::disk('public')->exists($this->originalTtd)
+                ) {
                     Storage::disk('public')->delete($this->originalTtd);
                 }
-            } elseif ($this->isEdit && is_string($this->ttd)) {
-                // Edit mode dan TTD tidak diubah (tetap string path)
-                $ttdPath = $this->ttd;
+
+                $ttdPath = $newTtdPath;
             }
 
-           
-                // Edit Karyawan
-                $karyawan = Karyawan::findOrFail($this->karyawanId);
+            // Edit Karyawan
+            $karyawan = Karyawan::findOrFail($this->karyawanId);
 
-                // Persiapkan data user untuk update
-                $userData = [];
+            // Persiapkan data user untuk update
+            $userData = [];
 
-                // Hanya update field yang ada nilainya dan berbeda dari yang lama
-                if (!empty($this->email) && $this->email !== $karyawan->user->email) {
-                    $userData['email'] = $this->email;
-                }
+            // Hanya update field yang ada nilainya dan berbeda dari yang lama
+            if (!empty($this->email) && $this->email !== $karyawan->user->email) {
+                $userData['email'] = $this->email;
+            }
 
-                if (!empty($this->full_name) && $this->full_name !== $karyawan->user->name) {
-                    $userData['name'] = $this->full_name;
-                }
+            if (!empty($this->full_name) && $this->full_name !== $karyawan->user->name) {
+                $userData['name'] = $this->full_name;
+            }
 
-                // Hanya update password jika diisi
-                if (!empty($this->password)) {
-                    $userData['password'] = bcrypt($this->password);
-                }
+            // Hanya update password jika diisi
+            if (!empty($this->password)) {
+                $userData['password'] = bcrypt($this->password);
+            }
 
-                // Update user hanya jika ada data yang berubah
-                if (!empty($userData)) {
-                    $karyawan->user->update($userData);
-                }
+            // Update user hanya jika ada data yang berubah
+            if (!empty($userData)) {
+                $karyawan->user->update($userData);
+            }
 
-                // Persiapkan data Karyawan
-                $karyawanData = [
-                    'full_name'  => $this->full_name,
-                    'inisial'        => $this->inisial ?: null,
-                    'hp'             => $plainHp,
-                    'gender'  => $this->gender,
-                    'gelar_depan'    => $this->gelar_depan,
-                    'gelar_belakang' => $this->gelar_belakang,
-                    'tempat_lahir'   => $this->tempat_lahir,
-                    'tanggal_lahir'  => $this->tanggal_lahir ?: null,
-                    'tgl_masuk'  => $this->tgl_masuk ?: null,
-                    'tgl_berhenti' => $this->tgl_berhenti ?: null,
-                    'tgl_karyawan_tetap'         => $this->tgl_karyawan_tetap,
-                    'nip'      => $this->nip,
-                ];
+            // Persiapkan data Karyawan
+            $karyawanData = [
+                'full_name' => $this->full_name,
+                'panggilan' => $this->panggilan,
+                'inisial' => $this->inisial,
+                'hp' => $plainHp,
+                'whatsapp' => $plainWhatsapp,
+                'jenis_karyawan' => $this->jenis_karyawan,
+                'statuskaryawan_id' => $this->statuskaryawan_id,
+                'statuskawin_id' => $this->statuskawin_id,
+                'golongan_id' => $this->golongan_id,
+                'npwp' => $this->npwp,
+                'tgl_masuk' => $this->tgl_masuk,
+                'tgl_berhenti' => $this->tgl_berhenti,
+                'tgl_karyawan_tetap' => $this->tgl_karyawan_tetap,
+                'nip' => $this->nip,
+                'nik' => $this->nik,
+                'nkk' => $this->nkk,
+                'gender' => $this->gender,
+                'tempat_lahir' => $this->tempat_lahir,
+                'tanggal_lahir' => $this->tanggal_lahir,
+                'agama' => $this->agama,
+                'status_kawin' => $this->status_kawin,
+                'pndk_akhir' => $this->pndk_akhir,
+                'gelar_depan' => $this->gelar_depan,
+                'gelar_belakang' => $this->gelar_belakang,
+                'blood_type' => $this->blood_type,
+                'emergency_contact_name' => $this->emergency_contact_name,
+                'emergency_contact_phone' => $plainCEmergency,
+                'alamat_ktp' => $this->alamat_ktp,
+                'rt_ktp' => $this->rt_ktp,
+                'rw_ktp' => $this->rw_ktp,
+                'desa_id' => $this->desaktp_id,
+                'kec_id' => $this->kecktp_id,
+                'kab_id' => $this->kabktp_id,
+                'prov_id' => $this->provktp_id,
+                'alamat_dom' => $this->alamat_dom,
+                'rt_dom' => $this->rt_dom,
+                'rw_dom' => $this->rw_dom,
+                'provdom_id' => $this->provdom_id,
+                'kabdom_id' => $this->kabdom_id,
+                'kecdom_id' => $this->kecdom_id,
+                'desdom_id' => $this->desdom_id,
+                'foto' => $fotoPath,
+                'ttd' => $ttdPath,
+            ];
 
-                // Update foto dan ttd hanya jika ada perubahan
-                if ($fotoPath !== null) {
-                    $karyawanData['foto'] = $fotoPath;
-                }
-                if ($ttdPath !== null) {
-                    $karyawanData['ttd'] = $ttdPath;
-                }
+            $karyawan->update($karyawanData);
 
-                $karyawan->update($karyawanData);
+            // Update nilai originalFoto dan originalTtd setelah berhasil update
+            $this->originalFoto = $fotoPath;
+            $this->originalTtd = $ttdPath;
 
-                $this->dispatch('toast', [
-                    'message' => "Data berhasil diedit",
-                    'type'    => 'success',
-                ]);
+            $this->dispatch('toast', [
+                'message' => "Data berhasil diedit",
+                'type'    => 'success',
+            ]);
 
-            DB::commit(); // sukses → simpan perubahan
-
+            DB::commit();
         } catch (ValidationException $e) {
-            DB::rollBack(); // rollback kalau error
+            DB::rollBack();
+            $this->isUpdating = false; // Reset flag
 
-            // Hapus file yang baru diupload jika terjadi error
-            if (!empty($fotoPath) && ($this->isEdit ? $fotoPath !== $this->originalFoto : true)) {
-                Storage::disk('public')->delete($fotoPath);
+            // Hapus file yang baru diupload HANYA jika ada upload file dan terjadi error
+            if (isset($newFotoPath) && $newFotoPath && Storage::disk('public')->exists($newFotoPath)) {
+                Storage::disk('public')->delete($newFotoPath);
             }
-            if (!empty($ttdPath) && ($this->isEdit ? $ttdPath !== $this->originalTtd : true)) {
-                Storage::disk('public')->delete($ttdPath);
+            if (isset($newTtdPath) && $newTtdPath && Storage::disk('public')->exists($newTtdPath)) {
+                Storage::disk('public')->delete($newTtdPath);
             }
 
             $errors = $e->validator->errors()->all();
@@ -641,14 +819,15 @@ class KaryawanForm extends Component
             ]);
             throw $e;
         } catch (\Exception $e) {
-            DB::rollBack(); // rollback kalau error
+            DB::rollBack();
+            $this->isUpdating = false; // Reset flag
 
-            // Hapus file yang baru diupload jika terjadi error
-            if (!empty($fotoPath) && ($this->isEdit ? $fotoPath !== $this->originalFoto : true)) {
-                Storage::disk('public')->delete($fotoPath);
+            // Hapus file yang baru diupload HANYA jika ada upload file dan terjadi error
+            if (isset($newFotoPath) && $newFotoPath && Storage::disk('public')->exists($newFotoPath)) {
+                Storage::disk('public')->delete($newFotoPath);
             }
-            if (!empty($ttdPath) && ($this->isEdit ? $ttdPath !== $this->originalTtd : true)) {
-                Storage::disk('public')->delete($ttdPath);
+            if (isset($newTtdPath) && $newTtdPath && Storage::disk('public')->exists($newTtdPath)) {
+                Storage::disk('public')->delete($newTtdPath);
             }
 
             $this->dispatch('toast', [
@@ -656,15 +835,36 @@ class KaryawanForm extends Component
                 'type'    => 'error',
             ]);
             throw $e;
+        } finally {
+            $this->isUpdating = false; // Reset flag di akhir
         }
+    }
+
+    // Method untuk hapus foto dengan aman
+    public function removeFoto()
+    {
+        $this->foto = null;
+    }
+
+    // Method untuk hapus TTD dengan aman
+    public function removeTtd()
+    {
+        $this->ttd = null;
     }
 
     public function render()
     {
-        $statusKaryawan = StatusPegawai::orderBy('nama_status')->get();
-        $statusKawin = StatusKawin::orderBy('nama')->get();
-        $golongan = Golongan::orderBy('nama_golongan')->get();
+        // Cache data master untuk menghindari query berulang
+        static $masterData = null;
         
-        return view('livewire.admin.karyawan.karyawan-form', compact('statusKaryawan', 'statusKawin','golongan'));
+        if ($masterData === null) {
+            $masterData = [
+                'statusKaryawan' => StatusPegawai::orderBy('nama_status')->get(),
+                'statusKawin' => StatusKawin::orderBy('nama')->get(),
+                'golongan' => Golongan::orderBy('nama_golongan')->get()
+            ];
+        }
+
+        return view('livewire.admin.karyawan.karyawan-form', $masterData);
     }
 }

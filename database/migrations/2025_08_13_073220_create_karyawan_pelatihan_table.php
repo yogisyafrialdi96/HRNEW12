@@ -36,7 +36,7 @@ return new class extends Migration
             ])->default('eksternal');
             
             // Sertifikat
-            $table->enum('sertifikat_diperoleh', ['ya', 'tidak'])->default('tidak');
+            $table->boolean('sertifikat_diperoleh')->default(false);
             $table->string('document_path')->nullable();
             
             // Keterangan tambahan

@@ -25,7 +25,7 @@ return new class extends Migration
             $table->enum('status', ['aktif', 'nonaktif', 'blocked', 'closed'])->default('aktif');
             $table->date('tanggal_buka')->nullable();
             $table->text('keterangan')->nullable();
-            $table->string('file_buku_tabungan')->nullable(); // Path file foto buku tabungan
+            $table->string('document_path')->nullable(); // Path file foto buku tabungan
             $table->foreignId('created_by')
                   ->constrained('users')
                   ->onDelete('restrict')

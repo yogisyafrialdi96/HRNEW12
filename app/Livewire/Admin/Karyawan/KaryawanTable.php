@@ -47,6 +47,7 @@ class KaryawanTable extends Component
 
     // Modal properties
     public $showModal = false;
+    public $isEdit = false;
 
 
 

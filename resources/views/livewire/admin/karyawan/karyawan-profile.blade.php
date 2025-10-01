@@ -1,6 +1,4 @@
-<div class="">
-    <!-- Full Screen Modal Container - Outside of main content -->
-    <div id="modal-container"></div>
+<div>
     <div class="max-w-7xl mx-auto">
         <!-- Header Section -->
         <div class="mb-8">
@@ -302,6 +300,7 @@
                 </div>
             </div>
 
+            
             <!-- Tab Content -->
             <div class="p-6 pt-0">
                 <div
@@ -309,148 +308,33 @@
                     @if ($activeTab === 'profile')
                         @livewire('admin.karyawan.karyawan-form', ['karyawan' => $karyawan], key('profile'))
                     @elseif ($activeTab === 'kontrak')
-                        @livewire('admin.karyawan.tabs.kontrak.index', ['karyawan' => $karyawan], key('kontrak'))
+                        @livewire('admin.karyawan.tab.kontrak.index', ['karyawan' => $karyawan], key('kontrak'))
                     @elseif ($activeTab === 'jabatan')
-                        @livewire('admin.karyawan.tabs.jabatan.index', ['karyawan' => $karyawan], key('jabatan'))
+                        @livewire('admin.karyawan.tab.jabatan.index', ['karyawan' => $karyawan], key('jabatan'))
                     @elseif ($activeTab === 'pendidikan')
-                        @livewire('admin.karyawan.tabs.pendidikan.index', ['karyawan' => $karyawan], key('pendidikan'))
+                        @livewire('admin.karyawan.tab.pendidikan.index', ['karyawan' => $karyawan], key('pendidikan'))
                     @elseif ($activeTab === 'organisasi')
-                        @livewire('admin.karyawan.tabs.organisasi.index', ['karyawan' => $karyawan], key('organisasi'))
+                        @livewire('admin.karyawan.tab.organisasi.index', ['karyawan' => $karyawan], key('organisasi'))
                     @elseif ($activeTab === 'pekerjaan')
-                        @livewire('admin.karyawan.tabs.pekerjaan.index', ['karyawan' => $karyawan], key('pekerjaan'))
+                        @livewire('admin.karyawan.tab.pekerjaan.index', ['karyawan' => $karyawan], key('pekerjaan'))
                     @elseif ($activeTab === 'keluarga')
-                        @livewire('admin.karyawan.tabs.keluarga.index', ['karyawan' => $karyawan], key('keluarga'))
+                        @livewire('admin.karyawan.tab.keluarga.index', ['karyawan' => $karyawan], key('keluarga'))
                     @elseif ($activeTab === 'bahasa')
-                        @livewire('admin.karyawan.tabs.bahasa.index', ['karyawan' => $karyawan], key('bahasa'))
+                        @livewire('admin.karyawan.tab.bahasa.index', ['karyawan' => $karyawan], key('bahasa'))
                     @elseif ($activeTab === 'sertifikasi')
-                        @livewire('admin.karyawan.tabs.sertifikasi.index', ['karyawan' => $karyawan], key('sertifikasi'))
+                        @livewire('admin.karyawan.tab.sertifikasi.index', ['karyawan' => $karyawan], key('sertifikasi'))
                     @elseif ($activeTab === 'pelatihan')
-                        @livewire('admin.karyawan.tabs.pelatihan.index', ['karyawan' => $karyawan], key('pelatihan'))
+                        @livewire('admin.karyawan.tab.pelatihan.index', ['karyawan' => $karyawan], key('pelatihan'))
                     @elseif ($activeTab === 'prestasi')
-                        @livewire('admin.karyawan.tabs.prestasi.index', ['karyawan' => $karyawan], key('prestasi'))
+                        @livewire('admin.karyawan.tab.prestasi.index', ['karyawan' => $karyawan], key('prestasi'))
                     @elseif ($activeTab === 'dokumen')
-                        @livewire('admin.karyawan.tabs.dokumen.index', ['karyawan' => $karyawan], key('dokumen'))
+                        @livewire('admin.karyawan.tab.dokumen.index', ['karyawan' => $karyawan], key('dokumen'))
                     @elseif ($activeTab === 'bank')
-                        @livewire('admin.karyawan.tabs.bankaccount.index', ['karyawan' => $karyawan], key('rekening'))
+                        @livewire('admin.karyawan.tab.bank.index', ['karyawan' => $karyawan], key('rekening'))
                     @endif
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- <!-- Enhanced Full Screen Delete Modal -->
-    <div x-data="{
-        open: @entangle('confirmingDelete'),
-        success: false,
-        showCheck: false,
-        close() {
-            this.open = false;
-            this.success = false;
-            this.showCheck = false;
-        },
-        init() {
-            this.$watch('success', value => {
-                if (value) {
-                    setTimeout(() => {
-                        this.close();
-                        @this.call('resetDeleteModal');
-                    }, 1500);
-                }
-            });
-    
-            // Move modal to body when opened to ensure it's above everything
-            this.$watch('open', value => {
-                if (value) {
-                    document.body.appendChild(this.$el);
-                    document.body.style.overflow = 'hidden';
-                } else {
-                    document.body.style.overflow = '';
-                }
-            });
-        }
-    }" x-init="init()" x-show="open"
-        x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
-        x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
-        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-        class="fixed inset-0 z-[9999] flex items-center justify-center" style="display: none;">
-        <!-- Enhanced Backdrop -->
-        <div class="absolute inset-0 bg-gradient-to-br from-black/60 via-gray-900/50 to-black/60 backdrop-blur-md">
-        </div>
-
-        <!-- Modal Content -->
-        <div x-show="open" x-transition:enter="transition ease-out duration-300 delay-100"
-            x-transition:enter-start="opacity-0 scale-95 translate-y-4"
-            x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-            x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100"
-            x-transition:leave-end="opacity-0 scale-95"
-            class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden"
-            :class="success
-                ?
-                'ring-4 ring-green-200/50 border-2 border-green-300' :
-                'ring-4 ring-red-200/50 border-2 border-red-300'">
-            <!-- Success State -->
-            <div x-show="success" x-transition.opacity class="p-8 text-center">
-                <div class="relative w-20 h-20 mx-auto mb-6">
-                    <!-- Spinner -->
-                    <div x-show="!showCheck"
-                        class="absolute inset-0 rounded-full border-4 border-green-500 border-t-transparent animate-spin">
-                    </div>
-                    <!-- Check Icon -->
-                    <div x-show="showCheck" x-transition:enter="transition ease-out duration-500"
-                        x-transition:enter-start="opacity-0 scale-0" x-transition:enter-end="opacity-100 scale-100"
-                        class="absolute inset-0 w-20 h-20 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center shadow-lg">
-                        <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" stroke-width="3"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                    </div>
-                </div>
-                <h2 class="text-2xl font-bold text-green-600 dark:text-green-400 mb-3">Berhasil!</h2>
-                <p class="text-green-700 dark:text-green-300">Data berhasil dihapus dengan sempurna</p>
-            </div>
-
-            <!-- Confirm State -->
-            <div x-show="!success" x-transition.opacity class="p-8">
-                <!-- Warning Icon -->
-                <div
-                    class="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-amber-100 to-yellow-100 dark:from-amber-900/50 dark:to-yellow-900/50 rounded-full flex items-center justify-center shadow-lg ring-4 ring-amber-100/50 dark:ring-amber-900/30">
-                    <svg class="w-10 h-10 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
-                        stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                    </svg>
-                </div>
-
-                <!-- Title and Description -->
-                <div class="text-center mb-8">
-                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">Konfirmasi Penghapusan</h2>
-                    <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
-                        Apakah Anda yakin ingin menghapus data ini?
-                        <span class="block mt-1 text-red-600 dark:text-red-400 font-medium">
-                            Tindakan ini tidak dapat dibatalkan.
-                        </span>
-                    </p>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="flex justify-center gap-4">
-                    <button @click="close()"
-                        class="group px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-600 font-medium min-w-[100px]">
-                        <span class="group-hover:scale-105 transition-transform duration-200">Batal</span>
-                    </button>
-                    <button
-                        @click.prevent="
-                            setTimeout(() => {
-                                @this.call('{{ $onConfirm ?? 'confirmDelete' }}');
-                                success = true;
-                                setTimeout(() => showCheck = true, 500);
-                            }, 100);
-                        "
-                        class="group px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-red-200 dark:focus:ring-red-800 font-medium shadow-lg hover:shadow-xl min-w-[100px]">
-                        <span class="group-hover:scale-105 transition-transform duration-200">Ya, Hapus</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div> --}}
 </div>

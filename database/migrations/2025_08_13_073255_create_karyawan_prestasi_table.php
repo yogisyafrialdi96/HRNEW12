@@ -17,30 +17,18 @@ return new class extends Migration
             $table->unsignedBigInteger('karyawan_id');
             $table->foreign('karyawan_id')->references('id')->on('karyawan')->onDelete('cascade');
             
-            // Informasi pelatihan
-            $table->string('nama_pelatihan');
+            // Informasi prestasi
+            $table->string('nama_prestasi');
+            $table->enum('tingkat', ['lokal', 'regional', 'nasional', 'internasional']);
+            $table->enum('peringkat', ['juara_1', 'juara_2', 'juara_3', 'harapan_1', 'harapan_2', 'harapan_3', 'partisipasi', 'nominasi']);
+            $table->enum('kategori', ['individu', 'tim', 'organisasi']);
             $table->string('penyelenggara');
+            $table->date('tanggal');
             $table->string('lokasi');
-            
-            // Tanggal pelatihan
-            $table->date('tgl_mulai');
-            $table->date('tgl_selesai');
-            
-            // Jenis pelatihan dengan enum yang lebih spesifik
-            $table->enum('jenis_pelatihan', [
-                'internal', 
-                'eksternal', 
-                'online', 
-                'offline', 
-                'hybrid'
-            ])->default('eksternal');
-            
-            // Sertifikat
-            $table->enum('sertifikat_diperoleh', ['ya', 'tidak'])->default('tidak');
-            $table->string('document_path')->nullable();
             
             // Keterangan tambahan
             $table->text('keterangan')->nullable();
+            $table->string('document_path')->nullable(); //
             $table->foreignId('created_by')
                   ->constrained('users')
                   ->onDelete('restrict')
@@ -53,9 +41,10 @@ return new class extends Migration
                   ->comment('User yang mengupdate');
             $table->timestamps();
             
-            // Index untuk performa query
-            $table->index(['karyawan_id', 'tgl_mulai']);
-            $table->index('jenis_pelatihan');
+            // Index untuk optimasi query
+            $table->index(['karyawan_id', 'tanggal']);
+            $table->index('tingkat');
+            $table->index('kategori');
         });
     }
 

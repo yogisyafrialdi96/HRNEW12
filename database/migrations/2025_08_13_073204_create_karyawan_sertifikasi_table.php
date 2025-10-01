@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('nomor_sertifikat')->nullable();
             $table->date('tgl_terbit');
             $table->date('tgl_kadaluwarsa')->nullable();
-            $table->integer('masa_berlaku_tahun')->nullable(); // Masa berlaku standar dalam tahun
             $table->decimal('biaya_sertifikasi', 12, 2)->nullable(); // Biaya yang dikeluarkan
             $table->enum('metode_pembelajaran',['Online', 'Offline', 'Blended'])->nullable(); // Online, Offline, Blended
             $table->integer('durasi_jam')->nullable(); // Durasi pelatihan dalam jam
