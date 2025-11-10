@@ -20,7 +20,7 @@ class KaryawanKontrak extends Model
         'golongan_id',
         'unit_id',
         'jabatan_id',
-        'mapel',
+        'mapel_id',
         'gaji_paket',
         'gaji_pokok',
         'transport',
@@ -36,8 +36,53 @@ class KaryawanKontrak extends Model
     ];
 
     // Relationships
-    public function employee(): BelongsTo
+    public function karyawan()
     {
-        return $this->belongsTo(Karyawan::class);
+        return $this->belongsTo(\App\Models\Employee\Karyawan::class, 'karyawan_id');
+    }
+
+    public function kontrak()
+    {
+        return $this->belongsTo(\App\Models\Master\Kontrak::class, 'kontrak_id');
+    }
+
+    public function golongan()
+    {
+        return $this->belongsTo(\App\Models\Master\Golongan::class, 'golongan_id');
+    }
+
+    public function unit()
+    {
+        return $this->belongsTo(\App\Models\Master\Units::class, 'unit_id');
+    }
+
+    public function jabatan()
+    {
+        return $this->belongsTo(\App\Models\Master\Jabatans::class, 'jabatan_id');
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'created_by');
+    }
+
+    public function updater()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'updated_by');
+    }
+
+    public function mapel()
+    {
+        return $this->belongsTo(\App\Models\Master\Mapel::class, 'id');
+    }
+
+    public function approver1()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'approved_1');
+    }
+
+    public function approver2()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'approved_2');
     }
 }

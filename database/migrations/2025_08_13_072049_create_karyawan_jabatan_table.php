@@ -17,8 +17,7 @@ return new class extends Migration
             $table->foreignId('department_id')->constrained('master_department')->onDelete('cascade');
             $table->foreignId('unit_id')->constrained('master_unit')->onDelete('cascade');
             $table->foreignId('jabatan_id')->constrained('master_jabatan')->onDelete('restrict');
-            $table->foreignId('mapel_id')->constrained('master_mapel')->onDelete('restrict');
-            $table->enum('hub_kerja', ['Mutasi', 'Promosi','Demosi','Rotasi','Default','Penugasan Sementara'])->default('Default');
+            $table->enum('hub_kerja', ['Mutasi', 'Promosi','Demosi','Rotasi','Default','PJS'])->default('Default');
             $table->date('tgl_mulai');
             $table->date('tgl_selesai')->nullable();
             $table->string('keterangan')->nullable();

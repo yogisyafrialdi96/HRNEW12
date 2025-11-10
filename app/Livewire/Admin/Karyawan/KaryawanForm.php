@@ -5,6 +5,7 @@ namespace App\Livewire\Admin\Karyawan;
 use Livewire\Component;
 use App\Models\Employee\Karyawan;
 use App\Models\Master\Golongan;
+use App\Models\Master\Mapel;
 use App\Models\Master\StatusKawin;
 use App\Models\Master\StatusPegawai;
 use Livewire\WithFileUploads;
@@ -41,6 +42,7 @@ class KaryawanForm extends Component
     public $password_confirmation;
     public $nip;
     public $jenis_karyawan;
+    public $mapel_id;
     public $statuskaryawan_id;
     public $statuskawin_id;
     public $golongan_id;
@@ -126,6 +128,7 @@ class KaryawanForm extends Component
         $this->email = $karyawanWithUser->user?->email;
         $this->nip = $karyawan->nip;
         $this->jenis_karyawan = $karyawan->jenis_karyawan;
+        $this->mapel_id = $karyawan->mapel_id;
         $this->statuskaryawan_id = $karyawan->statuskaryawan_id;
         $this->statuskawin_id = $karyawan->statuskawin_id;
         $this->golongan_id = $karyawan->golongan_id;
@@ -599,6 +602,12 @@ class KaryawanForm extends Component
             $rules['ttd'] = 'nullable|string';
         }
 
+        if($this->jenis_karyawan === 'Guru') {
+            $rules['mapel_id'] = 'required|exists:master_mapel,id';
+        } else {
+            $rules['mapel_id'] = 'nullable';
+        }
+
         return $rules;
     }
 
@@ -612,6 +621,7 @@ class KaryawanForm extends Component
         'hp' => 'Nomor HP',
         'whatsapp' => 'WhatsApp',
         'jenis_karyawan' => 'Jenis Karyawan',
+        'mapel_id' => 'Mata Pelajaran',
         'statuskaryawan_id' => 'Status Karyawan',
         'statuskawin_id' => 'Status Kawin',
         'golongan_id' => 'Golongan',
@@ -747,6 +757,7 @@ class KaryawanForm extends Component
                 'hp' => $plainHp,
                 'whatsapp' => $plainWhatsapp,
                 'jenis_karyawan' => $this->jenis_karyawan,
+                'mapel_id' => $this->mapel_id,
                 'statuskaryawan_id' => $this->statuskaryawan_id,
                 'statuskawin_id' => $this->statuskawin_id,
                 'golongan_id' => $this->golongan_id,
@@ -861,7 +872,8 @@ class KaryawanForm extends Component
             $masterData = [
                 'statusKaryawan' => StatusPegawai::orderBy('nama_status')->get(),
                 'statusKawin' => StatusKawin::orderBy('nama')->get(),
-                'golongan' => Golongan::orderBy('nama_golongan')->get()
+                'golongan' => Golongan::orderBy('nama_golongan')->get(),
+                'masterMapel' => Mapel::orderBy('nama_mapel')->get(),
             ];
         }
 

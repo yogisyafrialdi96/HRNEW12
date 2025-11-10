@@ -36,10 +36,10 @@ return new class extends Migration
             $table->string('alamat_ktp')->nullable();
             $table->string('rt_ktp')->nullable();
             $table->string('rw_ktp')->nullable();
-            $table->foreignId('prov_id')->constrained('provinsi');
-            $table->foreignId('kab_id')->constrained('kabupaten');
-            $table->foreignId('kec_id')->constrained('kecamatan');
-            $table->foreignId('desa_id')->constrained('desa');
+            $table->foreignId('prov_id')->nullable()->constrained('provinsi');
+            $table->foreignId('kab_id')->nullable()->constrained('kabupaten');
+            $table->foreignId('kec_id')->nullable()->constrained('kecamatan');
+            $table->foreignId('desa_id')->nullable()->constrained('desa');
 
             // Alamat Domisili (boleh kosong jika sama dengan KTP)
             $table->boolean('domisili_sama_ktp')->default(false);
@@ -56,8 +56,8 @@ return new class extends Migration
             $table->string('foto')->nullable();
             $table->string('ttd')->nullable();
             $table->foreignId('statuskaryawan_id')->constrained('master_statuspegawai');
-            $table->foreignId('statuskawin_id')->constrained('master_statuskawin');
-            $table->foreignId('golongan_id')->constrained('master_golongan');
+            $table->foreignId('statuskawin_id')->nullable()->constrained('master_statuskawin');
+            $table->foreignId('golongan_id')->nullable()->constrained('master_golongan');
             
             $table->string('npwp')->nullable();
             
@@ -66,6 +66,7 @@ return new class extends Migration
             $table->date('tgl_berhenti')->nullable();
 
             $table->enum('jenis_karyawan',['Guru','Pegawai'])->nullable();
+            $table->foreignId('mapel_id')->nullable()->constrained('master_mapel')->onDelete('restrict');
             $table->timestamps();
             $table->softDeletes();
             $table->foreignId('created_by')->nullable()->constrained('users');

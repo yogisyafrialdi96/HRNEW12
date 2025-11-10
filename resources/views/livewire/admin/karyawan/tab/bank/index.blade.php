@@ -2,8 +2,8 @@
 
     <div class="flex flex-column sm:flex-row flex-wrap sm:space-y-0 items-center justify-between">
         <div>
-            <flux:heading size="lg">Dokumen</flux:heading>
-            <flux:text>This Page Show List of Dokumen</flux:text>
+            <flux:heading size="lg">Bank Account</flux:heading>
+            <flux:text>This Page Show List of Bank Account</flux:text>
         </div>
 
         <div>
@@ -44,7 +44,7 @@
                     </div>
                     <input type="text" wire:model.live.live="search"
                         class="block p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                        placeholder="Search Dokumen...">
+                        placeholder="Search Akun Bank...">
                 </div>
             </div>
 
@@ -237,7 +237,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="px-6 py-12 text-center text-gray-500">
+                            <td colspan="10" class="px-6 py-12 text-center text-gray-500">
                                 <div class="flex flex-col items-center">
                                     <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
