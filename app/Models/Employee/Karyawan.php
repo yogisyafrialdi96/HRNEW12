@@ -3,6 +3,7 @@
 namespace App\Models\Employee;
 
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -81,6 +82,18 @@ class Karyawan extends Model
         return $this->hasMany(KaryawanKontrak::class)->where('status', 'active');
     }
 
+    public function statusPegawai(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Master\StatusPegawai::class, 'statuskaryawan_id');
+    }
+
+    public function activeJabatan()
+    {
+        return $this->hasOne(KaryawanJabatan::class, 'karyawan_id')
+            ->where('is_active', true)
+            ->latest('tgl_mulai');
+    }
+
     public function currentContract()
     {
         return $this->contracts()
@@ -119,5 +132,197 @@ class Karyawan extends Model
     public function updater(): BelongsTo
     {
         return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    /**
+     * Calculate work anniversary milestones for employee
+     * Milestones: 5, 10, 15, 20, 25, 30, 35 years from first contract
+     *
+     * @return array|null Array of milestones with dates and status, or null if no contracts
+     */
+    public function calculateMilestones()
+    {
+        // Get first contract start date
+        $startDate = null;
+        if ($this->contracts && $this->contracts->count() > 0) {
+            $startDate = Carbon::parse($this->contracts->first()->tglmulai_kontrak);
+        } else {
+            return null;
+        }
+
+        $now = Carbon::now();
+        $milestones = [];
+
+        // Calculate for each milestone year: 5, 10, 15, 20, 25, 30, 35
+        foreach ([5, 10, 15, 20, 25, 30, 35] as $year) {
+            $milestoneDate = $startDate->copy()->addYears($year);
+            $daysUntil = $now->diffInDays($milestoneDate, false);
+
+            // Determine status: achieved (past), upcoming-soon (<30 days), future
+            if ($daysUntil < 0) {
+                $status = 'achieved';
+            } elseif ($daysUntil <= 30) {
+                $status = 'upcoming-soon';
+            } else {
+                $status = 'future';
+            }
+
+            $milestones[$year] = [
+                'year' => $year,
+                'date' => $milestoneDate,
+                'status' => $status,
+                'daysUntil' => $daysUntil,
+                'formatted_date' => $milestoneDate->translatedFormat('d M Y'),
+            ];
+        }
+
+        return $milestones;
+    }
+
+    /**
+     * Get milestone badge configuration based on status
+     *
+     * @param string $status The milestone status (achieved, upcoming-soon, future)
+     * @return array Badge configuration with class and label
+     */
+    public static function getMilestoneBadgeConfig($status)
+    {
+        $badgeConfig = [
+            'achieved' => [
+                'class' => 'bg-green-100 text-green-800',
+                'label' => 'Tercapai',
+                'icon' => '✓'
+            ],
+            'upcoming-soon' => [
+                'class' => 'bg-red-100 text-red-800',
+                'label' => 'Segera',
+                'icon' => '!'
+            ],
+            'future' => [
+                'class' => 'bg-blue-100 text-blue-800',
+                'label' => 'Mendatang',
+                'icon' => '→'
+            ]
+        ];
+
+        return $badgeConfig[$status] ?? ['class' => 'bg-gray-100 text-gray-800', 'label' => 'N/A', 'icon' => '?'];
+    }
+
+    /**
+     * Calculate current work duration (masa kerja berjalan)
+     * Returns years and months from first contract start date to now
+     *
+     * @return array|null Array with years and months, or null if no contracts
+     */
+    public function getCurrentWorkDuration()
+    {
+        if (!$this->contracts || $this->contracts->count() === 0) {
+            return null;
+        }
+
+        $startDate = Carbon::parse($this->contracts->first()->tglmulai_kontrak);
+        $now = Carbon::now();
+
+        $years = $now->diffInYears($startDate);
+        $months = $now->diffInMonths($startDate) % 12;
+        $days = $now->diffInDays($startDate->copy()->addYears($years)->addMonths($months));
+
+        return [
+            'years' => $years,
+            'months' => $months,
+            'days' => $days,
+            'total_days' => $now->diffInDays($startDate),
+            'formatted' => sprintf('%d Tahun %d Bulan', $years, $months),
+            'short' => sprintf('%d.%d Tahun', $years, $months),
+        ];
+    }
+
+    /**
+     * Check if any milestone is upcoming soon (within 30 days)
+     * Returns the milestone year that is coming soon, or null
+     *
+     * @return int|null The milestone year that is upcoming soon, or null
+     */
+    public function getUpcomingSoonMilestone()
+    {
+        $milestones = $this->calculateMilestones();
+        
+        if (!$milestones) {
+            return null;
+        }
+
+        foreach ($milestones as $year => $milestone) {
+            if ($milestone['status'] === 'upcoming-soon') {
+                return $year;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Calculate retirement information based on birth date + 56 years
+     *
+     * @return array|null Retirement information with dates and remaining time, or null if no birth date
+     */
+    public function getRetirementInfo()
+    {
+        // Check if tanggal_lahir exists
+        if (!$this->tanggal_lahir) {
+            return null;
+        }
+
+        $birthDate = Carbon::parse($this->tanggal_lahir);
+        $retirementDate = $birthDate->copy()->addYears(56);
+        $now = Carbon::now();
+
+        // Check if already retired
+        if ($now->greaterThan($retirementDate)) {
+            return [
+                'status' => 'retired',
+                'retirement_date' => $retirementDate,
+                'formatted_retirement_date' => $retirementDate->translatedFormat('d M Y'),
+                'current_age' => $now->diffInYears($birthDate),
+                'message' => 'Telah pensiun',
+            ];
+        }
+
+        $yearsUntilRetirement = $retirementDate->diffInYears($now);
+        $monthsUntilRetirement = $retirementDate->diffInMonths($now) % 12;
+        $daysUntilRetirement = $retirementDate->diffInDays($now);
+
+        $currentAge = $now->diffInYears($birthDate);
+
+        return [
+            'status' => 'active',
+            'retirement_date' => $retirementDate,
+            'formatted_retirement_date' => $retirementDate->translatedFormat('d M Y'),
+            'current_age' => $currentAge,
+            'years_remaining' => $yearsUntilRetirement,
+            'months_remaining' => $monthsUntilRetirement,
+            'days_remaining' => $daysUntilRetirement,
+            'formatted' => sprintf('%d Tahun %d Bulan', $yearsUntilRetirement, $monthsUntilRetirement),
+            'short' => sprintf('%d.%d Tahun', $yearsUntilRetirement, $monthsUntilRetirement),
+            'message' => sprintf('Pensiun dalam %d tahun %d bulan', $yearsUntilRetirement, $monthsUntilRetirement),
+        ];
+    }
+
+    /**
+     * Check if a milestone date occurs before employee's retirement date
+     *
+     * @param Carbon $milestoneDate The milestone date to check
+     * @return bool True if milestone is before retirement, false otherwise
+     */
+    public function isMilestoneBeforeRetirement($milestoneDate)
+    {
+        $retirementInfo = $this->getRetirementInfo();
+        
+        if (!$retirementInfo) {
+            return true; // Show milestone if no retirement info
+        }
+
+        $retirementDate = $retirementInfo['retirement_date'];
+        
+        return $milestoneDate->isBefore($retirementDate);
     }
 }

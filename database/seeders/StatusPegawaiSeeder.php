@@ -31,6 +31,14 @@ class StatusPegawaiSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
+                'nama_status' => 'Pensiun', 
+                'deskripsi' => 'Pegawai Pensiun',
+                'created_by' => 1,
+                'updated_by' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
                 'nama_status' => 'Pensiun Dini', 
                 'deskripsi' => 'Pegawai Pensiun Dini',
                 'created_by' => 1,

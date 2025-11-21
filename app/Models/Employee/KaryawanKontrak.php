@@ -2,6 +2,8 @@
 
 namespace App\Models\Employee;
 
+use App\Models\User;
+use App\Models\Yayasan\Pengurus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -61,14 +63,16 @@ class KaryawanKontrak extends Model
         return $this->belongsTo(\App\Models\Master\Jabatans::class, 'jabatan_id');
     }
 
-    public function creator()
+    // Relasi ke users (created_by)
+    public function createdBy()
     {
-        return $this->belongsTo(\App\Models\User::class, 'created_by');
+        return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function updater()
+    // Relasi ke users (updated_by)
+    public function updatedBy()
     {
-        return $this->belongsTo(\App\Models\User::class, 'updated_by');
+        return $this->belongsTo(User::class, 'updated_by');
     }
 
     public function mapel()
@@ -76,13 +80,15 @@ class KaryawanKontrak extends Model
         return $this->belongsTo(\App\Models\Master\Mapel::class, 'id');
     }
 
-    public function approver1()
+    // Relasi ke karyawan (approved_1)
+    public function approved1()
     {
-        return $this->belongsTo(\App\Models\User::class, 'approved_1');
+        return $this->belongsTo(Karyawan::class, 'approved_1');
     }
 
-    public function approver2()
+    // Relasi ke pengurus (approved_2)
+    public function approved2()
     {
-        return $this->belongsTo(\App\Models\User::class, 'approved_2');
+        return $this->belongsTo(Pengurus::class, 'approved_2');
     }
 }

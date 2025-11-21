@@ -30,6 +30,8 @@
                 <flux:navlist.group :heading="__('Users')" class="grid">
                     <flux:navlist.item icon="home" :href="route('pengurus.index')" :current="request()->routeIs('pengurus.*')" wire:navigate>{{ __('Pengurus') }}</flux:navlist.item>
                     <flux:navlist.item icon="home" :href="route('karyawan.index')" :current="request()->routeIs('karyawan.*')" wire:navigate>{{ __('Karyawan') }}</flux:navlist.item>
+                    <flux:navlist.item icon="home" :href="route('kontrak.index')" :current="request()->routeIs('kontrak.*')" wire:navigate>{{ __('Kontrak Kerja') }}</flux:navlist.item>
+                    <flux:navlist.item icon="home" :href="route('masakerja.index')" :current="request()->routeIs('masakerja.*')" wire:navigate>{{ __('Masa Kerja') }}</flux:navlist.item>
                 </flux:navlist.group>
             </flux:navlist>
 

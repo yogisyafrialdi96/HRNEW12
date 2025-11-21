@@ -165,6 +165,16 @@
                                             </path>
                                         </svg>
                                     </button>
+                                    <a href="{{ route('kontrak.print', $kontrak->id) }}"
+                                        target="_blank"
+                                        class="text-green-600 hover:text-green-900 p-1 rounded-md hover:bg-green-50"
+                                        title="Print">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm0-6V9a2 2 0 012-2h2a2 2 0 012 2v6">
+                                            </path>
+                                        </svg>
+                                    </a>
                                     <button wire:click="edit({{ $kontrak->id }})"
                                         class="text-yellow-600 hover:text-yellow-900 p-1 rounded-md hover:bg-yellow-50 transition duration-200">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

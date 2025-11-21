@@ -48,6 +48,11 @@ class KaryawanTable extends Component
     // Modal properties
     public $showModal = false;
     public $isEdit = false;
+    
+    // Modal Detail properties
+    public $showModalDetail = false;
+    public $selectedKaryawan = null;
+    public $activeTab = 'profile';
 
 
 
@@ -383,6 +388,9 @@ class KaryawanTable extends Component
     public function closeModal()
     {
         $this->showModal = false;
+        $this->showModalDetail = false;
+        $this->selectedKaryawan = null;
+        $this->activeTab = 'profile';
         $this->resetForm();
     }
 
@@ -420,7 +428,8 @@ class KaryawanTable extends Component
     public function render()
     {
         $query = Karyawan::with([
-            'user'
+            'user',
+            'activeJabatan',
         ]);
 
         // tampilkan data terhapus jika perlu
@@ -470,5 +479,33 @@ class KaryawanTable extends Component
         $statusKaryawan = StatusPegawai::orderBy('nama_status')->get();
 
         return view('livewire.admin.karyawan.karyawan-table', compact('karyawans', 'statusKaryawan'));
+    }
+
+    /**
+     * Show detail modal for karyawan
+     */
+    public function showDetail($id)
+    {
+        $this->selectedKaryawan = Karyawan::with([
+            'user',
+            'statusPegawai',
+            'activeJabatan' => function ($q) {
+                $q->with(['jabatan', 'unit']);
+            },
+            'contracts' => function ($q) {
+                $q->with('kontrak')->latest('tglmulai_kontrak');
+            }
+        ])->findOrFail($id);
+        
+        $this->showModalDetail = true;
+        $this->activeTab = 'profile';
+    }
+
+    /**
+     * Switch active tab in detail modal
+     */
+    public function switchTab($tab)
+    {
+        $this->activeTab = $tab;
     }
 }

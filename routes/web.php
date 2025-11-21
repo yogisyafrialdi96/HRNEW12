@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\KaryawanKontrakController;
 use App\Livewire\Admin;
 use App\Livewire\Admin\Karyawan\KaryawanForm;
 use App\Livewire\Admin\Karyawan\KaryawanProfile;
 use App\Livewire\Admin\Karyawan\KaryawanTable;
+use App\Http\Controllers\KontrakPrintController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
@@ -46,6 +48,16 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
     Route::prefix('karyawan')->name('karyawan.')->group(function () {
         Route::get('/', KaryawanTable::class)->name('index');
         Route::get('/{karyawan}/edit/{tab?}', KaryawanProfile::class)->name('edit');
+    });
+
+    Route::prefix('kontrak')->name('kontrak.')->group(function () {
+        Route::get('/', Admin\Karyawan\Kontrak\Index::class)->name('index');
+        // Route untuk cetak PDF (stream/buka di browser)
+        Route::get('/cetak/{id}', [KaryawanKontrakController::class, 'cetakKontrak'])->name('cetak');
+    });
+
+    Route::prefix('masakerja')->name('masakerja.')->group(function () {
+        Route::get('/', Admin\Karyawan\Masakerja\Index::class)->name('index');
     });
 });
 

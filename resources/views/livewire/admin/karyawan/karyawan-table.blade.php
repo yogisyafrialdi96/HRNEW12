@@ -111,12 +111,13 @@
                                 <span>No</span>
                             </div>
                         </th>
+                        <!-- Nama & NIP -->
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                            wire:click="sortBy('nama_pengurus')">
+                            wire:click="sortBy('full_name')">
                             <div class="flex items-center gap-2">
-                                <span>Nama</span>
+                                <span>Nama & NIP</span>
                                 <div class="sort-icon">
-                                    @if ($sortField === 'nama_pengurus')
+                                    @if ($sortField === 'full_name')
                                         @if ($sortDirection === 'asc')
                                             <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
@@ -140,97 +141,22 @@
                                 </div>
                             </div>
                         </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                            wire:click="sortBy('posisi')">
-                            <div class="flex items-center gap-2">
-                                <span>Posisi</span>
-                                <div class="sort-icon">
-                                    @if ($sortField === 'posisi')
-                                        @if ($sortDirection === 'asc')
-                                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M5 15l7-7 7 7"></path>
-                                            </svg>
-                                        @else
-                                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M19 9l-7 7-7-7"></path>
-                                            </svg>
-                                        @endif
-                                    @else
-                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
-                                        </svg>
-                                    @endif
-                                </div>
-                            </div>
+                        <!-- Jabatan Aktif -->
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Jabatan Aktif
                         </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                            wire:click="sortBy('hp')">
-                            <div class="flex items-center gap-2">
-                                <span>HP</span>
-                                <div class="sort-icon">
-                                    @if ($sortField === 'hp')
-                                        @if ($sortDirection === 'asc')
-                                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M5 15l7-7 7 7"></path>
-                                            </svg>
-                                        @else
-                                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M19 9l-7 7-7-7"></path>
-                                            </svg>
-                                        @endif
-                                    @else
-                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
-                                        </svg>
-                                    @endif
-                                </div>
-                            </div>
+                        <!-- Unit Aktif -->
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Unit Aktif
                         </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                            wire:click="sortBy('status')">
-                            <div class="flex items-center gap-2">
-                                <span>Status</span>
-                                <div class="sort-icon">
-                                    @if ($sortField === 'status')
-                                        @if ($sortDirection === 'asc')
-                                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M5 15l7-7 7 7"></path>
-                                            </svg>
-                                        @else
-                                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M19 9l-7 7-7-7"></path>
-                                            </svg>
-                                        @endif
-                                    @else
-                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
-                                        </svg>
-                                    @endif
-                                </div>
-                            </div>
+                        <!-- Status Pegawai -->
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Status Pegawai
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                             wire:click="sortBy('created_at')">
                             <div class="flex items-center gap-2">
-                                created</span>
+                                <span>Created</span>
                                 <div class="sort-icon">
                                     @if ($sortField === 'created_at')
                                         @if ($sortDirection === 'asc')
@@ -267,6 +193,7 @@
                             <td class="px-2 py-4 whitespace-nowrap text-center text-sm">
                                 {{ $karyawans->firstItem() + $loop->index }}.
                             </td>
+                            <!-- Nama & NIP -->
                             <td class="px-6 py-4 w-72">
                                 <div class="flex items-center space-x-3">
                                     <img class="w-8 h-8 rounded-full object-cover"
@@ -276,29 +203,42 @@
                                         alt="{{ $karyawan->full_name }}">
                                     <div class="text-sm">
                                         <div class="font-semibold text-gray-900">{{ $karyawan->full_name }}</div>
-                                        <div class="text-gray-500"></div>
+                                        <div class="text-gray-500 text-xs">{{ $karyawan->nip ?? '-' }}</div>
                                     </div>
                                 </div>
                             </td>
+                            <!-- Jabatan Aktif -->
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ $karyawan->nip ?? '-' }}
+                                @if($karyawan->activeJabatan && $karyawan->activeJabatan->jabatan)
+                                    {{ $karyawan->activeJabatan->jabatan->nama_jabatan ?? '-' }}
+                                @else
+                                    <span class="text-gray-400">-</span>
+                                @endif
                             </td>
+                            <!-- Unit Aktif -->
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ [
-                                    'laki-laki' => 'Laki-laki',
-                                    'perempuan' => 'Perempuan',
-                                ][$karyawan->gender] ?? '-' }}
+                                @if($karyawan->activeJabatan && $karyawan->activeJabatan->unit)
+                                    {{ $karyawan->activeJabatan->unit->unit ?? '-' }}
+                                @else
+                                    <span class="text-gray-400">-</span>
+                                @endif
                             </td>
+                            <!-- Status Pegawai -->
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <button wire:click="toggleStatus({{ $karyawan->id }})"
-                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $karyawan->statusBadge['class'] }}">
-                                    {{ $karyawan->statusBadge['text'] }}
-                                </button>
+                                @if($karyawan->statusPegawai)
+                                    @php
+                                        $badgeConfig = \App\Models\Master\StatusPegawai::getBadgeConfig($karyawan->statusPegawai->id);
+                                    @endphp
+                                    <span class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full {{ $badgeConfig['class'] }}">
+                                        {{ $badgeConfig['label'] }}
+                                    </span>
+                                @else
+                                    <span class="text-gray-400 text-sm">-</span>
+                                @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                 <div>{{ $karyawan->created_at->format('d M Y') }}</div>
-                                <div class="text-xs text-gray-500">by {{ $karyawan->creator->name ?? 'System' }}
-                                </div>
+                                <div class="text-xs text-gray-500">by {{ $karyawan->creator->name ?? 'System' }}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 @if ($showDeleted)
@@ -366,7 +306,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                            <td colspan="6" class="px-6 py-12 text-center text-gray-500">
                                 <div class="flex flex-col items-center">
                                     <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
@@ -743,8 +683,8 @@
         </div>
     @endif
 
-
-
+    <!-- Modal Detail Karyawan -->
+    @include('livewire.admin.karyawan.modal-detail-tabs')
 
     <!-- Modal Konfirmasi Floating (Tanpa overlay) -->
     <x-modal-confirmation.modal-confirm-delete wire:model="confirmingDelete" onConfirm="delete" />
