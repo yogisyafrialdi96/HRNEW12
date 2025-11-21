@@ -34,7 +34,9 @@ class KaryawanKontrak extends Model
         'created_by',
         'updated_by',
         'approved_1',
+        'status_approve_1',
         'approved_2',
+        'status_approve_2',
     ];
 
     // Relationships

@@ -15,7 +15,7 @@
             font-family: "Times New Roman", Times, serif;
             font-size: 14px;
             text-align: justify;
-            margin-bottom: 0.5cm;
+            margin-bottom: 1cm;
             margin-top: 3.2cm;
             
         }
@@ -110,7 +110,6 @@
             position: fixed;
             left: 0;
             right: 0;
-            top:auto;
             color: #aaa;
             font-size: 0.9em;
             bottom: 10px;
@@ -140,7 +139,7 @@
             content: "Page " counter(page);
         }
         .tebusan {
-            margin-top: 40px;
+            margin-top: 50%;
             font-size: 9pt;
             position: relative;
         }
@@ -172,7 +171,16 @@
                 <td style="width: 10px;">1.</td>
                 <td class="label">Nama</td>
                 <td class="separator">:</td>
-                <td>DEWINTA UNTARI</td>
+                <td>
+                    @if($kontrak->approved_1)
+                        @php
+                            $approver1 = \App\Models\Employee\Karyawan::with('user')->find($kontrak->approved_1);
+                        @endphp
+                        {{ $approver1->full_name ?? $approver1->user->name ?? 'DEWINTA UNTARI' }}
+                    @else
+                        DEWINTA UNTARI
+                    @endif
+                </td>
             </tr>
             <tr>
                 <td></td>
@@ -184,7 +192,16 @@
                 <td></td>
                 <td class="label">Jabatan</td>
                 <td class="separator">:</td>
-                <td>Manager HR-GS YKPI Al-Ittihad</td>
+                <td>
+                    @if($kontrak->approved_1)
+                        @php
+                            $approver1 = \App\Models\Employee\Karyawan::with(['activeJabatan.jabatan'])->find($kontrak->approved_1);
+                        @endphp
+                        {{ $approver1->activeJabatan?->jabatan?->nama_jabatan ?? 'Manager HR-GS YKPI Al-Ittihad' }}
+                    @else
+                        Manager HR-GS YKPI Al-Ittihad
+                    @endif
+                </td>
             </tr>
             <tr>
                 <td></td>
@@ -328,8 +345,16 @@
         <div class="signature-box">
             <p style="margin: 0;">Pihak Pertama,</p>
             <div class="signature-space"></div>
-            <div class="signature-name" style="text-decoration: underline">{{ $kontrak->approved1->name ?? '[Nama Pejabat]' }}</div>
-            <p style="font-size: 9pt; margin: 0;">Manager HR-GS YKPI Al-Ittihad</p>
+            @if($kontrak->approved_1)
+                @php
+                    $approver1 = \App\Models\Employee\Karyawan::with(['activeJabatan.jabatan'])->find($kontrak->approved_1);
+                @endphp
+                <div class="signature-name" style="text-decoration: underline">{{ $approver1->full_name ?? '[Nama Pejabat]' }}</div>
+                <p style="font-size: 9pt; margin: 0;">{{ $approver1->activeJabatan?->jabatan?->nama_jabatan ?? 'Manager HR-GS YKPI Al-Ittihad' }}</p>
+            @else
+                <div class="signature-name" style="text-decoration: underline">[Nama Pejabat]</div>
+                <p style="font-size: 9pt; margin: 0;">Manager HR-GS YKPI Al-Ittihad</p>
+            @endif
         </div>
         <div class="signature-box">
             <p style="margin: 0;">Pihak Kedua,</p>
@@ -356,7 +381,7 @@
 
     <div class="tebusan">
         <div class="sub-tebusan" style="text-decoration: underline">Tembusan:</div>
-        <ol style="margin-top: 0; padding-left: 15px;">
+        <ol style="margin-top: 0; margin-left: 10px;">
             <li>Pimpinan Unit</li>
             <li>Kord. Keuangan</li>
             <li>Arsip</li>

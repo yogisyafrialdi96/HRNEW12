@@ -124,7 +124,16 @@
             <tr>
                 <td class="label">Mewakili</td>
                 <td class="separator">:</td>
-                <td>{{ $kontrak->approved2->name ?? '[Nama Pejabat]' }}</td>
+                <td>
+                    @if($kontrak->approved_2)
+                        @php
+                            $pengurus = \App\Models\Yayasan\Pengurus::find($kontrak->approved_2);
+                        @endphp
+                        {{ $pengurus->nama_pengurus ?? '[Nama Pejabat]' }}
+                    @else
+                        [Nama Pejabat]
+                    @endif
+                </td>
             </tr>
         </table>
 
@@ -271,7 +280,14 @@
         <div class="signature-box">
             <p style="margin: 0;">Pihak Pertama</p>
             <div class="signature-space"></div>
-            <div class="signature-name">{{ $kontrak->approved2->name ?? '[Nama Pejabat]' }}</div>
+            @if($kontrak->approved_2)
+                @php
+                    $pengurus = \App\Models\Yayasan\Pengurus::find($kontrak->approved_2);
+                @endphp
+                <div class="signature-name">{{ $pengurus->nama_pengurus ?? '[Nama Pejabat]' }}</div>
+            @else
+                <div class="signature-name">[Nama Pejabat]</div>
+            @endif
             <p style="font-size: 9pt; margin: 0;">Ketua Yayasan / Direktur</p>
         </div>
         <div class="signature-box">

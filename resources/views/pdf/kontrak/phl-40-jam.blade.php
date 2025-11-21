@@ -136,7 +136,16 @@
             <tr>
                 <td class="label">Mewakili</td>
                 <td class="separator">:</td>
-                <td>{{ $kontrak->approved2->name ?? '[Nama Pejabat]' }}</td>
+                <td>
+                    @if($kontrak->approved_2)
+                        @php
+                            $pengurus = \App\Models\Yayasan\Pengurus::find($kontrak->approved_2);
+                        @endphp
+                        {{ $pengurus->nama_pengurus ?? '[Nama Pejabat]' }}
+                    @else
+                        [Nama Pejabat]
+                    @endif
+                </td>
             </tr>
         </table>
 

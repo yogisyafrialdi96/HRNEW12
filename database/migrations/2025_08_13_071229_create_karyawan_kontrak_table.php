@@ -31,7 +31,9 @@ return new class extends Migration
             $table->foreignId('created_by')->nullable()->constrained('users');
             $table->foreignId('updated_by')->nullable()->constrained('users');
             $table->foreignId('approved_1')->nullable()->constrained('karyawan');
+            $table->boolean('status_approve_1')->nullable();
             $table->foreignId('approved_2')->nullable()->constrained('pengurus');
+            $table->boolean('status_approve_2')->nullable();
             $table->softDeletes(); // Untuk soft delete
             $table->timestamps();
 

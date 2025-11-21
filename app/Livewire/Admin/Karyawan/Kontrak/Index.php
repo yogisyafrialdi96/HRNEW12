@@ -9,6 +9,7 @@ use App\Models\Master\Jabatans;
 use App\Models\Master\Kontrak;
 use App\Models\Master\Mapel;
 use App\Models\Master\Units;
+use App\Models\Yayasan\Pengurus;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -193,6 +194,8 @@ class Index extends Component
     public $status = 'aktif';
     public $catatan = null;
     public $deskripsi = null;
+    public $approved_1 = null; // Approver from karyawan table
+    public $approved_2 = null; // Approver from pengurus table
 
     // Properties for search and filter
     public $search = '';
@@ -326,6 +329,8 @@ class Index extends Component
             'status' => 'required|in:aktif,selesai,perpanjangan,dibatalkan',
             'catatan' => 'nullable|string',
             'deskripsi' => 'nullable|string',
+            'approved_1' => 'nullable|exists:karyawan,id',
+            'approved_2' => 'nullable|exists:pengurus,id',
         ];
        
         return $rules;
@@ -348,6 +353,8 @@ class Index extends Component
         'status' => 'status',
         'catatan' => 'catatan',
         'deskripsi' => 'deskripsi',
+        'approved_1' => 'persetujuan 1',
+        'approved_2' => 'persetujuan 2',
     ];
 
     public function updatingSearch()
@@ -394,6 +401,8 @@ class Index extends Component
         $this->status = $kontrak->status;
         $this->catatan = $kontrak->catatan;
         $this->deskripsi = $kontrak->deskripsi;
+        $this->approved_1 = $kontrak->approved_1;
+        $this->approved_2 = $kontrak->approved_2;
         
         $this->isEdit = true;
         $this->showModal = true;
@@ -582,6 +591,8 @@ class Index extends Component
                 'status' => $finalStatus,
                 'catatan' => $this->catatan,
                 'deskripsi' => $this->deskripsi,
+                'approved_1' => $this->approved_1,
+                'approved_2' => $this->approved_2,
                 'updated_by' => Auth::id(),
             ];
 
@@ -855,6 +866,8 @@ class Index extends Component
         $this->status = 'aktif';
         $this->catatan = null;
         $this->deskripsi = null;
+        $this->approved_1 = null;
+        $this->approved_2 = null;
         $this->resetValidation();
     }
 
@@ -960,6 +973,15 @@ class Index extends Component
             ->orderBy('full_name')
             ->get();
         
+        // Get karyawan with level_jabatan = top_managerial untuk approved_1 dropdown
+        $masterApproved1 = \App\Models\Employee\Karyawan::with(['user', 'activeJabatan.jabatan'])
+            ->where('statuskaryawan_id', 1) // Only active employees
+            ->whereHas('activeJabatan.jabatan', function ($query) {
+                $query->where('level_jabatan', 'top_managerial');
+            })
+            ->orderBy('full_name')
+            ->get();
+        
         // Filter units based on selected department
         $masterUnit = $this->department_id
             ? Units::where('department_id', $this->department_id)->orderBy('unit')->get()
@@ -973,15 +995,20 @@ class Index extends Component
         // Get mata pelajaran for dropdown
         $masterMapel = Mapel::orderBy('nama_mapel')->get();
 
+        // Get pengurus for approved_2 dropdown
+        $masterPengurus = Pengurus::orderBy('nama_pengurus')->get();
+
         return view('livewire.admin.karyawan.kontrak.index', compact(
             'kontraks',
             'masterKontrak',
             'masterGolongan',
             'masterDepartment',
             'masterKaryawan',
+            'masterApproved1',
             'masterUnit',
             'masterJabatan',
-            'masterMapel'
+            'masterMapel',
+            'masterPengurus'
         ));
     }
 }
