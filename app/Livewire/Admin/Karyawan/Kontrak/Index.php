@@ -1011,4 +1011,74 @@ class Index extends Component
             'masterPengurus'
         ));
     }
+
+    /**
+     * Get total all kontrak (tidak dihapus)
+     */
+    public function getTotalKontrak()
+    {
+        return KaryawanKontrak::whereNull('deleted_at')->count();
+    }
+
+    /**
+     * Get total kontrak aktif
+     */
+    public function getTotalKontrakAktif()
+    {
+        return KaryawanKontrak::whereNull('deleted_at')
+            ->where('status', 'aktif')
+            ->count();
+    }
+
+    /**
+     * Get total kontrak non-aktif (selesai, dibatalkan, perpanjangan)
+     */
+    public function getTotalKontrakNonAktif()
+    {
+        return KaryawanKontrak::whereNull('deleted_at')
+            ->where('status', '!=', 'aktif')
+            ->count();
+    }
+
+    /**
+     * Get total kontrak by jenis kontrak
+     */
+    public function getKontrakByJenis()
+    {
+        return KaryawanKontrak::whereNull('deleted_at')
+            ->with('kontrak')
+            ->get()
+            ->groupBy('kontrak.nama_kontrak')
+            ->map(fn($group) => $group->count());
+    }
+
+    /**
+     * Get total kontrak with jenis containing "PHL"
+     */
+    public function getTotalKontrakPHL()
+    {
+        return KaryawanKontrak::whereNull('deleted_at')
+            ->with('kontrak')
+            ->get()
+            ->filter(function ($kontrak) {
+                return strpos(strtoupper($kontrak->kontrak?->nama_kontrak ?? ''), 'PHL') !== false;
+            })
+            ->count();
+    }
+
+    /**
+     * Get all stats for display
+     */
+    public function getStats()
+    {
+        $byJenis = $this->getKontrakByJenis();
+        
+        return [
+            'total_kontrak' => $this->getTotalKontrak(),
+            'total_aktif' => $this->getTotalKontrakAktif(),
+            'total_non_aktif' => $this->getTotalKontrakNonAktif(),
+            'total_phl' => $this->getTotalKontrakPHL(),
+            'by_jenis' => $byJenis,
+        ];
+    }
 }

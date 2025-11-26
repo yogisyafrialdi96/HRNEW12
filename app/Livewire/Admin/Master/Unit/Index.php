@@ -322,6 +322,18 @@ class Index extends Component
         return Units::generateCode();
     }
 
+    /**
+     * Get count of employees (pegawai) in a unit
+     */
+    public function getEmployeeCount($unitId)
+    {
+        return \App\Models\Employee\Karyawan::whereNull('deleted_at')
+            ->whereHas('activeJabatan', function ($q) use ($unitId) {
+                $q->where('unit_id', $unitId);
+            })
+            ->count();
+    }
+
     public function render()
     {
         $query = Units::with([

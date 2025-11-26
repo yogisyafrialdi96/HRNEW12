@@ -43,6 +43,10 @@ class KaryawanTable extends Component
     public $posisiFilter = '';
     public $jenisFilter = '';
     public $levelFilter = '';
+    public $unitFilter = '';
+    public $jabatanFilter = '';
+    public $tgl_masuk_dari = '';
+    public $tgl_masuk_sampai = '';
     public $perPage = 10;
 
     // Modal properties
@@ -166,6 +170,26 @@ class KaryawanTable extends Component
     }
 
     public function updatingLevelFilter()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingUnitFilter()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingJabatanFilter()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingTglMasukDari()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingTglMasukSampai()
     {
         $this->resetPage();
     }
@@ -430,6 +454,7 @@ class KaryawanTable extends Component
         $query = Karyawan::with([
             'user',
             'activeJabatan',
+            'statusPegawai',
         ]);
 
         // tampilkan data terhapus jika perlu
@@ -437,9 +462,35 @@ class KaryawanTable extends Component
             $q->onlyTrashed(); // hanya data yang sudah dihapus
         });
 
-        // filter by status
+        // filter by status pegawai
         $query->when($this->statusFilter !== '', function ($q) {
-            $q->where('is_active', (bool) $this->statusFilter);
+            $q->where('statuskaryawan_id', $this->statusFilter);
+        });
+
+        // filter by jabatan aktif
+        $query->when($this->jabatanFilter !== '', function ($q) {
+            $q->whereHas('activeJabatan.jabatan', function ($sub) {
+                $sub->where('id', $this->jabatanFilter);
+            });
+        });
+
+        // filter by unit aktif
+        $query->when($this->unitFilter !== '', function ($q) {
+            $q->whereHas('activeJabatan.unit', function ($sub) {
+                $sub->where('id', $this->unitFilter)
+                    ->whereHas('department', function ($dept) {
+                        $dept->where('department', '!=', 'YAYASAN');
+                    });
+            });
+        });
+
+        // filter by date range tgl_masuk
+        $query->when($this->tgl_masuk_dari !== '', function ($q) {
+            $q->whereDate('tgl_masuk', '>=', $this->tgl_masuk_dari);
+        });
+
+        $query->when($this->tgl_masuk_sampai !== '', function ($q) {
+            $q->whereDate('tgl_masuk', '<=', $this->tgl_masuk_sampai);
         });
 
         // filter by posisi
@@ -463,10 +514,11 @@ class KaryawanTable extends Component
         $query->when($this->search, function ($q) {
             $search = '%' . $this->search . '%';
             $q->where(function ($q) use ($search) {
-                $q->where('nama_jabatan', 'like', $search)
-                    ->orWhere('kode_jabatan', 'like', $search)
-                    ->orWhereHas('department', function ($department) use ($search) {
-                        $department->where('department', 'like', $search);
+                $q->where('full_name', 'like', $search)
+                    ->orWhere('nip', 'like', $search)
+                    ->orWhereHas('user', function ($user) use ($search) {
+                        $user->where('email', 'like', $search)
+                            ->orWhere('name', 'like', $search);
                     });
             });
         });
@@ -507,5 +559,157 @@ class KaryawanTable extends Component
     public function switchTab($tab)
     {
         $this->activeTab = $tab;
+    }
+
+    /**
+     * Get list of all units for filter dropdown (excluding YAYASAN department)
+     */
+    public function getUnits()
+    {
+        return \App\Models\Master\Units::with('department')
+            ->whereHas('department', function ($query) {
+                $query->where('department', '!=', 'YAYASAN');
+            })
+            ->orderBy('unit')
+            ->get();
+    }
+
+    /**
+     * Get list of all jabatan for filter dropdown
+     */
+    public function getJabatans()
+    {
+        return \App\Models\Master\Jabatans::orderBy('nama_jabatan')->get();
+    }
+
+    /**
+     * Reset all filters
+     */
+    public function resetFilters()
+    {
+        $this->statusFilter = '';
+        $this->unitFilter = '';
+        $this->jabatanFilter = '';
+        $this->tgl_masuk_dari = '';
+        $this->tgl_masuk_sampai = '';
+        $this->posisiFilter = '';
+        $this->jenisFilter = '';
+        $this->levelFilter = '';
+        $this->search = '';
+        $this->resetPage();
+    }
+
+    /**
+     * Export karyawan data to Excel with applied filters
+     */
+    public function export()
+    {
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\KaryawanExport(
+                $this->statusFilter,
+                $this->unitFilter,
+                $this->jabatanFilter,
+                $this->tgl_masuk_dari,
+                $this->tgl_masuk_sampai
+            ),
+            'Karyawan_' . now()->format('d-m-Y_H-i-s') . '.xlsx'
+        );
+    }
+
+    /**
+     * Get total all karyawan (tidak dihapus)
+     */
+    public function getTotalKaryawan()
+    {
+        return Karyawan::whereNull('deleted_at')->count();
+    }
+
+    /**
+     * Get total karyawan by status pegawai
+     */
+    public function getKaryawanByStatus()
+    {
+        return Karyawan::whereNull('deleted_at')
+            ->with('statusPegawai')
+            ->get()
+            ->groupBy('statusPegawai.nama_status')
+            ->map(fn($group) => $group->count());
+    }
+
+    /**
+     * Get total pegawai (jenis_karyawan = Pegawai)
+     */
+    public function getTotalPegawai()
+    {
+        return Karyawan::whereNull('deleted_at')
+            ->where('jenis_karyawan', 'Pegawai')
+            ->count();
+    }
+
+    /**
+     * Get total guru (jenis_karyawan = Guru)
+     */
+    public function getTotalGuru()
+    {
+        return Karyawan::whereNull('deleted_at')
+            ->where('jenis_karyawan', 'Guru')
+            ->count();
+    }
+
+    /**
+     * Get total pegawai aktif (status id = 1 for active)
+     */
+    public function getTotalAktif()
+    {
+        return Karyawan::whereNull('deleted_at')
+            ->where('statuskaryawan_id', 1)
+            ->count();
+    }
+
+    /**
+     * Get total pegawai tidak aktif (status id != 1)
+     */
+    public function getTotalTidakAktif()
+    {
+        return Karyawan::whereNull('deleted_at')
+            ->where('statuskaryawan_id', '!=', 1)
+            ->count();
+    }
+
+    /**
+     * Get total pegawai laki-laki
+     */
+    public function getTotalLakiLaki()
+    {
+        return Karyawan::whereNull('deleted_at')
+            ->where('gender', 'laki-laki')
+            ->count();
+    }
+
+    /**
+     * Get total pegawai perempuan
+     */
+    public function getTotalPerempuan()
+    {
+        return Karyawan::whereNull('deleted_at')
+            ->where('gender', 'perempuan')
+            ->count();
+    }
+
+    /**
+     * Get all stats for display
+     */
+    public function getStats()
+    {
+        return [
+            'total_karyawan' => $this->getTotalKaryawan(),
+            'total_pegawai' => $this->getTotalPegawai(),
+            'total_guru' => $this->getTotalGuru(),
+            'total_aktif' => $this->getTotalAktif(),
+            'total_tidak_aktif' => $this->getTotalTidakAktif(),
+            'total_laki_laki' => $this->getTotalLakiLaki(),
+            'total_perempuan' => $this->getTotalPerempuan(),
+            'by_status' => $this->getKaryawanByStatus(),
+        ];
     }
 }

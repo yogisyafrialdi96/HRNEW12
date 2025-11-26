@@ -1014,13 +1014,13 @@
             </div>
         </div>
 
-        <div class="flex items-center mb-4 space-y-2">
-            <input wire:model.live="domisili_sama_ktp" type="checkbox"
+        <div class="flex items-center mb-4">
+            <input id="domisili_sama_ktp" wire:model.live="domisili_sama_ktp" type="checkbox"
                 class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-            <label for="default-checkbox" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Alamat
+            <label for="domisili_sama_ktp" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Alamat
                 Domisili sama dengan Alamat KTP</label>
             @error('domisili_sama_ktp')
-                <p class="text-xs text-red-500 flex items-center gap-1">
+                <p class="text-xs text-red-500 flex items-center gap-1 ml-4">
                     <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd"
                             d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
@@ -1039,7 +1039,7 @@
                         <label class="text-sm font-medium text-gray-700">
                             Alamat Domisili <span class="text-red-500">*</span>
                         </label>
-                        <input wire:model="alamat_dom" type="text" placeholder="Enter Alamat Domisili"
+                        <input wire:model.live="alamat_dom" type="text" placeholder="Enter Alamat Domisili"
                             class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
                         @error('alamat_dom')
                             <p class="text-xs text-red-500 flex items-center gap-1">

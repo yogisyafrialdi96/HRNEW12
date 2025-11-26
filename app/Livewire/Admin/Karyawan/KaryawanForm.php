@@ -164,6 +164,7 @@ class KaryawanForm extends Component
         $this->desaktp_id = $karyawan->desa_id;
 
         // Data alamat domisili
+        $this->domisili_sama_ktp = (bool) $karyawan->domisili_sama_ktp;
         $this->alamat_dom = $karyawan->alamat_dom;
         $this->rt_dom = $karyawan->rt_dom;
         $this->rw_dom = $karyawan->rw_dom;
@@ -786,6 +787,7 @@ class KaryawanForm extends Component
                 'kec_id' => $this->kecktp_id,
                 'kab_id' => $this->kabktp_id,
                 'prov_id' => $this->provktp_id,
+                'domisili_sama_ktp' => $this->domisili_sama_ktp,
                 'alamat_dom' => $this->alamat_dom,
                 'rt_dom' => $this->rt_dom,
                 'rw_dom' => $this->rw_dom,

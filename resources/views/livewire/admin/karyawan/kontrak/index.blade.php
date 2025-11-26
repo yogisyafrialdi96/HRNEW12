@@ -1,7 +1,110 @@
 <div>
 
     <flux:heading size="xl">Kontrak Kerja</flux:heading>
-    <flux:text class="mt-2">This Page Show List of Kontrak Karyawan</flux:text>
+    <flux:text class="mt-2 mb-6">This Page Show List of Kontrak Karyawan</flux:text>
+
+    <!-- Stats Widget Section -->
+    @php
+        $stats = $this->getStats();
+    @endphp
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 mb-2">
+        <!-- Total Kontrak -->
+        <div class="bg-blue-50 rounded-lg p-3 border border-blue-200 hover:shadow-md transition">
+            <div class="flex items-center gap-2">
+                <div class="bg-blue-600 rounded p-1.5">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-gray-500 text-xs truncate">Total Kontrak</p>
+                    <p class="text-lg font-bold text-blue-600">{{ $stats['total_kontrak'] }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kontrak Aktif -->
+        <div class="bg-emerald-50 rounded-lg p-3 border border-emerald-200 hover:shadow-md transition">
+            <div class="flex items-center gap-2">
+                <div class="bg-emerald-600 rounded p-1.5">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-gray-500 text-xs truncate">Aktif</p>
+                    <p class="text-lg font-bold text-emerald-600">{{ $stats['total_aktif'] }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kontrak Non-Aktif -->
+        <div class="bg-orange-50 rounded-lg p-3 border border-orange-200 hover:shadow-md transition">
+            <div class="flex items-center gap-2">
+                <div class="bg-orange-600 rounded p-1.5">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"></path>
+                    </svg>
+
+                </div>
+                <div class="min-w-0">
+                    <p class="text-gray-500 text-xs truncate">N.Aktif</p>
+                    <p class="text-lg font-bold text-orange-600">{{ $stats['total_non_aktif'] }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Jenis Kontrak 1 (first type if exists) -->
+        @if($stats['by_jenis']->count() > 0)
+            @php $firstJenis = $stats['by_jenis']->first(); $firstKey = $stats['by_jenis']->keys()->first(); @endphp
+            <div class="bg-purple-50 rounded-lg p-3 border border-purple-200 hover:shadow-md transition">
+                <div class="flex items-center gap-2">
+                    <div class="bg-purple-600 rounded p-1.5">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.972 1.972 0 013 12V7a4 4 0 014-4z"></path>
+                        </svg>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-gray-500 text-xs truncate">{{ Str::limit($firstKey, 10) }}</p>
+                        <p class="text-lg font-bold text-purple-600">{{ $firstJenis }}</p>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        <!-- Jenis Kontrak 2 (second type if exists) -->
+        @if($stats['by_jenis']->count() > 1)
+            @php $secondJenis = $stats['by_jenis']->slice(1, 1)->first(); $secondKey = $stats['by_jenis']->keys()->slice(1, 1)->first(); @endphp
+            <div class="bg-cyan-50 rounded-lg p-3 border border-cyan-200 hover:shadow-md transition">
+                <div class="flex items-center gap-2">
+                    <div class="bg-cyan-600 rounded p-1.5">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.972 1.972 0 013 12V7a4 4 0 014-4z"></path>
+                        </svg>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-gray-500 text-xs truncate">{{ Str::limit($secondKey, 10) }}</p>
+                        <p class="text-lg font-bold text-cyan-600">{{ $secondJenis }}</p>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        <!-- Kontrak PHL -->
+        <div class="bg-pink-50 rounded-lg p-3 border border-pink-200 hover:shadow-md transition">
+            <div class="flex items-center gap-2">
+                <div class="bg-pink-600 rounded p-1.5">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.972 1.972 0 013 12V7a4 4 0 014-4z"></path>
+                    </svg>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-gray-500 text-xs truncate">PHL</p>
+                    <p class="text-lg font-bold text-pink-600">{{ $stats['total_phl'] }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
         <div class="relative overflow-x-auto mt-4 shadow-md sm:rounded-lg">

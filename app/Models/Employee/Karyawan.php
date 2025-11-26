@@ -87,6 +87,61 @@ class Karyawan extends Model
         return $this->belongsTo(\App\Models\Master\StatusPegawai::class, 'statuskaryawan_id');
     }
 
+    public function statusKawin(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Master\StatusKawin::class, 'statuskawin_id');
+    }
+
+    public function golongan(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Master\Golongan::class, 'golongan_id');
+    }
+
+    public function provKtp(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Wilayah\Provinsi::class, 'prov_id');
+    }
+
+    public function kabKtp(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Wilayah\Kabupaten::class, 'kab_id');
+    }
+
+    public function kecKtp(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Wilayah\Kecamatan::class, 'kec_id');
+    }
+
+    public function desaKtp(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Wilayah\Desa::class, 'desa_id');
+    }
+
+    public function provDom(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Wilayah\Provinsi::class, 'provdom_id');
+    }
+
+    public function kabDom(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Wilayah\Kabupaten::class, 'kabdom_id');
+    }
+
+    public function kecDom(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Wilayah\Kecamatan::class, 'kecdom_id');
+    }
+
+    public function desaDom(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Wilayah\Desa::class, 'desdom_id');
+    }
+
+    public function pendidikan(): HasMany
+    {
+        return $this->hasMany(KaryawanPendidikan::class, 'karyawan_id');
+    }
+
     public function activeJabatan()
     {
         return $this->hasOne(KaryawanJabatan::class, 'karyawan_id')

@@ -94,6 +94,11 @@
                                 </div>
                             </div>
                         </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <div class="flex items-center gap-2">
+                                <span>Jumlah Pegawai</span>
+                            </div>
+                        </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                             wire:click="sortBy('kepala_unit')">
                             <div class="flex items-center gap-2">
@@ -200,6 +205,9 @@
                                         {{ $unit->department->department ?: '-' }} | {{ $unit->kode_unit ?: '-' }}</div>
                                     {{-- @endif --}}
                                 </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {{ $this->getEmployeeCount($unit->id) }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                 {{ $unit->kepalaUnit->name ?? '-' }}

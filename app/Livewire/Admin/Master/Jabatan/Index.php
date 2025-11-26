@@ -4,6 +4,7 @@ namespace App\Livewire\Admin\Master\Jabatan;
 
 use App\Models\Master\Departments;
 use App\Models\Master\Jabatans;
+use App\Models\Employee\Karyawan;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -366,6 +367,15 @@ class Index extends Component
     public function getNextCode()
     {
         return Jabatans::generateCode();
+    }
+
+    public function getEmployeeCount($jabatanId)
+    {
+        return Karyawan::whereHas('activeJabatan', function ($query) use ($jabatanId) {
+            $query->where('jabatan_id', $jabatanId);
+        })
+            ->whereNull('deleted_at')
+            ->count();
     }
 
     public function render()
