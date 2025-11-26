@@ -261,6 +261,9 @@
                                 </div>
                             </div>
                         </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <span>Dokumen</span>
+                        </th>
                         <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Actions
                         </th>
@@ -331,6 +334,50 @@
                                     @endif">
                                     {{ ucfirst($kontrak->status) }}
                                 </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                @if($kontrak->document_path)
+                                    <div class="flex items-center gap-2">
+                                        <a href="{{ asset('storage/' . $kontrak->document_path) }}" target="_blank"
+                                            class="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1 p-1 rounded hover:bg-blue-50 transition duration-200"
+                                            title="Download dokumen">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                                </path>
+                                            </svg>
+                                        </a>
+                                        <button wire:click="openUploadModal({{ $kontrak->id }})"
+                                            class="text-yellow-600 hover:text-yellow-900 inline-flex items-center gap-1 p-1 rounded hover:bg-yellow-50 transition duration-200"
+                                            title="Update dokumen">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                                </path>
+                                            </svg>
+                                        </button>
+                                        <button wire:click="deleteDocument({{ $kontrak->id }})"
+                                            class="text-red-600 hover:text-red-900 inline-flex items-center gap-1 p-1 rounded hover:bg-red-50 transition duration-200"
+                                            title="Hapus dokumen">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                                </path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                @else
+                                    <button wire:click="openUploadModal({{ $kontrak->id }})"
+                                        class="text-gray-500 hover:text-gray-700 inline-flex items-center gap-1 p-1 rounded hover:bg-gray-50 transition duration-200"
+                                        title="Upload dokumen">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 4v16m8-8H4">
+                                            </path>
+                                        </svg>
+                                        <span class="text-xs">Upload</span>
+                                    </button>
+                                @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex justify-end gap-2">
@@ -1324,4 +1371,81 @@
     <x-modal-confirmation.modal-confirm-delete wire:model.live="confirmingDelete" onConfirm="delete" />
     <x-modal-confirmation.modal-force-delete />
     <x-modal-confirmation.modal-restore />
+
+    <!-- Upload Document Modal -->
+    @if ($showUploadModal)
+        <div class="fixed inset-0 bg-black/40 backdrop-blur-sm overflow-y-auto h-full w-full z-[99999] flex items-center justify-center p-4 py-8">
+            <div class="relative w-full max-w-lg mx-auto">
+                <div class="bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden">
+                    <!-- Header -->
+                    <div class="px-6 py-5 border-b border-gray-100 bg-gray-50/50">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-semibold text-gray-900">Upload Dokumen Kontrak</h3>
+                            <button wire:click="closeUploadModal()"
+                                class="text-gray-400 hover:text-gray-600 transition-colors">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12">
+                                    </path>
+                                </svg>
+                            </button>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">Upload dokumen kontrak yang sudah di scan</p>
+                    </div>
+
+                    <!-- Content -->
+                    <form wire:submit.prevent="uploadDocument" class="p-6 space-y-4">
+                        <!-- File Upload -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                File Dokumen
+                                <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <input type="file" wire:model="uploadedDocument"
+                                    class="block w-full text-sm text-gray-500
+                                    file:mr-4 file:py-2 file:px-4
+                                    file:rounded-lg file:border-0
+                                    file:text-sm file:font-semibold
+                                    file:bg-blue-50 file:text-blue-700
+                                    hover:file:bg-blue-100
+                                    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-0"
+                                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                            </div>
+                            @error('uploadedDocument')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                            <p class="text-xs text-gray-500 mt-2">
+                                Format: PDF, DOC, DOCX, JPG, JPEG, PNG (Max: 10MB)
+                            </p>
+                        </div>
+
+                        <!-- Progress Indicator -->
+                        @if ($uploadedDocument)
+                            <div class="flex items-center gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                <svg class="w-5 h-5 text-blue-600 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                                    </path>
+                                </svg>
+                                <span class="text-sm text-blue-700">File siap untuk diupload</span>
+                            </div>
+                        @endif
+
+                        <!-- Buttons -->
+                        <div class="flex gap-3 pt-4">
+                            <button type="button" wire:click="closeUploadModal()"
+                                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium transition duration-200">
+                                Batal
+                            </button>
+                            <button type="submit"
+                                class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition duration-200">
+                                Upload Dokumen
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>

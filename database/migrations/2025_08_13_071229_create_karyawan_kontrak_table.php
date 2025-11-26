@@ -34,6 +34,7 @@ return new class extends Migration
             $table->boolean('status_approve_1')->nullable();
             $table->foreignId('approved_2')->nullable()->constrained('pengurus');
             $table->boolean('status_approve_2')->nullable();
+            $table->string('document_path')->nullable();
             $table->softDeletes(); // Untuk soft delete
             $table->timestamps();
 

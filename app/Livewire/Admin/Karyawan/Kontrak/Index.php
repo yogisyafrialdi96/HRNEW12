@@ -17,10 +17,11 @@ use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Url;
+use Livewire\WithFileUploads;
 
 class Index extends Component
 {
-    use WithPagination;
+    use WithPagination, WithFileUploads;
 
     public function getContractStatus($tglselesai_kontrak)
     {
@@ -222,6 +223,91 @@ class Index extends Component
     public $jenis_kontrak_filter = '';
     public $status_kontrak_filter = '';
     public $sisa_kontrak_filter = '';
+
+    // Upload document properties
+    public $showUploadModal = false;
+    public $uploadKontrakId = null;
+    public $uploadedDocument = null;
+
+    public function openUploadModal($kontrakId)
+    {
+        $this->uploadKontrakId = $kontrakId;
+        $this->uploadedDocument = null;
+        $this->showUploadModal = true;
+    }
+
+    public function closeUploadModal()
+    {
+        $this->showUploadModal = false;
+        $this->uploadKontrakId = null;
+        $this->uploadedDocument = null;
+        $this->resetValidation();
+    }
+
+    public function uploadDocument()
+    {
+        try {
+            $this->validate([
+                'uploadedDocument' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5240', // Max 5MB
+            ]);
+
+            $kontrak = KaryawanKontrak::findOrFail($this->uploadKontrakId);
+
+            // Delete old document if exists
+            if ($kontrak->document_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($kontrak->document_path)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($kontrak->document_path);
+            }
+
+            // Upload new document
+            $filename = 'kontrak_' . $kontrak->nomor_kontrak . '_' . time() . '.' . $this->uploadedDocument->getClientOriginalExtension();
+            $path = $this->uploadedDocument->storeAs('documents/kontrak', $filename, 'public');
+
+            // Save path to database
+            $kontrak->update(['document_path' => $path]);
+
+            $this->dispatch('toast', [
+                'message' => 'Dokumen kontrak berhasil diupload',
+                'type' => 'success',
+            ]);
+
+            $this->closeUploadModal();
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            $this->dispatch('toast', [
+                'message' => 'File harus berupa PDF, DOC, DOCX, JPG, JPEG, atau PNG dengan ukuran maksimal 5MB',
+                'type' => 'error',
+            ]);
+            throw $e;
+        } catch (\Exception $e) {
+            $this->dispatch('toast', [
+                'message' => 'Terjadi kesalahan saat upload dokumen',
+                'type' => 'error',
+            ]);
+            Log::error('Document upload error: ' . $e->getMessage());
+        }
+    }
+
+    public function deleteDocument($kontrakId)
+    {
+        try {
+            $kontrak = KaryawanKontrak::findOrFail($kontrakId);
+
+            if ($kontrak->document_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($kontrak->document_path)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($kontrak->document_path);
+                $kontrak->update(['document_path' => null]);
+
+                $this->dispatch('toast', [
+                    'message' => 'Dokumen kontrak berhasil dihapus',
+                    'type' => 'success',
+                ]);
+            }
+        } catch (\Exception $e) {
+            $this->dispatch('toast', [
+                'message' => 'Terjadi kesalahan saat menghapus dokumen',
+                'type' => 'error',
+            ]);
+            Log::error('Document delete error: ' . $e->getMessage());
+        }
+    }
 
     public function generateNomorKontrak()
     {
