@@ -111,6 +111,9 @@
                             </div>
                         </th>
                         <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Dokumen
+                        </th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Actions
                         </th>
                     </tr>
@@ -140,6 +143,27 @@
                                 <div>{{ $kontrak->tglmulai_kontrak ? \Carbon\Carbon::parse($kontrak->tglmulai_kontrak)->format('d M Y') : '-' }}</div>
                                 @if($kontrak->tglselesai_kontrak)
                                     <div class="text-xs text-gray-500">s/d {{ \Carbon\Carbon::parse($kontrak->tglselesai_kontrak)->format('d M Y') }}</div>
+                                    @php
+                                        $now = \Carbon\Carbon::now();
+                                        $endDate = \Carbon\Carbon::parse($kontrak->tglselesai_kontrak);
+                                        $daysRemaining = $now->diffInDays($endDate, false);
+                                        $totalDays = abs($daysRemaining);
+                                        $years = intdiv($totalDays, 365);
+                                        $remainingDays = $totalDays % 365;
+                                        $months = intdiv($remainingDays, 30);
+                                        $days = $remainingDays % 30;
+                                    @endphp
+                                    <div class="text-xs font-medium @if($daysRemaining < 0) text-red-600 @elseif($daysRemaining <= 30) text-yellow-600 @else text-green-600 @endif">
+                                        @if($daysRemaining < 0)
+                                            Berakhir {{ $years }} th. {{ $months }} bln. {{ $days }} hari
+                                        @elseif($daysRemaining == 0)
+                                            Hari ini berakhir
+                                        @else
+                                            {{ $years }} th. {{ $months }} bln. {{ $days }} hari tersisa
+                                        @endif
+                                    </div>
+                                @else
+                                    <div class="text-xs text-gray-500">Tidak terbatas</div>
                                 @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
@@ -151,6 +175,39 @@
                                     @endif">
                                     {{ ucfirst($kontrak->status) }}
                                 </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
+                                <div class="flex justify-center gap-2">
+                                    <button wire:click="openUploadModal({{ $kontrak->id }})"
+                                        class="text-purple-600 hover:text-purple-900 p-1 rounded-md hover:bg-purple-50 transition duration-200"
+                                        title="Upload Dokumen">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
+                                            </path>
+                                        </svg>
+                                    </button>
+                                    @if($kontrak->document_path)
+                                        <button wire:click="downloadDocument({{ $kontrak->id }})"
+                                            class="text-indigo-600 hover:text-indigo-900 p-1 rounded-md hover:bg-indigo-50 transition duration-200"
+                                            title="Download Dokumen">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                                </path>
+                                            </svg>
+                                        </button>
+                                        <button wire:click="deleteDocument({{ $kontrak->id }})"
+                                            class="text-orange-600 hover:text-orange-900 p-1 rounded-md hover:bg-orange-50 transition duration-200"
+                                            title="Hapus Dokumen">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                                </path>
+                                            </svg>
+                                        </button>
+                                    @endif
+                                </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex justify-end gap-2">
@@ -165,13 +222,13 @@
                                             </path>
                                         </svg>
                                     </button>
-                                    <a href="{{ route('kontrak.print', $kontrak->id) }}"
+                                    <a href="{{ route('kontrak.cetak', $kontrak->id) }}"
                                         target="_blank"
                                         class="text-green-600 hover:text-green-900 p-1 rounded-md hover:bg-green-50"
-                                        title="Print">
+                                        title="Cetak">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm0-6V9a2 2 0 012-2h2a2 2 0 012 2v6">
+                                                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
                                             </path>
                                         </svg>
                                     </a>
@@ -196,7 +253,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                            <td colspan="8" class="px-6 py-12 text-center text-gray-500">
                                 <div class="flex flex-col items-center">
                                     <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -415,30 +472,32 @@
                                         @enderror
                                     </div>
 
-                                    <!-- Mata Pelajaran -->
-                                    <div class="space-y-2">
-                                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Mata Pelajaran</label>
-                                        <div class="relative">
-                                            <select wire:model.live="mapel_id"
-                                                class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none disabled:bg-gray-100 disabled:cursor-not-allowed">
-                                                <option value="">Pilih Mata Pelajaran</option>
-                                                @foreach($masterMapel as $mapel)
-                                                    <option value="{{ $mapel->id }}">{{ $mapel->nama_mapel }}</option>
-                                                @endforeach
-                                            </select>
-                                            <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                            </svg>
-                                        </div>
-                                        @error('mapel')
-                                            <p class="text-xs text-red-500 flex items-center gap-1">
-                                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                    <!-- Mata Pelajaran (Hanya untuk non-pegawai) -->
+                                    @if($jenis_karyawan !== 'pegawai')
+                                        <div class="space-y-2">
+                                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Mata Pelajaran</label>
+                                            <div class="relative">
+                                                <select wire:model.live="mapel_id"
+                                                    class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none disabled:bg-gray-100 disabled:cursor-not-allowed">
+                                                    <option value="">Pilih Mata Pelajaran</option>
+                                                    @foreach($masterMapel as $mapel)
+                                                        <option value="{{ $mapel->id }}">{{ $mapel->nama_mapel }}</option>
+                                                    @endforeach
+                                                </select>
+                                                <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                                 </svg>
-                                                {{ $message }}
-                                            </p>
-                                        @enderror
-                                    </div>
+                                            </div>
+                                            @error('mapel')
+                                                <p class="text-xs text-red-500 flex items-center gap-1">
+                                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                                    </svg>
+                                                    {{ $message }}
+                                                </p>
+                                            @enderror
+                                        </div>
+                                    @endif
 
                                     <!-- Gaji Paket -->
                                     <div class="space-y-2">
@@ -559,6 +618,59 @@
                                     </div>
                                 </div>
 
+                                <!-- Approver Section -->
+                                <div class="border-t pt-4 mt-4">
+                                    <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">Persetujuan</h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <!-- Approver 1 (Karyawan dengan jabatan top level) -->
+                                        <div class="space-y-2">
+                                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Approver 1 (Top Level)</label>
+                                            <select wire:model.live="approver1_id"
+                                                class="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none">
+                                                <option value="">Pilih Approver 1</option>
+                                                @if(isset($approver1Karyawan))
+                                                    @foreach($approver1Karyawan as $karyawan)
+                                                        @php
+                                                            $jabatan = $karyawan->contracts->first()?->jabatan?->nama_jabatan ?? 'N/A';
+                                                        @endphp
+                                                        <option value="{{ $karyawan->user_id }}">{{ $karyawan->full_name }} ({{ $jabatan }})</option>
+                                                    @endforeach
+                                                @endif
+                                            </select>
+                                            @error('approver1_id')
+                                                <p class="text-xs text-red-500 flex items-center gap-1">
+                                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                                    </svg>
+                                                    {{ $message }}
+                                                </p>
+                                            @enderror
+                                        </div>
+
+                                        <!-- Approver 2 (Dari Pengurus) -->
+                                        <div class="space-y-2">
+                                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Approver 2 (Pengurus)</label>
+                                            <select wire:model.live="approver2_id"
+                                                class="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none">
+                                                <option value="">Pilih Approver 2</option>
+                                                @if(isset($approver2Pengurus))
+                                                    @foreach($approver2Pengurus as $pengurus)
+                                                        <option value="{{ $pengurus->user_id }}">{{ $pengurus->nama_pengurus }} ({{ $pengurus->jabatan?->nama_jabatan ?? 'N/A' }})</option>
+                                                    @endforeach
+                                                @endif
+                                            </select>
+                                            @error('approver2_id')
+                                                <p class="text-xs text-red-500 flex items-center gap-1">
+                                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                                    </svg>
+                                                    {{ $message }}
+                                                </p>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <!-- Catatan -->
                                 <div class="space-y-2">
                                     <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Catatan</label>
@@ -588,6 +700,7 @@
                                         </p>
                                     @enderror
                                 </div>
+
                             </form>
                         </div>
 
@@ -991,5 +1104,158 @@
 
     <!-- Modal Konfirmasi Delete -->
     <x-modal-confirmation.modal-confirm-delete wire:model.live="confirmingDelete" onConfirm="delete" />
+
+    <!-- Upload Document Modal -->
+    @if ($showUploadModal)
+        @teleport('body')
+            <div x-data="{
+                init() {
+                    document.body.style.overflow = 'hidden';
+                    document.body.classList.add('modal-open');
+                },
+                destroy() {
+                    document.body.style.overflow = '';
+                    document.body.classList.remove('modal-open');
+                }
+            }" x-init="init()" x-on:destroy="destroy()"
+                x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                class="fixed inset-0 bg-black/40 backdrop-blur-sm overflow-y-auto h-full w-full z-[99999] flex items-center justify-center px-4 py-8">
+
+                <div x-transition:enter="transition ease-out duration-300 delay-100"
+                    x-transition:enter-start="opacity-0 scale-95 translate-y-4"
+                    x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100"
+                    x-transition:leave-end="opacity-0 scale-95" @click.away="$wire.closeUploadModal()"
+                    class="relative w-full max-w-md mx-auto my-auto">
+
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+                        <!-- Header -->
+                        <div class="px-6 py-5 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                    </svg>
+                                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Upload Dokumen Kontrak</h3>
+                                </div>
+                                <button wire:click="closeUploadModal"
+                                    class="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-purple-300">
+                                    <svg class="w-5 h-5 text-gray-400 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Content -->
+                        <div class="px-6 py-6">
+                            <form wire:submit.prevent="uploadDocument" class="space-y-5">
+                                <!-- File Upload Info -->
+                                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                                    <div class="flex gap-3">
+                                        <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2z" clip-rule="evenodd" />
+                                        </svg>
+                                        <div>
+                                            <p class="text-sm font-medium text-blue-900 dark:text-blue-300">Format & Ukuran File</p>
+                                            <p class="text-xs text-blue-700 dark:text-blue-400 mt-1">Maksimal 5MB · PDF, DOC, DOCX, JPG, JPEG, atau PNG</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- File Input -->
+                                <div class="space-y-2">
+                                    <label for="uploadedDocument" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        Pilih File <span class="text-red-500">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <input 
+                                            type="file" 
+                                            wire:model.live="uploadedDocument"
+                                            id="uploadedDocument"
+                                            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                                            class="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                                        >
+                                    </div>
+                                    @error('uploadedDocument')
+                                        <p class="text-xs text-red-500 flex items-center gap-1">
+                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            {{ $message }}
+                                        </p>
+                                    @enderror
+                                </div>
+
+                                <!-- File Preview -->
+                                @if($uploadedDocument)
+                                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
+                                        <div class="flex items-center gap-3">
+                                            @php
+                                                $mimes = [
+                                                    'pdf' => ['icon' => '📄', 'color' => 'red'],
+                                                    'doc' => ['icon' => '📝', 'color' => 'blue'],
+                                                    'docx' => ['icon' => '📝', 'color' => 'blue'],
+                                                    'jpg' => ['icon' => '🖼️', 'color' => 'purple'],
+                                                    'jpeg' => ['icon' => '🖼️', 'color' => 'purple'],
+                                                    'png' => ['icon' => '🖼️', 'color' => 'purple'],
+                                                ];
+                                                $ext = strtolower($uploadedDocument->getClientOriginalExtension());
+                                                $fileInfo = $mimes[$ext] ?? ['icon' => '📎', 'color' => 'gray'];
+                                            @endphp
+                                            <span class="text-3xl">{{ $fileInfo['icon'] }}</span>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                                    {{ $uploadedDocument->getClientOriginalName() }}
+                                                </p>
+                                                <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                    {{ number_format($uploadedDocument->getSize() / 1024, 2) }} KB
+                                                </p>
+                                            </div>
+                                            <button type="button" wire:click="$set('uploadedDocument', null)"
+                                                class="p-1 text-gray-400 hover:text-red-600 transition-colors">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                @endif
+                            </form>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="py-4 px-6 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
+                            <div class="flex flex-col-reverse sm:flex-row gap-3 justify-end">
+                                <button type="button" wire:click="closeUploadModal"
+                                    class="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-500 focus:ring-2 focus:ring-gray-500/20 transition-all">
+                                    Batal
+                                </button>
+                                <button type="submit" wire:click="uploadDocument"
+                                    class="px-5 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-purple-700 rounded-lg hover:from-purple-700 hover:to-purple-800 focus:ring-2 focus:ring-purple-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl"
+                                    wire:loading.attr="disabled"
+                                    @if(!$uploadedDocument) disabled @endif>
+                                    <span wire:loading.remove wire:target="uploadDocument" class="flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                        </svg>
+                                        Upload Dokumen
+                                    </span>
+                                    <span wire:loading wire:target="uploadDocument" class="flex items-center gap-2">
+                                        <svg class="animate-spin w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v4m0 12v4m8-8h-4M6 12H2m15.364-6.364l-2.828 2.828M9.464 16.536l-2.828 2.828m9.192-9.192l-2.828 2.828M6.464 6.464L3.636 3.636"></path>
+                                        </svg>
+                                        Mengunggah...
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endteleport
+    @endif
 
 </div>

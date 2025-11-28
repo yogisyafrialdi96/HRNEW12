@@ -14,6 +14,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Url;
 use Livewire\WithFileUploads;
+use Maatwebsite\Excel\Facades\Excel;
 
 class KaryawanTable extends Component
 {
@@ -58,7 +59,117 @@ class KaryawanTable extends Component
     public $selectedKaryawan = null;
     public $activeTab = 'profile';
 
+    // Import Excel properties
+    public $showImportModal = false;
+    public $importFile = null;
+    public $importProgress = 0;
+    public $importResult = null;
 
+    public function openImportModal()
+    {
+        $this->showImportModal = true;
+        $this->importFile = null;
+        $this->importResult = null;
+    }
+
+    public function closeImportModal()
+    {
+        $this->showImportModal = false;
+        $this->importFile = null;
+        $this->importProgress = 0;
+        $this->importResult = null;
+        $this->resetValidation();
+    }
+
+    public function importKaryawan()
+    {
+        try {
+            $this->validate([
+                'importFile' => [
+                    'required',
+                    'file',
+                    'max:5120', // Max 5MB
+                    function ($attribute, $value, $fail) {
+                        $extension = strtolower($value->getClientOriginalExtension());
+                        $mimeType = $value->getMimeType();
+                        
+                        // Allow common Excel and CSV MIME types and extensions
+                        $allowedExtensions = ['xlsx', 'xls', 'csv'];
+                        $allowedMimeTypes = [
+                            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+                            'application/vnd.ms-excel', // .xls
+                            'application/x-msexcel',
+                            'text/csv',
+                            'text/plain', // CSV sometimes reported as text/plain
+                            'application/csv',
+                        ];
+                        
+                        // Check extension
+                        if (!in_array($extension, $allowedExtensions)) {
+                            $fail('File harus berupa Excel (.xlsx, .xls) atau CSV');
+                            return;
+                        }
+                        
+                        // Check mime type (lenient - don't fail if mime is unknown)
+                        if ($mimeType && !in_array($mimeType, $allowedMimeTypes)) {
+                            // For CSV, check if file extension is CSV
+                            if ($extension !== 'csv') {
+                                $fail('File type tidak didukung. Gunakan .xlsx, .xls, atau .csv');
+                                return;
+                            }
+                        }
+                    }
+                ],
+            ]);
+
+            // Import menggunakan Laravel Excel
+            $import = new \App\Imports\KaryawanImport();
+            \Maatwebsite\Excel\Facades\Excel::import($import, $this->importFile);
+
+            // Get results
+            $successCount = $import->getSuccessCount();
+            $errorRows = $import->getErrorRows();
+
+            $this->importResult = [
+                'success' => true,
+                'successCount' => $successCount,
+                'errorCount' => count($errorRows),
+                'errors' => $errorRows,
+            ];
+
+            if ($successCount > 0) {
+                $this->dispatch('toast', [
+                    'message' => "Berhasil import {$successCount} karyawan",
+                    'type' => 'success',
+                ]);
+                
+                // Reset page dan refresh data
+                $this->resetPage();
+            }
+
+            if (count($errorRows) > 0) {
+                $this->dispatch('toast', [
+                    'message' => "Ada " . count($errorRows) . " baris dengan error",
+                    'type' => 'warning',
+                ]);
+            }
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            $errors = $e->validator->errors()->all();
+            $errorMessage = !empty($errors) ? $errors[0] : 'File harus berupa Excel (.xlsx, .xls) atau CSV dengan ukuran maksimal 5MB';
+            
+            $this->dispatch('toast', [
+                'message' => $errorMessage,
+                'type' => 'error',
+            ]);
+            throw $e;
+        } catch (\Exception $e) {
+            $this->dispatch('toast', [
+                'message' => 'Terjadi kesalahan saat import: ' . $e->getMessage(),
+                'type' => 'error',
+            ]);
+            \Illuminate\Support\Facades\Log::error('Karyawan import error: ' . $e->getMessage());
+        }
+    }
 
     #[Url]
     public string $query = '';

@@ -174,6 +174,7 @@ class Index extends Component
 
     // Main properties
     public $karyawan_id;
+    public $jenis_karyawan = null;
     public $kontrak_karyawan_id; // ID record kontrak saat editing
     public $karyawanSearch = '';
     public $selectedKaryawanName = '';
@@ -525,6 +526,10 @@ class Index extends Component
         $this->selectedKaryawanName = $fullName;
         $this->karyawanSearch = '';
         $this->filteredKaryawan = [];
+        
+        // Load karyawan and set jenis_karyawan
+        $karyawan = \App\Models\Employee\Karyawan::findOrFail($karyawanId);
+        $this->jenis_karyawan = $karyawan->jenis_karyawan;
     }
 
     // Clear selected karyawan
@@ -532,6 +537,8 @@ class Index extends Component
     {
         $this->karyawan_id = null;
         $this->selectedKaryawanName = '';
+        $this->jenis_karyawan = null;
+        $this->mapel_id = null;
         $this->karyawanSearch = '';
         $this->filteredKaryawan = [];
     }
@@ -934,6 +941,7 @@ class Index extends Component
     {
         $this->kontrak_karyawan_id = null;
         $this->karyawan_id = null;
+        $this->jenis_karyawan = null;
         $this->karyawanSearch = '';
         $this->selectedKaryawanName = '';
         $this->filteredKaryawan = [];

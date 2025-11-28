@@ -27,11 +27,12 @@
                     <flux:navlist.item :href="route('status-pegawai.index')" :current="request()->routeIs('status-pegawai.*')" wire:navigate>Status Pegawai</flux:navlist.item>
                     <flux:navlist.item :href="route('tahun-ajaran.index')" :current="request()->routeIs('tahun-ajaran.*')" wire:navigate>Tahun Ajaran</flux:navlist.item>
                 </flux:navlist.group>
-                <flux:navlist.group :heading="__('Users')" class="grid">
-                    <flux:navlist.item icon="home" :href="route('pengurus.index')" :current="request()->routeIs('pengurus.*')" wire:navigate>{{ __('Pengurus') }}</flux:navlist.item>
-                    <flux:navlist.item icon="home" :href="route('karyawan.index')" :current="request()->routeIs('karyawan.*')" wire:navigate>{{ __('Karyawan') }}</flux:navlist.item>
-                    <flux:navlist.item icon="home" :href="route('kontrak.index')" :current="request()->routeIs('kontrak.*')" wire:navigate>{{ __('Kontrak Kerja') }}</flux:navlist.item>
-                    <flux:navlist.item icon="home" :href="route('masakerja.index')" :current="request()->routeIs('masakerja.*')" wire:navigate>{{ __('Masa Kerja') }}</flux:navlist.item>
+                <flux:navlist.group :heading="__('Human Resources')" class="grid">
+                    <flux:navlist.item icon="home" :href="route('dashboard.index')" :current="request()->routeIs('dashboard.*')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
+                    <flux:navlist.item icon="user-group" :href="route('pengurus.index')" :current="request()->routeIs('pengurus.*')" wire:navigate>{{ __('Pengurus') }}</flux:navlist.item>
+                    <flux:navlist.item icon="user-group" :href="route('karyawan.index')" :current="request()->routeIs('karyawan.*')" wire:navigate>{{ __('Karyawan') }}</flux:navlist.item>
+                    <flux:navlist.item icon="document-text" :href="route('kontrak.index')" :current="request()->routeIs('kontrak.*')" wire:navigate>{{ __('Kontrak Kerja') }}</flux:navlist.item>
+                    <flux:navlist.item icon="document-minus" :href="route('masakerja.index')" :current="request()->routeIs('masakerja.*')" wire:navigate>{{ __('Masa Kerja') }}</flux:navlist.item>
                 </flux:navlist.group>
             </flux:navlist>
 

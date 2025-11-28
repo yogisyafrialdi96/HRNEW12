@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Karyawan\Tab\Kontrak;
 
+use App\Models\Employee\Karyawan;
 use App\Models\Employee\KaryawanKontrak;
 use App\Models\Master\Golongan;
 use App\Models\Master\Jabatans;
@@ -9,19 +10,24 @@ use App\Models\Master\Kontrak;
 use App\Models\Master\Units;
 use App\Models\Master\Departments;
 use App\Models\Master\Mapel;
+use App\Models\Yayasan\Pengurus;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
 use Livewire\Attributes\Url;
+use App\Models\User;
 
 class Index extends Component {
 
-    use WithPagination;
+    use WithPagination, WithFileUploads;
 
     // Main properties
     public $karyawan_id;
-    public $kontrak_karyawan_id; // ID record kontrak saat editing
+    public $kontrak_karyawan_id;
+    public $jenis_karyawan = null; // Store jenis_karyawan untuk kondisi mata pelajaran
     
     // Form fields
     public $nomor_kontrak = '';
@@ -39,6 +45,13 @@ class Index extends Component {
     public $status = 'aktif';
     public $catatan = null;
     public $deskripsi = null;
+    public $approver1_id = null;
+    public $approver2_id = null;
+
+    // Upload document properties
+    public $showUploadModal = false;
+    public $uploadKontrakId = null;
+    public $uploadedDocument = null;
 
     // Properties for search and filter
     public $search = '';
@@ -61,13 +74,104 @@ class Index extends Component {
 
     public bool $showDeleted = false;
 
+    public function getContractStatus($tglselesai_kontrak)
+    {
+        if (empty($tglselesai_kontrak) || is_null($tglselesai_kontrak)) {
+            return [
+                'color' => 'gray',
+                'text' => 'Tidak terbatas'
+            ];
+        }
+
+        try {
+            $endDate = \Carbon\Carbon::parse($tglselesai_kontrak);
+            $now = \Carbon\Carbon::now();
+            
+            $diff = $now->diff($endDate);
+            $totalDays = $now->diffInDays($endDate, false);
+            
+            if ($totalDays < 0) {
+                $text = 'Sudah berakhir';
+                if (abs($totalDays) > 0) {
+                    $text .= ' (' . $this->formatDuration($diff, true) . ' yang lalu)';
+                }
+                return [
+                    'color' => 'red',
+                    'text' => $text
+                ];
+            }
+            
+            $durationText = $this->formatDuration($diff);
+            
+            if ($totalDays <= 30) {
+                $color = 'yellow';
+            } else if ($totalDays <= 90) {
+                $color = 'blue';
+            } else {
+                $color = 'green';
+            }
+            
+            return [
+                'color' => $color,
+                'text' => $durationText . ' tersisa'
+            ];
+        } catch (\Exception $e) {
+            return [
+                'color' => 'gray',
+                'text' => 'Tidak terbatas'
+            ];
+        }
+    }
+
+    private function formatDuration($diff, $isPast = false)
+    {
+        try {
+            $totalDays = $diff->days;
+            
+            if ($totalDays == 0) {
+                return 'Hari ini';
+            }
+            
+            if ($totalDays < 0) {
+                $totalDays = abs($totalDays);
+            }
+            
+            $years = intdiv($totalDays, 365);
+            $remainingDays = $totalDays % 365;
+            $months = intdiv($remainingDays, 30);
+            $days = $remainingDays % 30;
+            
+            $parts = [];
+            
+            if ($years > 0) {
+                $parts[] = $years . ' tahun';
+            }
+            
+            if ($months > 0) {
+                $parts[] = $months . ' bulan';
+            }
+            
+            if ($days > 0 && ($years === 0 && $months === 0)) {
+                $parts[] = $days . ' hari';
+            }
+            
+            if (empty($parts)) {
+                return 'Hari ini';
+            }
+            
+            $parts = array_slice($parts, 0, 2);
+            
+            return implode(' ', $parts);
+        } catch (\Exception $e) {
+            return 'Tidak ada data';
+        }
+    }
+
     public function generateNomorKontrak()
     {
-        // Get current year and month
         $year = date('Y');
-        $month = date('n'); // 1-12 without leading zeros
+        $month = date('n');
         
-        // Convert month number to Roman numeral
         $romanMonths = [
             1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV',
             5 => 'V', 6 => 'VI', 7 => 'VII', 8 => 'VIII',
@@ -75,25 +179,19 @@ class Index extends Component {
         ];
         $romanMonth = $romanMonths[$month];
 
-        // Get the last contract number for this year
         $lastContract = KaryawanKontrak::where('nomor_kontrak', 'like', "%/KU-YKPI/$romanMonth/$year")
             ->orderBy('nomor_kontrak', 'desc')
             ->first();
 
-        // Extract number from last contract or start from 0
         $lastNumber = 0;
         if ($lastContract) {
             $parts = explode('/', $lastContract->nomor_kontrak);
             $lastNumber = (int) $parts[0];
         }
 
-        // Generate new number (increment by 1)
         $newNumber = $lastNumber + 1;
-
-        // Format with leading zeros (3 digits)
         $formattedNumber = str_pad($newNumber, 3, '0', STR_PAD_LEFT);
 
-        // Set the nomor_kontrak property
         $this->nomor_kontrak = "$formattedNumber/KU-YKPI/$romanMonth/$year";
 
         return $this->nomor_kontrak;
@@ -143,6 +241,8 @@ class Index extends Component {
             'status' => 'required|in:aktif,selesai,perpanjangan,dibatalkan',
             'catatan' => 'nullable|string',
             'deskripsi' => 'nullable|string',
+            'approver1_id' => 'nullable|exists:users,id',
+            'approver2_id' => 'nullable|exists:users,id',
         ];
        
         return $rules;
@@ -164,6 +264,8 @@ class Index extends Component {
         'status' => 'status',
         'catatan' => 'catatan',
         'deskripsi' => 'deskripsi',
+        'approver1_id' => 'approver 1',
+        'approver2_id' => 'approver 2',
     ];
 
     public function updatingSearch()
@@ -188,7 +290,6 @@ class Index extends Component {
         $this->nomor_kontrak = $kontrak->nomor_kontrak;
         $this->kontrak_id = $kontrak->kontrak_id;
         $this->golongan_id = $kontrak->golongan_id;
-        // Get department_id from unit
         if ($kontrak->unit) {
             $this->department_id = $kontrak->unit->department_id;
         }
@@ -203,6 +304,8 @@ class Index extends Component {
         $this->status = $kontrak->status;
         $this->catatan = $kontrak->catatan;
         $this->deskripsi = $kontrak->deskripsi;
+        $this->approver1_id = $kontrak->approver1_id;
+        $this->approver2_id = $kontrak->approver2_id;
         
         $this->isEdit = true;
         $this->showModal = true;
@@ -221,7 +324,6 @@ class Index extends Component {
 
             $validated = $this->validate($this->rules());
 
-            // Generate nomor kontrak if not provided
             if (empty($this->nomor_kontrak)) {
                 $this->nomor_kontrak = $this->generateNomorKontrak();
             }
@@ -242,6 +344,8 @@ class Index extends Component {
                 'status' => $this->status,
                 'catatan' => $this->catatan,
                 'deskripsi' => $this->deskripsi,
+                'approver1_id' => $this->approver1_id,
+                'approver2_id' => $this->approver2_id,
                 'updated_by' => Auth::id(),
             ];
 
@@ -279,6 +383,114 @@ class Index extends Component {
                 'type' => 'error',
             ]);
             throw $e;
+        }
+    }
+
+    // Upload Document Methods
+    public function openUploadModal($kontrakId)
+    {
+        $this->uploadKontrakId = $kontrakId;
+        $this->uploadedDocument = null;
+        $this->showUploadModal = true;
+    }
+
+    public function closeUploadModal()
+    {
+        $this->showUploadModal = false;
+        $this->uploadKontrakId = null;
+        $this->uploadedDocument = null;
+    }
+
+    public function uploadDocument()
+    {
+        try {
+            $this->validate([
+                'uploadedDocument' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
+            ]);
+
+            $kontrak = KaryawanKontrak::findOrFail($this->uploadKontrakId);
+
+            // Delete old document if exists
+            if ($kontrak->document_path && Storage::disk('public')->exists($kontrak->document_path)) {
+                Storage::disk('public')->delete($kontrak->document_path);
+            }
+
+            // Store new document
+            $fileName = 'kontrak_' . $kontrak->nomor_kontrak . '_' . time() . '.' . $this->uploadedDocument->getClientOriginalExtension();
+            $filePath = $this->uploadedDocument->storeAs('kontrak', $fileName, 'public');
+
+            // Update kontrak record
+            $kontrak->update(['document_path' => $filePath]);
+
+            $this->dispatch('toast', [
+                'message' => 'Dokumen berhasil diupload',
+                'type' => 'success',
+            ]);
+
+            $this->closeUploadModal();
+        } catch (ValidationException $e) {
+            $this->dispatch('toast', [
+                'message' => 'File harus berupa PDF, DOC, DOCX, JPG, JPEG, atau PNG dengan ukuran maksimal 5MB',
+                'type' => 'error',
+            ]);
+            throw $e;
+        } catch (\Exception $e) {
+            $this->dispatch('toast', [
+                'message' => 'Gagal mengupload dokumen: ' . $e->getMessage(),
+                'type' => 'error',
+            ]);
+            throw $e;
+        }
+    }
+
+    public function deleteDocument($kontrakId)
+    {
+        try {
+            $kontrak = KaryawanKontrak::findOrFail($kontrakId);
+
+            if ($kontrak->document_path && Storage::disk('public')->exists($kontrak->document_path)) {
+                Storage::disk('public')->delete($kontrak->document_path);
+                $kontrak->update(['document_path' => null]);
+
+                $this->dispatch('toast', [
+                    'message' => 'Dokumen berhasil dihapus',
+                    'type' => 'success',
+                ]);
+            } else {
+                $this->dispatch('toast', [
+                    'message' => 'Dokumen tidak ditemukan',
+                    'type' => 'warning',
+                ]);
+            }
+        } catch (\Exception $e) {
+            $this->dispatch('toast', [
+                'message' => 'Gagal menghapus dokumen: ' . $e->getMessage(),
+                'type' => 'error',
+            ]);
+        }
+    }
+
+    public function downloadDocument($kontrakId)
+    {
+        try {
+            $kontrak = KaryawanKontrak::findOrFail($kontrakId);
+
+            if (!$kontrak->document_path || !Storage::disk('public')->exists($kontrak->document_path)) {
+                $this->dispatch('toast', [
+                    'message' => 'Dokumen tidak ditemukan',
+                    'type' => 'error',
+                ]);
+                return;
+            }
+
+            // Return the file path for browser download via URL
+            $url = asset('storage/' . $kontrak->document_path);
+            $this->dispatch('downloadFile', $url);
+        } catch (\Exception $e) {
+            $this->dispatch('toast', [
+                'message' => 'Gagal mengunduh dokumen',
+                'type' => 'error',
+            ]);
         }
     }
 
@@ -322,7 +534,6 @@ class Index extends Component {
         $this->deleteSuccess = false;
         $this->deleteId = null;
     }
-    // End SoftDelete
 
     public function showDetail($id)
     {
@@ -332,10 +543,8 @@ class Index extends Component {
             'golongan',
             'unit',
             'jabatan',
-            'creator',
-            'updater',
-            'approver1',
-            'approver2'
+            'createdBy',
+            'updatedBy'
         ])->find($id);
         $this->showModalDetail = true;
     }
@@ -350,6 +559,8 @@ class Index extends Component {
     private function resetForm()
     {
         $this->kontrak_karyawan_id = null;
+        $this->karyawan_id = null;
+        $this->jenis_karyawan = null;
         $this->nomor_kontrak = '';
         $this->kontrak_id = null;
         $this->golongan_id = null;
@@ -365,6 +576,8 @@ class Index extends Component {
         $this->status = 'aktif';
         $this->catatan = null;
         $this->deskripsi = null;
+        $this->approver1_id = null;
+        $this->approver2_id = null;
         $this->resetValidation();
     }
 
@@ -379,19 +592,40 @@ class Index extends Component {
         $this->jabatan_id = null;
     }
 
+    public function selectKaryawan($karyawanId, $karyawanName)
+    {
+        $this->karyawan_id = $karyawanId;
+        $karyawan = Karyawan::findOrFail($karyawanId);
+        $this->jenis_karyawan = $karyawan->jenis_karyawan;
+    }
+
+    public function clearKaryawan()
+    {
+        $this->karyawan_id = null;
+        $this->jenis_karyawan = null;
+        $this->mapel_id = null;
+    }
+
+    public function searchKaryawan($value)
+    {
+        // Search logic bisa ditambahkan di future jika diperlukan
+    }
+
     public function render()
     {
+        // Always filter by the karyawan that was passed during mount
         $query = KaryawanKontrak::with([
             'karyawan:id,full_name',
             'kontrak:id,nama_kontrak',
             'golongan:id,nama_golongan',
-            'unit:id,unit',
+            'unit:id,unit,department_id',
             'jabatan:id,nama_jabatan',
             'mapel:id,nama_mapel',
-            'creator:id,name',
-            'updater:id,name'
+            'createdBy:id,name',
+            'updatedBy:id,name'
         ]);
 
+        // ALWAYS filter by karyawan_id (required - set during mount)
         if ($this->karyawan_id) {
             $query->where('karyawan_id', $this->karyawan_id);
         }
@@ -419,18 +653,37 @@ class Index extends Component {
         $masterGolongan = Golongan::orderBy('nama_golongan')->get();
         $masterDepartment = Departments::orderBy('department')->get();
         
-        // Filter units based on selected department
         $masterUnit = $this->department_id
             ? Units::where('department_id', $this->department_id)->orderBy('unit')->get()
             : collect();
 
-        // Filter jabatan based on selected department
         $masterJabatan = $this->department_id
             ? Jabatans::where('department_id', $this->department_id)->orderBy('nama_jabatan')->get()
             : collect();
 
-        // Get mata pelajaran for dropdown
         $masterMapel = Mapel::orderBy('nama_mapel')->get();
+        
+        // Approver 1: Karyawan dengan jabatan top level (top_managerial)
+        // Diambil dari karyawan yang punya kontrak aktif dengan jabatan top level
+        $approver1Karyawan = Karyawan::whereHas('contracts', function ($q) {
+            $q->whereHas('jabatan', function ($subQ) {
+                $subQ->where('level_jabatan', 'top_managerial');
+            })->where('status', 'aktif');
+        })
+        ->with(['user:id,name', 'contracts' => function ($q) {
+            $q->whereHas('jabatan', function ($subQ) {
+                $subQ->where('level_jabatan', 'top_managerial');
+            })->where('status', 'aktif')
+            ->with('jabatan:id,nama_jabatan');
+        }])
+        ->orderBy('full_name')
+        ->get();
+        
+        // Approver 2: Dari tabel pengurus (aktif)
+        $approver2Pengurus = Pengurus::where('is_active', true)
+            ->with('user:id,name', 'jabatan:id,nama_jabatan')
+            ->orderBy('nama_pengurus')
+            ->get();
 
         return view('livewire.admin.karyawan.tab.kontrak.index', compact(
             'kontraks',
@@ -439,7 +692,9 @@ class Index extends Component {
             'masterDepartment',
             'masterUnit',
             'masterJabatan',
-            'masterMapel'
+            'masterMapel',
+            'approver1Karyawan',
+            'approver2Pengurus'
         ));
     }
 }

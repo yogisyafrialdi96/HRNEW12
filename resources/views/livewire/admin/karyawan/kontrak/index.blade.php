@@ -732,76 +732,82 @@
                                         @enderror
                                     </div>
 
-                                    <!-- Mata Pelajaran -->
-                                    <div class="space-y-2">
-                                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Mata Pelajaran</label>
-                                        <div class="relative">
-                                            <select wire:model.live="mapel_id"
-                                                class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none disabled:bg-gray-100 disabled:cursor-not-allowed">
-                                                <option value="">Pilih Mata Pelajaran</option>
-                                                @foreach($masterMapel as $mapel)
-                                                    <option value="{{ $mapel->id }}">{{ $mapel->nama_mapel }}</option>
-                                                @endforeach
-                                            </select>
-                                            <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                            </svg>
+                                    <!-- Mata Pelajaran (Hanya untuk non-pegawai) -->
+                                    @if($jenis_karyawan !== 'Pegawai')
+                                        <div class="space-y-2">
+                                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Mata Pelajaran</label>
+                                            <div class="relative">
+                                                <select wire:model.live="mapel_id"
+                                                    class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none disabled:bg-gray-100 disabled:cursor-not-allowed">
+                                                    <option value="">Pilih Mata Pelajaran</option>
+                                                    @foreach($masterMapel as $mapel)
+                                                        <option value="{{ $mapel->id }}">{{ $mapel->nama_mapel }}</option>
+                                                    @endforeach
+                                                </select>
+                                                <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                                </svg>
+                                            </div>
+                                            @error('mapel')
+                                                <p class="text-xs text-red-500 flex items-center gap-1">
+                                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                                    </svg>
+                                                    {{ $message }}
+                                                </p>
+                                            @enderror
                                         </div>
-                                        @error('mapel')
-                                            <p class="text-xs text-red-500 flex items-center gap-1">
-                                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                                                </svg>
-                                                {{ $message }}
-                                            </p>
-                                        @enderror
+                                    @endif
+
+                                </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <!-- Gaji Paket -->
+                                        <div class="space-y-2">
+                                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Gaji Paket</label>
+                                            <input wire:model.live="gaji_paket" type="text" placeholder="e.g. Rp 5.000.000"
+                                                class="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                                            @error('gaji_paket')
+                                                <p class="text-xs text-red-500 flex items-center gap-1">
+                                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                                    </svg>
+                                                    {{ $message }}
+                                                </p>
+                                            @enderror
+                                        </div>
+
+                                        <!-- Gaji Pokok -->
+                                        <div class="space-y-2">
+                                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Gaji Pokok</label>
+                                            <input wire:model.live="gaji_pokok" type="text" placeholder="e.g. Rp 4.000.000"
+                                                class="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                                            @error('gaji_pokok')
+                                                <p class="text-xs text-red-500 flex items-center gap-1">
+                                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                                    </svg>
+                                                    {{ $message }}
+                                                </p>
+                                            @enderror
+                                        </div>
+
+                                        <!-- Transport -->
+                                        <div class="space-y-2">
+                                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Transport</label>
+                                            <input wire:model.live="transport" type="text" placeholder="e.g. Rp 500.000"
+                                                class="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                                            @error('transport')
+                                                <p class="text-xs text-red-500 flex items-center gap-1">
+                                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                                    </svg>
+                                                    {{ $message }}
+                                                </p>
+                                            @enderror
+                                        </div>
                                     </div>
 
-                                    <!-- Gaji Paket -->
-                                    <div class="space-y-2">
-                                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Gaji Paket</label>
-                                        <input wire:model.live="gaji_paket" type="text" placeholder="e.g. Rp 5.000.000"
-                                            class="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
-                                        @error('gaji_paket')
-                                            <p class="text-xs text-red-500 flex items-center gap-1">
-                                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                                                </svg>
-                                                {{ $message }}
-                                            </p>
-                                        @enderror
-                                    </div>
-
-                                    <!-- Gaji Pokok -->
-                                    <div class="space-y-2">
-                                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Gaji Pokok</label>
-                                        <input wire:model.live="gaji_pokok" type="text" placeholder="e.g. Rp 4.000.000"
-                                            class="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
-                                        @error('gaji_pokok')
-                                            <p class="text-xs text-red-500 flex items-center gap-1">
-                                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                                                </svg>
-                                                {{ $message }}
-                                            </p>
-                                        @enderror
-                                    </div>
-
-                                    <!-- Transport -->
-                                    <div class="space-y-2">
-                                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Transport</label>
-                                        <input wire:model.live="transport" type="text" placeholder="e.g. Rp 500.000"
-                                            class="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
-                                        @error('transport')
-                                            <p class="text-xs text-red-500 flex items-center gap-1">
-                                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                                                </svg>
-                                                {{ $message }}
-                                            </p>
-                                        @enderror
-                                    </div>
-
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <!-- Tanggal Mulai Kontrak -->
                                     <div class="space-y-2">
                                         <label class="text-sm font-medium text-gray-700">Tanggal Mulai Kontrak <span class="text-red-500">*</span></label>
@@ -897,46 +903,47 @@
                                     </div>
                                 </div>
 
-                                <!-- Approved 1 (from Karyawan - top_managerial) -->
-                                <div class="space-y-2">
-                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Disetujui oleh (Approver 1 - Top Managerial)</label>
-                                    <select wire:model.live="approved_1"
-                                        class="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
-                                        <option value="">-- Pilih Manajemen Puncak (Opsional) --</option>
-                                        @foreach($masterApproved1 as $karyawan)
-                                            <option value="{{ $karyawan->id }}">{{ $karyawan->full_name ?? $karyawan->user->name }} @if($karyawan->activeJabatan?->jabatan)({{ $karyawan->activeJabatan->jabatan->nama_jabatan }})@endif</option>
-                                        @endforeach
-                                    </select>
-                                    @error('approved_1')
-                                        <p class="text-xs text-red-500 flex items-center gap-1">
-                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                                            </svg>
-                                            {{ $message }}
-                                        </p>
-                                    @enderror
-                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <!-- Approved 1 (from Karyawan - top_managerial) -->
+                                    <div class="space-y-2">
+                                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Disetujui oleh (Approver 1 - Top Managerial)</label>
+                                        <select wire:model.live="approved_1"
+                                            class="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                                            <option value="">-- Pilih Manajemen Puncak (Opsional) --</option>
+                                            @foreach($masterApproved1 as $karyawan)
+                                                <option value="{{ $karyawan->id }}">{{ $karyawan->full_name ?? $karyawan->user->name }} @if($karyawan->activeJabatan?->jabatan)({{ $karyawan->activeJabatan->jabatan->nama_jabatan }})@endif</option>
+                                            @endforeach
+                                        </select>
+                                        @error('approved_1')
+                                            <p class="text-xs text-red-500 flex items-center gap-1">
+                                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                                </svg>
+                                                {{ $message }}
+                                            </p>
+                                        @enderror
+                                    </div>
 
-                                <!-- Approved 2 (from Pengurus) -->
-                                <div class="space-y-2">
-                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Disetujui oleh (Approver 2)</label>
-                                    <select wire:model.live="approved_2"
-                                        class="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
-                                        <option value="">-- Pilih Pengurus (Opsional) --</option>
-                                        @foreach($masterPengurus as $pengurus)
-                                            <option value="{{ $pengurus->id }}">{{ $pengurus->nama_pengurus }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('approved_2')
-                                        <p class="text-xs text-red-500 flex items-center gap-1">
-                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                                            </svg>
-                                            {{ $message }}
-                                        </p>
-                                    @enderror
+                                    <!-- Approved 2 (from Pengurus) -->
+                                    <div class="space-y-2">
+                                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Disetujui oleh (Approver 2)</label>
+                                        <select wire:model.live="approved_2"
+                                            class="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                                            <option value="">-- Pilih Pengurus (Opsional) --</option>
+                                            @foreach($masterPengurus as $pengurus)
+                                                <option value="{{ $pengurus->id }}">{{ $pengurus->nama_pengurus }}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('approved_2')
+                                            <p class="text-xs text-red-500 flex items-center gap-1">
+                                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                                </svg>
+                                                {{ $message }}
+                                            </p>
+                                        @enderror
+                                    </div>
                                 </div>
-
                                 <!-- Catatan -->
                                 <div class="space-y-2">
                                     <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Catatan</label>

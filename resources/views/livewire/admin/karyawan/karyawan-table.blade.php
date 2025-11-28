@@ -17,6 +17,14 @@
                 <span class="hidden sm:inline">{{ $showDeleted ? 'Show Exist' : 'Show Deleted' }}</span>
                 <span class="sm:hidden">{{ $showDeleted ? 'Exist' : 'Deleted' }}</span>
             </button>
+            <button wire:click="openImportModal()"
+                class="bg-green-600 hover:bg-green-800 text-white px-3 py-2 rounded-lg flex items-center justify-center gap-2 transition duration-200 whitespace-nowrap text-sm font-medium h-fit">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33A3 3 0 0116.5 19.5H6.75z"></path>
+                </svg>
+                <span>Import Excel</span>
+            </button>
             <button wire:click="create"
                 class="bg-blue-600 hover:bg-blue-800 text-white px-3 py-2 rounded-lg flex items-center justify-center gap-2 transition duration-200 whitespace-nowrap text-sm font-medium h-fit">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -848,6 +856,177 @@
 
         <!-- Modal Detail Karyawan -->
         @include('livewire.admin.karyawan.modal-detail-tabs')
+
+        <!-- Import Excel Modal -->
+        @if ($showImportModal)
+            <div class="fixed inset-0 bg-black/40 backdrop-blur-sm overflow-y-auto h-full w-full z-[99999] flex items-center justify-center p-4 py-8">
+                <div class="relative w-full max-w-2xl mx-auto">
+                    <div class="bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden">
+                        <!-- Header -->
+                        <div class="px-6 py-5 border-b border-gray-100 bg-gray-50/50">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-gray-900">Import Karyawan dari Excel</h3>
+                                <button wire:click="closeImportModal()"
+                                    class="text-gray-400 hover:text-gray-600 transition-colors">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12">
+                                        </path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Content -->
+                        @if (!$importResult)
+                            <form wire:submit.prevent="importKaryawan" class="p-6 space-y-4">
+                                <!-- Template Info -->
+                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                    <div class="flex gap-3">
+                                        <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        <div class="text-sm">
+                                            <p class="font-medium text-blue-900">Format File Excel</p>
+                                            <p class="text-blue-700 text-xs mt-1">File harus memiliki kolom: NIP, Full Name, Email (opsional), Gender, Status Pegawai, dan lainnya sesuai template.</p>
+                                            <a href="{{ asset('template_import_karyawan.xlsx') }}" download class="text-blue-600 hover:text-blue-700 text-xs font-medium mt-2 inline-block">Download Template XLSX →</a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- File Upload -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        File Excel
+                                        <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="file" wire:model="importFile"
+                                        class="block w-full text-sm text-gray-500
+                                        file:mr-4 file:py-2 file:px-4
+                                        file:rounded-lg file:border-0
+                                        file:text-sm file:font-semibold
+                                        file:bg-green-50 file:text-green-700
+                                        hover:file:bg-green-100
+                                        focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-0"
+                                        accept=".xlsx,.xls,.csv">
+                                    @error('importFile')
+                                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    @enderror
+                                    <p class="text-xs text-gray-500 mt-2">
+                                        Format: Excel (.xlsx, .xls) atau CSV (Max: 5MB)
+                                    </p>
+                                </div>
+
+                                <!-- Progress Indicator -->
+                                @if ($importFile)
+                                    <div class="flex items-center gap-2 p-3 bg-green-50 rounded-lg border border-green-200">
+                                        <svg class="w-5 h-5 text-green-600 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                                            </path>
+                                        </svg>
+                                        <span class="text-sm text-green-700">File siap untuk diimport</span>
+                                    </div>
+                                @endif
+
+                                <!-- Buttons -->
+                                <div class="flex gap-3 pt-4">
+                                    <button type="button" wire:click="closeImportModal()"
+                                        class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium transition duration-200">
+                                        Batal
+                                    </button>
+                                    <button type="submit"
+                                        class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition duration-200">
+                                        Import Karyawan
+                                    </button>
+                                </div>
+                            </form>
+                        @else
+                            <!-- Import Result -->
+                            <div class="p-6 space-y-4">
+                                <!-- Success Summary -->
+                                @if ($importResult['successCount'] > 0)
+                                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                                        <div class="flex gap-3">
+                                            <svg class="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            <div>
+                                                <p class="font-medium text-green-900">Import Berhasil</p>
+                                                <p class="text-sm text-green-700 mt-1">{{ $importResult['successCount'] }} karyawan berhasil ditambahkan ke sistem</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
+
+                                <!-- Error Summary -->
+                                @if ($importResult['errorCount'] > 0)
+                                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                        <div class="flex gap-3">
+                                            <svg class="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4v2m0 4v2M9 3h6a9 9 0 019 9v6a9 9 0 01-9 9H9a9 9 0 01-9-9V9a9 9 0 019-9z"></path>
+                                            </svg>
+                                            <div>
+                                                <p class="font-medium text-yellow-900">Ada {{ $importResult['errorCount'] }} Baris dengan Error</p>
+                                                <p class="text-sm text-yellow-700 mt-1">Baris ini tidak diimport, silakan perbaiki dan coba lagi</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Error Details -->
+                                    <div class="max-h-96 overflow-y-auto">
+                                        <table class="w-full text-sm">
+                                            <thead class="bg-gray-100 sticky top-0">
+                                                <tr>
+                                                    <th class="px-4 py-2 text-left font-medium text-gray-700">Baris</th>
+                                                    <th class="px-4 py-2 text-left font-medium text-gray-700">NIP</th>
+                                                    <th class="px-4 py-2 text-left font-medium text-gray-700">Nama</th>
+                                                    <th class="px-4 py-2 text-left font-medium text-gray-700">Error</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-gray-200">
+                                                @foreach ($importResult['errors'] as $error)
+                                                    <tr class="hover:bg-gray-50">
+                                                        <td class="px-4 py-2 text-gray-600">{{ $error['row'] }}</td>
+                                                        <td class="px-4 py-2 text-gray-600">{{ $error['nip'] }}</td>
+                                                        <td class="px-4 py-2 text-gray-600">{{ $error['full_name'] }}</td>
+                                                        <td class="px-4 py-2 text-red-600 text-xs">{{ $error['error'] }}</td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                @endif
+
+                                <!-- Summary Stats -->
+                                <div class="grid grid-cols-3 gap-4">
+                                    <div class="bg-blue-50 rounded-lg p-3 border border-blue-200">
+                                        <p class="text-xs text-blue-600 font-medium">Berhasil</p>
+                                        <p class="text-2xl font-bold text-blue-600">{{ $importResult['successCount'] }}</p>
+                                    </div>
+                                    <div class="bg-yellow-50 rounded-lg p-3 border border-yellow-200">
+                                        <p class="text-xs text-yellow-600 font-medium">Error</p>
+                                        <p class="text-2xl font-bold text-yellow-600">{{ $importResult['errorCount'] }}</p>
+                                    </div>
+                                    <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                                        <p class="text-xs text-gray-600 font-medium">Total</p>
+                                        <p class="text-2xl font-bold text-gray-600">{{ $importResult['successCount'] + $importResult['errorCount'] }}</p>
+                                    </div>
+                                </div>
+
+                                <!-- Close Button -->
+                                <div class="flex gap-3 pt-4">
+                                    <button wire:click="closeImportModal()"
+                                        class="flex-1 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-medium transition duration-200">
+                                        Tutup
+                                    </button>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        @endif
 
         <!-- Modal Konfirmasi Floating (Tanpa overlay) -->
         <x-modal-confirmation.modal-confirm-delete wire:model="confirmingDelete" onConfirm="delete" />

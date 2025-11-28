@@ -1,0 +1,4 @@
+NIP,full_name,email,gender,status_pegawai,status_kawin,golongan,hp,whatsapp,tempat_lahir,tanggal_lahir,agama,blood_type,nik,npwp,alamat_ktp,tgl_masuk,jenis_karyawan,tgl_karyawan_tetap
+12345,John Doe,john.doe@example.com,Laki-laki,Tetap,Menikah,Golongan IIb,08123456789,08123456789,Jakarta,01/01/1990,Islam,O+,1234567890123456,12.345.678.9-123.456,Jl. Merdeka No. 1 Jakarta,01/01/2020,PNS,15/01/2022
+12346,Jane Smith,jane.smith@example.com,Perempuan,Tetap,Single,Golongan IIa,08198765432,08198765432,Bandung,15/05/1992,Kristen,A+,9876543210987654,98.765.432.1-234.567,Jl. Sudirman No. 25 Bandung,15/06/2021,PPPK,
+12347,Ahmad Hassan,ahmad.hassan@example.com,Laki-laki,Kontrak,Menikah,Golongan IIc,08111111111,08111111111,Surabaya,20/03/1988,Islam,B+,1111111111111111,11.111.111.1-111.111,Jl. Ahmad Yani No. 50 Surabaya,01/09/2022,Kontrak,

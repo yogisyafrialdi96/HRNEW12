@@ -14,6 +14,9 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
+    Route::prefix('dashboard')->name('dashboard.')->group(function () {
+        Route::get('/', Admin\Dashboard::class)->name('index');
+    });
     Route::prefix('department')->name('department.')->group(function () {
         Route::get('/', Admin\Master\Department\Index::class)->name('index');
     });
