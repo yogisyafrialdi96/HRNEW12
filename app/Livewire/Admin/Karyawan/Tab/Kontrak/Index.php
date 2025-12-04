@@ -4,6 +4,7 @@ namespace App\Livewire\Admin\Karyawan\Tab\Kontrak;
 
 use App\Models\Employee\Karyawan;
 use App\Models\Employee\KaryawanKontrak;
+use App\Traits\HasTabPermission;
 use App\Models\Master\Golongan;
 use App\Models\Master\Jabatans;
 use App\Models\Master\Kontrak;
@@ -19,10 +20,12 @@ use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use Livewire\Attributes\Url;
 use App\Models\User;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class Index extends Component {
 
     use WithPagination, WithFileUploads;
+    use HasTabPermission;
 
     // Main properties
     public $karyawan_id;
@@ -199,6 +202,8 @@ class Index extends Component {
 
     public function mount($karyawan = null)
     {
+        $this->authorizeView();
+        
         if ($karyawan) {
             $this->karyawan_id = $karyawan->id ?? $karyawan;
         }
@@ -314,6 +319,8 @@ class Index extends Component {
     public function save()
     {
         try {
+            $this->authorizeCreate();
+            
             if (!$this->karyawan_id) {
                 $this->dispatch('toast', [
                     'message' => 'Employee ID is required.',
@@ -483,12 +490,19 @@ class Index extends Component {
                 return;
             }
 
-            // Return the file path for browser download via URL
-            $url = asset('storage/' . $kontrak->document_path);
-            $this->dispatch('downloadFile', $url);
+            // Create streamed response for download
+            $filePath = $kontrak->document_path;
+            $fileName = basename($filePath);
+            
+            return response()->streamDownload(
+                function () use ($filePath) {
+                    echo Storage::disk('public')->get($filePath);
+                },
+                $fileName
+            );
         } catch (\Exception $e) {
             $this->dispatch('toast', [
-                'message' => 'Gagal mengunduh dokumen',
+                'message' => 'Gagal mengunduh dokumen: ' . $e->getMessage(),
                 'type' => 'error',
             ]);
         }
@@ -509,6 +523,8 @@ class Index extends Component {
     public function delete()
     {
         try {
+            $this->authorizeDelete();
+            
             $data = KaryawanKontrak::findOrFail($this->deleteId);
             $data->delete();
 
@@ -553,13 +569,23 @@ class Index extends Component {
     {
         $this->showModal = false;
         $this->showModalDetail = false;
-        $this->resetForm();
+        // Only reset form if in create/edit mode, not detail view
+        if ($this->isEdit || !$this->showModalDetail) {
+            $this->resetFormFields();
+        }
     }
 
     private function resetForm()
     {
+        // Keep karyawan_id intact - it's essential for filtering
+        $this->resetFormFields();
+    }
+
+    private function resetFormFields()
+    {
+        // Reset only form fields, NOT karyawan_id
         $this->kontrak_karyawan_id = null;
-        $this->karyawan_id = null;
+        // $this->karyawan_id = null; // DO NOT RESET - needed for filter
         $this->jenis_karyawan = null;
         $this->nomor_kontrak = '';
         $this->kontrak_id = null;

@@ -284,11 +284,11 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4">
-                                <div class="text-sm font-medium text-gray-900">{{ $kontrak->karyawan->full_name ?? 'N/A' }}</div>
-                                @if($kontrak->karyawan->activeJabatan)
+                                <div class="text-sm font-medium text-gray-900">{{ $kontrak->karyawan?->full_name ?? 'N/A' }}</div>
+                                @if($kontrak->karyawan?->activeJabatan)
                                     <div class="text-xs text-gray-500">
-                                        <span class="font-medium">{{ $kontrak->karyawan->activeJabatan->jabatan->nama_jabatan }}</span>
-                                        - {{ $kontrak->karyawan->activeJabatan->unit->unit }}
+                                        <span class="font-medium">{{ $kontrak->karyawan->activeJabatan->jabatan?->nama_jabatan }}</span>
+                                        - {{ $kontrak->karyawan->activeJabatan->unit?->unit }}
                                     </div>
                                 @endif
                             </td>
@@ -911,7 +911,7 @@
                                             class="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
                                             <option value="">-- Pilih Manajemen Puncak (Opsional) --</option>
                                             @foreach($masterApproved1 as $karyawan)
-                                                <option value="{{ $karyawan->id }}">{{ $karyawan->full_name ?? $karyawan->user->name }} @if($karyawan->activeJabatan?->jabatan)({{ $karyawan->activeJabatan->jabatan->nama_jabatan }})@endif</option>
+                                                <option value="{{ $karyawan->id }}">{{ $karyawan->full_name ?? $karyawan->user?->name }} @if($karyawan->activeJabatan?->jabatan)({{ $karyawan->activeJabatan->jabatan?->nama_jabatan }})@endif</option>
                                             @endforeach
                                         </select>
                                         @error('approved_1')

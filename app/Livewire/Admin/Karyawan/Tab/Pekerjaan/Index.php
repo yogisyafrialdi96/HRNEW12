@@ -3,7 +3,9 @@
 namespace App\Livewire\Admin\Karyawan\Tab\Pekerjaan;
 
 use App\Models\Employee\KaryawanPekerjaan;
+use App\Traits\HasTabPermission;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -14,6 +16,7 @@ class Index extends Component
 {
     use WithPagination;
     use WithFileUploads;
+    use HasTabPermission;
 
     // Main properties
     public $karyawan_id; // This should hold the employee ID

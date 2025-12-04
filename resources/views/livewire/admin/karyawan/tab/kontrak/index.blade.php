@@ -7,14 +7,18 @@
         </div>
 
         <div>
-            <button wire:click="create"
-                class="bg-blue-600 hover:bg-blue-800 text-white px-4 py-1 rounded-lg flex items-center justify-center transition duration-200 whitespace-nowrap">
-                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6">
-                    </path>
-                </svg>
-                <span>Create</span>
-            </button>
+            @can('karyawan_kontrak.create')
+                <button wire:click="create"
+                    class="bg-blue-600 hover:bg-blue-800 text-white px-4 py-1 rounded-lg flex items-center justify-center transition duration-200 whitespace-nowrap">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6">
+                        </path>
+                    </svg>
+                    <span>Create</span>
+                </button>
+            @else
+                <div class="text-sm text-gray-500 italic">No permission to create Kontrak</div>
+            @endcan
         </div>
 
     </div>
@@ -178,6 +182,7 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
                                 <div class="flex justify-center gap-2">
+                                    @can('karyawan_kontrak.dokumen_upload')
                                     <button wire:click="openUploadModal({{ $kontrak->id }})"
                                         class="text-purple-600 hover:text-purple-900 p-1 rounded-md hover:bg-purple-50 transition duration-200"
                                         title="Upload Dokumen">
@@ -187,7 +192,9 @@
                                             </path>
                                         </svg>
                                     </button>
+                                    @endcan
                                     @if($kontrak->document_path)
+                                        @can('karyawan_kontrak.dokumen_download')
                                         <button wire:click="downloadDocument({{ $kontrak->id }})"
                                             class="text-indigo-600 hover:text-indigo-900 p-1 rounded-md hover:bg-indigo-50 transition duration-200"
                                             title="Download Dokumen">
@@ -197,6 +204,8 @@
                                                 </path>
                                             </svg>
                                         </button>
+                                        @endcan
+                                        @can('karyawan_kontrak.dokumen_delete')
                                         <button wire:click="deleteDocument({{ $kontrak->id }})"
                                             class="text-orange-600 hover:text-orange-900 p-1 rounded-md hover:bg-orange-50 transition duration-200"
                                             title="Hapus Dokumen">
@@ -206,6 +215,7 @@
                                                 </path>
                                             </svg>
                                         </button>
+                                        @endcan
                                     @endif
                                 </div>
                             </td>
@@ -222,6 +232,7 @@
                                             </path>
                                         </svg>
                                     </button>
+                                    @can('karyawan_kontrak.print')
                                     <a href="{{ route('kontrak.cetak', $kontrak->id) }}"
                                         target="_blank"
                                         class="text-green-600 hover:text-green-900 p-1 rounded-md hover:bg-green-50"
@@ -232,6 +243,8 @@
                                             </path>
                                         </svg>
                                     </a>
+                                    @endcan
+                                    @can('karyawan_kontrak.edit')
                                     <button wire:click="edit({{ $kontrak->id }})"
                                         class="text-yellow-600 hover:text-yellow-900 p-1 rounded-md hover:bg-yellow-50 transition duration-200">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -240,6 +253,8 @@
                                             </path>
                                         </svg>
                                     </button>
+                                    @endcan
+                                    @can('karyawan_kontrak.delete')
                                     <button wire:click="confirmDelete({{ $kontrak->id }})"
                                         class="text-red-600 hover:text-red-900 p-1 rounded-md hover:bg-red-50 transition duration-200">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -248,6 +263,7 @@
                                             </path>
                                         </svg>
                                     </button>
+                                    @endcan
                                 </div>
                             </td>
                         </tr>

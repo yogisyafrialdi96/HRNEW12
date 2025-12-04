@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin\Karyawan\Tab\Sertifikasi;
 
 use App\Models\Employee\KaryawanSertifikasi;
+use App\Traits\HasTabPermission;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -16,6 +17,7 @@ class Index extends Component
 {
     use WithPagination;
     use WithFileUploads;
+    use HasTabPermission;
 
     // Main properties
     public $karyawan_id; // This should hold the employee ID
@@ -64,6 +66,8 @@ class Index extends Component
     // Initialize education levels
     public function mount($karyawan = null)
     {
+        $this->authorizeView();
+        
         // Set the employee ID from the parent component
         if ($karyawan) {
             $this->karyawan_id = $karyawan->id ?? $karyawan;
@@ -163,6 +167,8 @@ class Index extends Component
     public function save()
     {
         try {
+            $this->authorizeCreate();
+            
             // Validate that we have a karyawan_id before proceeding
             if (!$this->karyawan_id) {
                 $this->dispatch('toast', [
@@ -290,6 +296,8 @@ class Index extends Component
     public function delete()
     {
         try {
+            $this->authorizeDelete();
+            
             $data = KaryawanSertifikasi::findOrFail($this->deleteId);
 
             // Hapus file dari storage jika ada

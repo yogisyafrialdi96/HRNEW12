@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin\Karyawan\Tab\Keluarga;
 
 use App\Models\Employee\KaryawanKeluarga;
+use App\Traits\HasTabPermission;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Url;
@@ -12,6 +13,7 @@ use Livewire\WithPagination;
 class Index extends Component
 {
     use WithPagination;
+    use HasTabPermission;
 
     // Main properties
     public $karyawan_id; // This should hold the employee ID
@@ -55,6 +57,8 @@ class Index extends Component
 
      public function mount($karyawan = null)
     {
+        $this->authorizeView();
+        
         // Set the employee ID from the parent component
         if ($karyawan) {
             $this->karyawan_id = $karyawan->id ?? $karyawan;
@@ -141,6 +145,8 @@ class Index extends Component
     public function save()
     {
         try {
+            $this->authorizeCreate();
+            
             // Validate that we have a karyawan_id before proceeding
             if (!$this->karyawan_id) {
                 $this->dispatch('toast', [
@@ -225,6 +231,8 @@ class Index extends Component
     public function delete()
     {
         try {
+            $this->authorizeDelete();
+            
             $data = KaryawanKeluarga::findOrFail($this->deleteId);
 
             // Hapus record dari database

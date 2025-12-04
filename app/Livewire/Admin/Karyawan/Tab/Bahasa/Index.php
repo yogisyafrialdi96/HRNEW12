@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin\Karyawan\Tab\Bahasa;
 
 use App\Models\Employee\KaryawanBahasa;
+use App\Traits\HasTabPermission;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Url;
@@ -12,6 +13,7 @@ use Livewire\WithPagination;
 class Index extends Component
 {
     use WithPagination;
+    use HasTabPermission;
 
     // Main properties
     public $karyawan_id; // This should hold the employee ID
@@ -127,8 +129,9 @@ class Index extends Component
         $this->lembaga_sertifikasi  = $keluarga->lembaga_sertifikasi;
         $this->skor_numerik         = $keluarga->skor_numerik;
         $this->is_active            = $keluarga->is_active;
-        $this->tgl_expired_sertifikasi     = $keluarga->tgl_expired_sertifikasi;
-        $this->tgl_sertifikasi      = $keluarga->tgl_sertifikasi;
+        // Format dates to Y-m-d for input date fields
+        $this->tgl_expired_sertifikasi = $keluarga->tgl_expired_sertifikasi ? \Carbon\Carbon::parse($keluarga->tgl_expired_sertifikasi)->format('Y-m-d') : null;
+        $this->tgl_sertifikasi      = $keluarga->tgl_sertifikasi ? \Carbon\Carbon::parse($keluarga->tgl_sertifikasi)->format('Y-m-d') : '';
         $this->keterangan           = $keluarga->keterangan;
         
         $this->isEdit = true;
@@ -159,7 +162,7 @@ class Index extends Component
                 'lembaga_sertifikasi'   => $this->lembaga_sertifikasi,
                 'skor_numerik'          => $this->skor_numerik,
                 'is_active'             => $this->is_active,
-                'tgl_expired_sertifikasi'  => $this->tgl_expired_sertifikasi,
+                'tgl_expired_sertifikasi'  => $this->tgl_expired_sertifikasi ?: null,
                 'tgl_sertifikasi'       => $this->tgl_sertifikasi,
                 'keterangan'            => $this->keterangan,
                 'updated_by'            => Auth::id(),

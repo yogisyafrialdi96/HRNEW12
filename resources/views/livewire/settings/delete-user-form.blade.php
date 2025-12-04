@@ -12,6 +12,12 @@ new class extends Component {
      */
     public function deleteUser(Logout $logout): void
     {
+        // Check if user has permission to delete users
+        if (!auth()->user()->can('users.delete')) {
+            $this->addError('password', __('You do not have permission to delete accounts.'));
+            return;
+        }
+
         $this->validate([
             'password' => ['required', 'string', 'current_password'],
         ]);
@@ -28,6 +34,7 @@ new class extends Component {
         <flux:subheading>{{ __('Delete your account and all of its resources') }}</flux:subheading>
     </div>
 
+    @can('users.delete')
     <flux:modal.trigger name="confirm-user-deletion">
         <flux:button variant="danger" x-data="" x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion')">
             {{ __('Delete account') }}
@@ -55,4 +62,11 @@ new class extends Component {
             </div>
         </form>
     </flux:modal>
+    @else
+    <div class="rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-900 p-4">
+        <p class="text-sm text-yellow-800 dark:text-yellow-300">
+            {{ __('Only administrators can delete accounts. Please contact your administrator if you need assistance.') }}
+        </p>
+    </div>
+    @endcan
 </section>

@@ -7,14 +7,18 @@
         </div>
 
         <div>
-            <button wire:click="create"
-                class="bg-blue-600 hover:bg-blue-800 text-white px-4 py-1 rounded-lg flex items-center justify-center transition duration-200 whitespace-nowrap">
-                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6">
-                    </path>
-                </svg>
-                <span>Create</span>
-            </button>
+            @can('karyawan_bahasa.create')
+                <button wire:click="create"
+                    class="bg-blue-600 hover:bg-blue-800 text-white px-4 py-1 rounded-lg flex items-center justify-center transition duration-200 whitespace-nowrap">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6">
+                        </path>
+                    </svg>
+                    <span>Create</span>
+                </button>
+            @else
+                <div class="text-sm text-gray-500 italic">No permission to create Bahasa</div>
+            @endcan
         </div>
 
     </div>
@@ -181,7 +185,48 @@
                                 {{ $bahasa->level_bahasa ?? '-' }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                               {{ $bahasa->tgl_sertifikasi ? \Carbon\Carbon::parse($bahasa->tgl_sertifikasi)->format('d M Y') : '-' }}
+                                <div class="space-y-2">
+                                    <div>
+                                        {{ $bahasa->tgl_sertifikasi ? \Carbon\Carbon::parse($bahasa->tgl_sertifikasi)->format('d M Y') : '-' }}
+                                    </div>
+                                    @if($bahasa->tgl_expired_sertifikasi)
+                                        @php
+                                            $expiredDate = \Carbon\Carbon::parse($bahasa->tgl_expired_sertifikasi);
+                                            $now = now();
+                                            $isExpired = $expiredDate->isPast();
+                                            $daysUntilExpiry = $now->diffInDays($expiredDate, false);
+                                        @endphp
+                                        @if($isExpired)
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400">
+                                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                                </svg>
+                                                Kadaluarsa
+                                            </span>
+                                        @elseif($daysUntilExpiry <= 30)
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400">
+                                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                                </svg>
+                                                {{ $daysUntilExpiry }} hari lagi
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400">
+                                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                                </svg>
+                                                s/d {{ $expiredDate->format('d M Y') }}
+                                            </span>
+                                        @endif
+                                    @else
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
+                                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                            </svg>
+                                            Selamanya
+                                        </span>
+                                    @endif
+                                </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <button class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
@@ -204,6 +249,7 @@
                                             </path>
                                         </svg>
                                     </button>
+                                    @can('karyawan_bahasa.edit')
                                     <button wire:click="edit({{ $bahasa->id }})"
                                         class="text-yellow-600 hover:text-yellow-900 p-1 rounded-md hover:bg-yellow-50 transition duration-200">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor"
@@ -213,6 +259,8 @@
                                             </path>
                                         </svg>
                                     </button>
+                                    @endcan
+                                    @can('karyawan_bahasa.delete')
                                     <button wire:click="confirmDelete({{ $bahasa->id }})"
                                         class="text-red-600 hover:text-red-900 p-1 rounded-md hover:bg-red-50 transition duration-200">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor"
@@ -222,6 +270,7 @@
                                             </path>
                                         </svg>
                                     </button>
+                                    @endcan
                                 </div>
                             </td>
                         </tr>

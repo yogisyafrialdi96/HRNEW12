@@ -7,14 +7,18 @@
         </div>
 
         <div>
-            <button wire:click="create"
-                class="bg-blue-600 hover:bg-blue-800 text-white px-4 py-1 rounded-lg flex items-center justify-center transition duration-200 whitespace-nowrap">
-                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6">
-                    </path>
-                </svg>
-                <span>Create</span>
-            </button>
+            @can('karyawan_pelatihan.create')
+                <button wire:click="create"
+                    class="bg-blue-600 hover:bg-blue-800 text-white px-4 py-1 rounded-lg flex items-center justify-center transition duration-200 whitespace-nowrap">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6">
+                        </path>
+                    </svg>
+                    <span>Create</span>
+                </button>
+            @else
+                <div class="text-sm text-gray-500 italic">No permission to create Pelatihan</div>
+            @endcan
         </div>
 
     </div>
@@ -197,6 +201,7 @@
                                             </path>
                                         </svg>
                                     </button>
+                                    @can('karyawan_pelatihan.edit')
                                     <button wire:click="edit({{ $pelatihan->id }})"
                                         class="text-yellow-600 hover:text-yellow-900 p-1 rounded-md hover:bg-yellow-50 transition duration-200">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor"
@@ -206,6 +211,8 @@
                                             </path>
                                         </svg>
                                     </button>
+                                    @endcan
+                                    @can('karyawan_pelatihan.delete')
                                     <button wire:click="confirmDelete({{ $pelatihan->id }})"
                                         class="text-red-600 hover:text-red-900 p-1 rounded-md hover:bg-red-50 transition duration-200">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor"
@@ -215,6 +222,7 @@
                                             </path>
                                         </svg>
                                     </button>
+                                    @endcan
                                 </div>
                             </td>
                         </tr>

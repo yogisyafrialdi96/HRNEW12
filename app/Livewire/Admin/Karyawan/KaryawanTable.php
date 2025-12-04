@@ -345,6 +345,9 @@ class KaryawanTable extends Component
                 'password' => bcrypt($this->password),
             ]);
 
+            // Assign default role "staff" ke user baru
+            $user->assignRole('staff');
+
             // Create karyawan baru
             Karyawan::create([
                 'user_id'           => $user->id,

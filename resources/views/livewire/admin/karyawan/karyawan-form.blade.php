@@ -45,7 +45,8 @@
                         Inisial <span class="text-red-500">*</span>
                     </label>
                     <input wire:model="inisial" type="text" placeholder="Enter Inisial"
-                        class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                        {{ !auth()->user()->hasPermissionTo('karyawan.view_list') ? 'disabled' : '' }}
+                        class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all {{ !auth()->user()->hasPermissionTo('karyawan.view_list') ? 'bg-gray-100 cursor-not-allowed opacity-60' : '' }}">
                     @error('inisial')
                         <p class="text-xs text-red-500 flex items-center gap-1">
                             <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
@@ -60,6 +61,7 @@
             </div>
         </div>
 
+        @can('karyawan.view_list')
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <!-- Email -->
             <div class="space-y-2">
@@ -118,6 +120,7 @@
                 @enderror
             </div>
         </div>
+        @endcan
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 
@@ -127,7 +130,8 @@
                     NIP
                 </label>
                 <input wire:model="nip" type="text" placeholder="Enter Nomor Induk Pegawai"
-                    class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                    {{ !auth()->user()->hasPermissionTo('karyawan.view_list') ? 'disabled' : '' }}
+                    class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all {{ !auth()->user()->hasPermissionTo('karyawan.view_list') ? 'bg-gray-100 cursor-not-allowed opacity-60' : '' }}">
                 @error('nip')
                     <p class="text-xs text-red-500 flex items-center gap-1">
                         <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
@@ -146,7 +150,8 @@
                         class="text-red-500">*</span></label>
                 <div class="relative">
                     <select wire:model.live="jenis_karyawan"
-                        class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none">
+                        {{ !auth()->user()->hasPermissionTo('karyawan.view_list') ? 'disabled' : '' }}
+                        class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none {{ !auth()->user()->hasPermissionTo('karyawan.view_list') ? 'bg-gray-100 cursor-not-allowed opacity-60' : '' }}">
                         <option value="" class="text-gray-400">Pilih jenis</option>
                         <option value="Guru">Guru</option>
                         <option value="Pegawai">Pegawai</option>
@@ -175,7 +180,8 @@
                     <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Mata Pelajaran</label>
                     <div class="relative">
                         <select wire:model.live="mapel_id"
-                            class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none disabled:bg-gray-100 disabled:cursor-not-allowed">
+                            {{ !auth()->user()->hasPermissionTo('karyawan.view_list') ? 'disabled' : '' }}
+                            class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none disabled:bg-gray-100 disabled:cursor-not-allowed {{ !auth()->user()->hasPermissionTo('karyawan.view_list') ? 'bg-gray-100 cursor-not-allowed opacity-60' : '' }}">
                             <option value="">Pilih Mata Pelajaran</option>
                             @foreach($masterMapel as $mapel)
                                 <option value="{{ $mapel->id }}">{{ $mapel->nama_mapel }}</option>
@@ -202,7 +208,8 @@
                         class="text-red-500">*</span></label>
                 <div class="relative">
                     <select wire:model="statuskaryawan_id"
-                        class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none">
+                        {{ !auth()->user()->hasPermissionTo('karyawan.view_list') ? 'disabled' : '' }}
+                        class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none {{ !auth()->user()->hasPermissionTo('karyawan.view_list') ? 'bg-gray-100 cursor-not-allowed opacity-60' : '' }}">
                         <option value="" class="text-gray-400">Pilih Status</option>
                         @foreach ($statusKaryawan as $status)
                             <option value="{{ $status->id }}">{{ $status->nama_status }}
@@ -227,75 +234,81 @@
                 @enderror
             </div>
 
-            <!-- Status Kawin -->
-            <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Status Kawin <span
-                        class="text-red-500">*</span></label>
-                <div class="relative">
-                    <select wire:model="statuskawin_id"
-                        class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none">
-                        <option value="" class="text-gray-400">Pilih Status</option>
-                        @foreach ($statusKawin as $kawin)
-                            <option value="{{ $kawin->id }}">{{ $kawin->nama }}
-                            </option>
-                        @endforeach
-                    </select>
-                    <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
-                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
-                        </path>
-                    </svg>
-                </div>
-                @error('statuskawin_id')
-                    <p class="text-xs text-red-500 flex items-center gap-1">
-                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                                clip-rule="evenodd"></path>
+            <!-- Nested Grid for Golongan & Status Kawin -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                <!-- Golongan -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Golongan <span
+                            class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <select wire:model="golongan_id"
+                            {{ !auth()->user()->hasPermissionTo('karyawan.view_list') ? 'disabled' : '' }}
+                            class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none {{ !auth()->user()->hasPermissionTo('karyawan.view_list') ? 'bg-gray-100 cursor-not-allowed opacity-60' : '' }}">
+                            <option value="" class="text-gray-400">Pilih Golongan</option>
+                            @foreach ($golongan as $gol)
+                                <option value="{{ $gol->id }}">{{ $gol->nama_golongan }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
+                            </path>
                         </svg>
-                        {{ $message }}
-                    </p>
-                @enderror
+                    </div>
+                    @error('golongan_id')
+                        <p class="text-xs text-red-500 flex items-center gap-1">
+                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            {{ $message }}
+                        </p>
+                    @enderror
+                </div>
+                
+                <!-- Status Kawin -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Status Kawin <span
+                            class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <select wire:model="statuskawin_id"
+                            {{ !auth()->user()->hasPermissionTo('karyawan.view_list') ? 'disabled' : '' }}
+                            class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none {{ !auth()->user()->hasPermissionTo('karyawan.view_list') ? 'bg-gray-100 cursor-not-allowed opacity-60' : '' }}">
+                            <option value="" class="text-gray-400">Pilih Status</option>
+                            @foreach ($statusKawin as $kawin)
+                                <option value="{{ $kawin->id }}">{{ $kawin->nama }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
+                            </path>
+                        </svg>
+                    </div>
+                    @error('statuskawin_id')
+                        <p class="text-xs text-red-500 flex items-center gap-1">
+                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            {{ $message }}
+                        </p>
+                    @enderror
+                </div>
             </div>
 
-            <!-- Golongan -->
-            <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Golongan <span
-                        class="text-red-500">*</span></label>
-                <div class="relative">
-                    <select wire:model="golongan_id"
-                        class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none">
-                        <option value="" class="text-gray-400">Pilih Golongan</option>
-                        @foreach ($golongan as $gol)
-                            <option value="{{ $gol->id }}">{{ $gol->nama_golongan }}
-                            </option>
-                        @endforeach
-                    </select>
-                    <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
-                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
-                        </path>
-                    </svg>
-                </div>
-                @error('golongan_id')
-                    <p class="text-xs text-red-500 flex items-center gap-1">
-                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                                clip-rule="evenodd"></path>
-                        </svg>
-                        {{ $message }}
-                    </p>
-                @enderror
-            </div>
-
-            <!-- NPWP -->
+        
             <div class="space-y-2">
                 <label class="text-sm font-medium text-gray-700">
                     NPWP <span class="text-red-500">*</span>
                 </label>
                 <input wire:model.live="npwp" type="text" placeholder="Enter NPWP"
-                    class="w-full px-4 py-3 bg-white border rounded-lg text-sm focus:ring-2 transition-all @error('npwp') border-red-500 focus:border-red-500 focus:ring-red-500/20 @else border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 @enderror">
+                    class="w-full px-4 py-3 bg-white border rounded-lg text-sm focus:ring-2 transition-all @error('npwp') border-red-500 focus:border-red-500 focus:ring-red-500/20 @else border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 @enderror ">
                 @error('npwp')
                     <p class="text-xs text-red-500 flex items-center gap-1">
                         <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
@@ -314,7 +327,8 @@
                     Tanggal Efektif <span class="text-red-500">*</span>
                 </label>
                 <input wire:model="tgl_masuk" type="date" placeholder="Enter Tanggal Masuk"
-                    class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                    {{ !auth()->user()->hasPermissionTo('karyawan.view_list') ? 'disabled' : '' }}
+                    class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all {{ !auth()->user()->hasPermissionTo('karyawan.view_list') ? 'bg-gray-100 cursor-not-allowed opacity-60' : '' }}">
                 @error('tgl_masuk')
                     <p class="text-xs text-red-500 flex items-center gap-1">
                         <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
@@ -333,7 +347,8 @@
                     Tanggal Tetap
                 </label>
                 <input wire:model="tgl_karyawan_tetap" type="date" placeholder="Enter Tanggal Tetap"
-                    class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                    {{ !auth()->user()->hasPermissionTo('karyawan.view_list') ? 'disabled' : '' }}
+                    class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all {{ !auth()->user()->hasPermissionTo('karyawan.view_list') ? 'bg-gray-100 cursor-not-allowed opacity-60' : '' }}">
                 @error('tgl_karyawan_tetap')
                     <p class="text-xs text-red-500 flex items-center gap-1">
                         <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
@@ -352,7 +367,8 @@
                     Tanggal Berhenti
                 </label>
                 <input wire:model="tgl_berhenti" type="date" placeholder="Enter Tanggal Berhenti"
-                    class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                    {{ !auth()->user()->hasPermissionTo('karyawan.view_list') ? 'disabled' : '' }}
+                    class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all {{ !auth()->user()->hasPermissionTo('karyawan.view_list') ? 'bg-gray-100 cursor-not-allowed opacity-60' : '' }}">
                 @error('tgl_berhenti')
                     <p class="text-xs text-red-500 flex items-center gap-1">
                         <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">

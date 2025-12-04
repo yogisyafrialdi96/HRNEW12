@@ -7,14 +7,18 @@
         </div>
 
         <div>
-            <button wire:click="create"
-                class="bg-blue-600 hover:bg-blue-800 text-white px-4 py-1 rounded-lg flex items-center justify-center transition duration-200 whitespace-nowrap">
-                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6">
-                    </path>
-                </svg>
-                <span>Create</span>
-            </button>
+            @can('karyawan_dokumen.create')
+                <button wire:click="create"
+                    class="bg-blue-600 hover:bg-blue-800 text-white px-4 py-1 rounded-lg flex items-center justify-center transition duration-200 whitespace-nowrap">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6">
+                        </path>
+                    </svg>
+                    <span>Create</span>
+                </button>
+            @else
+                <div class="text-sm text-gray-500 italic">No permission to create Dokumen</div>
+            @endcan
         </div>
 
     </div>
@@ -209,6 +213,7 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex justify-end gap-2">
+                                    @can('karyawan_dokumen.edit')
                                     <button wire:click="edit({{ $dokumen->id }})"
                                         class="text-yellow-600 hover:text-yellow-900 p-1 rounded-md hover:bg-yellow-50 transition duration-200">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor"
@@ -218,6 +223,8 @@
                                             </path>
                                         </svg>
                                     </button>
+                                    @endcan
+                                    @can('karyawan_dokumen.delete')
                                     <button wire:click="confirmDelete({{ $dokumen->id }})"
                                         class="text-red-600 hover:text-red-900 p-1 rounded-md hover:bg-red-50 transition duration-200">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor"
@@ -227,6 +234,7 @@
                                             </path>
                                         </svg>
                                     </button>
+                                    @endcan
                                 </div>
                             </td>
                         </tr>
@@ -562,6 +570,7 @@
                                                     </a>
 
                                                     <!-- Remove Button -->
+                                                    @can('karyawan_dokumen.delete')
                                                     <button wire:click="removeExistingDocument" type="button"
                                                         class="p-2 text-red-600 hover:text-red-800 hover:bg-red-100 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                                                         title="Hapus dokumen">
@@ -573,6 +582,7 @@
                                                                 clip-rule="evenodd"></path>
                                                         </svg>
                                                     </button>
+                                                    @endcan
                                                 </div>
                                             </div>
                                         </div>
@@ -615,31 +625,48 @@
 
                         <!-- Footer -->
                         <div class="py-4 px-6">
-                            <div class="flex flex-col-reverse sm:flex-row gap-3 justify-end">
-                                <button type="button" wire:click="closeModal"
-                                    class="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-500 focus:ring-2 focus:ring-gray-500/20 transition-all">
-                                    Batal
-                                </button>
-                                <button type="submit" wire:click="save"
-                                    class="px-5 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg hover:from-blue-700 hover:to-blue-800 focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl"
-                                    wire:loading.attr="disabled">
-                                    <span wire:loading.remove wire:target="save" class="flex items-center gap-2">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M5 13l4 4L19 7"></path>
-                                        </svg>
-                                        {{ $isEdit ? 'Update Dokumen' : 'Simpan Dokumen' }}
-                                    </span>
-                                    <span wire:loading wire:target="save" class="flex items-center gap-2">
-                                        <svg class="animate-spin w-4 h-4" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M12 2v4m0 12v4m8-8h-4M6 12H2m15.364-6.364l-2.828 2.828M9.464 16.536l-2.828 2.828m9.192-9.192l-2.828 2.828M6.464 6.464L3.636 3.636">
-                                            </path>
-                                        </svg>
-                                        {{ $isEdit ? 'Mengupdate...' : 'Menyimpan...' }}
-                                    </span>
-                                </button>
+                            <div class="flex flex-col-reverse sm:flex-row gap-3 justify-between items-center">
+                                <div>
+                                    @if ($isEdit)
+                                        @can('karyawan_dokumen.delete')
+                                        <button type="button" wire:click="confirmDelete({{ $dokumen_id }})"
+                                            class="px-5 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-red-600 to-red-700 rounded-lg hover:from-red-700 hover:to-red-800 focus:ring-2 focus:ring-red-500/20 transition-all shadow-lg hover:shadow-xl">
+                                            <span class="flex items-center gap-2">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                </svg>
+                                                Hapus Dokumen
+                                            </span>
+                                        </button>
+                                        @endcan
+                                    </div>
+                                @endif
+                                <div class="flex gap-3">
+                                    <button type="button" wire:click="closeModal"
+                                        class="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-500 focus:ring-2 focus:ring-gray-500/20 transition-all">
+                                        Batal
+                                    </button>
+                                    <button type="submit" wire:click="save"
+                                        class="px-5 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg hover:from-blue-700 hover:to-blue-800 focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl"
+                                        wire:loading.attr="disabled">
+                                        <span wire:loading.remove wire:target="save" class="flex items-center gap-2">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                            {{ $isEdit ? 'Update Dokumen' : 'Simpan Dokumen' }}
+                                        </span>
+                                        <span wire:loading wire:target="save" class="flex items-center gap-2">
+                                            <svg class="animate-spin w-4 h-4" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 2v4m0 12v4m8-8h-4M6 12H2m15.364-6.364l-2.828 2.828M9.464 16.536l-2.828 2.828m9.192-9.192l-2.828 2.828M6.464 6.464L3.636 3.636">
+                                                </path>
+                                            </svg>
+                                            {{ $isEdit ? 'Mengupdate...' : 'Menyimpan...' }}
+                                        </span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -129,6 +129,11 @@ class KaryawanImport implements ToCollection, WithHeadingRow
                                 'email_verified_at' => now(),
                             ]
                         );
+                        
+                        // Assign default role "staff" to new user
+                        if ($user->wasRecentlyCreated) {
+                            $user->assignRole('staff');
+                        }
                     } catch (\Exception $userException) {
                         throw new \Exception('Gagal membuat user: ' . $userException->getMessage());
                     }

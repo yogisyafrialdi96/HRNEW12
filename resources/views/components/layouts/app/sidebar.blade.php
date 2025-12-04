@@ -12,28 +12,63 @@
             </a>
 
             <flux:navlist variant="outline">
-                <flux:navlist.group :heading="__('Platform')" class="grid">
-                    <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
-                </flux:navlist.group>
-                <flux:navlist.group :heading="__('Master Data')" expandable
-                    :expanded="request()->routeIs('companies.*') || request()->routeIs('department.*') || request()->routeIs('unit.*') || request()->routeIs('jabatan.*') || request()->routeIs('mapel.*') || request()->routeIs('status-kawin.*') || request()->routeIs('status-pegawai.*') || request()->routeIs('status-golongan.*') || request()->routeIs('status-kontrak.*') || request()->routeIs('tahun-ajaran.*')">
-                    <flux:navlist.item :href="route('department.index')" :current="request()->routeIs('department.*')" wire:navigate>Departments</flux:navlist.item>
-                    <flux:navlist.item :href="route('unit.index')" :current="request()->routeIs('unit.*')" wire:navigate>Unit</flux:navlist.item>
-                    <flux:navlist.item :href="route('jabatan.index')" :current="request()->routeIs('jabatan.*')" wire:navigate>Jabatan</flux:navlist.item>
-                    <flux:navlist.item :href="route('mapel.index')" :current="request()->routeIs('mapel.*')" wire:navigate>Mapel</flux:navlist.item>
-                    <flux:navlist.item :href="route('status-kawin.index')" :current="request()->routeIs('-kawin.*')" wire:navigate>Status Kawin</flux:navlist.item>
-                    <flux:navlist.item :href="route('status-kontrak.index')" :current="request()->routeIs('status-kontrak.*')" wire:navigate>Status Kontrak</flux:navlist.item>
-                    <flux:navlist.item :href="route('status-golongan.index')" :current="request()->routeIs('status-golongan.*')" wire:navigate>Status Golongan</flux:navlist.item>
-                    <flux:navlist.item :href="route('status-pegawai.index')" :current="request()->routeIs('status-pegawai.*')" wire:navigate>Status Pegawai</flux:navlist.item>
-                    <flux:navlist.item :href="route('tahun-ajaran.index')" :current="request()->routeIs('tahun-ajaran.*')" wire:navigate>Tahun Ajaran</flux:navlist.item>
-                </flux:navlist.group>
+                @can('dashboard.view')
+                    <flux:navlist.group :heading="__('Platform')" class="grid">
+                        <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
+                        @if (auth()->user()->karyawan)
+                            <flux:navlist.item icon="home" :href="route('karyawan.profile', auth()->user()->karyawan->id)" :current="request()->routeIs('karyawan.profile', auth()->user()->karyawan->id)" wire:navigate>{{ __('Profile') }}</flux:navlist.item>
+                        @endif
+                    </flux:navlist.group>
+                @endcan
+
+                @can('master_data.view')
+                    <flux:navlist.group :heading="__('Master Data')" expandable
+                        :expanded="request()->routeIs('companies.*') || request()->routeIs('department.*') || request()->routeIs('unit.*') || request()->routeIs('jabatan.*') || request()->routeIs('mapel.*') || request()->routeIs('status-kawin.*') || request()->routeIs('status-pegawai.*') || request()->routeIs('status-golongan.*') || request()->routeIs('status-kontrak.*') || request()->routeIs('tahun-ajaran.*')">
+                        <flux:navlist.item :href="route('department.index')" :current="request()->routeIs('department.*')" wire:navigate>Departments</flux:navlist.item>
+                        <flux:navlist.item :href="route('unit.index')" :current="request()->routeIs('unit.*')" wire:navigate>Unit</flux:navlist.item>
+                        <flux:navlist.item :href="route('jabatan.index')" :current="request()->routeIs('jabatan.*')" wire:navigate>Jabatan</flux:navlist.item>
+                        <flux:navlist.item :href="route('mapel.index')" :current="request()->routeIs('mapel.*')" wire:navigate>Mapel</flux:navlist.item>
+                        <flux:navlist.item :href="route('status-kawin.index')" :current="request()->routeIs('-kawin.*')" wire:navigate>Status Kawin</flux:navlist.item>
+                        <flux:navlist.item :href="route('status-kontrak.index')" :current="request()->routeIs('status-kontrak.*')" wire:navigate>Status Kontrak</flux:navlist.item>
+                        <flux:navlist.item :href="route('status-golongan.index')" :current="request()->routeIs('status-golongan.*')" wire:navigate>Status Golongan</flux:navlist.item>
+                        <flux:navlist.item :href="route('status-pegawai.index')" :current="request()->routeIs('status-pegawai.*')" wire:navigate>Status Pegawai</flux:navlist.item>
+                        <flux:navlist.item :href="route('tahun-ajaran.index')" :current="request()->routeIs('tahun-ajaran.*')" wire:navigate>Tahun Ajaran</flux:navlist.item>
+                    </flux:navlist.group>
+                @endcan
+
+                @if (auth()->user()->can('dashboard_admin.view') || auth()->user()->can('pengurus.view') || auth()->user()->can('karyawan.view_list') || auth()->user()->can('kontrak_kerja.view') || auth()->user()->can('masakerja.view'))
                 <flux:navlist.group :heading="__('Human Resources')" class="grid">
-                    <flux:navlist.item icon="home" :href="route('dashboard.index')" :current="request()->routeIs('dashboard.*')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
-                    <flux:navlist.item icon="user-group" :href="route('pengurus.index')" :current="request()->routeIs('pengurus.*')" wire:navigate>{{ __('Pengurus') }}</flux:navlist.item>
-                    <flux:navlist.item icon="user-group" :href="route('karyawan.index')" :current="request()->routeIs('karyawan.*')" wire:navigate>{{ __('Karyawan') }}</flux:navlist.item>
-                    <flux:navlist.item icon="document-text" :href="route('kontrak.index')" :current="request()->routeIs('kontrak.*')" wire:navigate>{{ __('Kontrak Kerja') }}</flux:navlist.item>
-                    <flux:navlist.item icon="document-minus" :href="route('masakerja.index')" :current="request()->routeIs('masakerja.*')" wire:navigate>{{ __('Masa Kerja') }}</flux:navlist.item>
+                    @can('dashboard_admin.view')
+                        <flux:navlist.item icon="home" :href="route('dashboard.index')" :current="request()->routeIs('dashboard.*')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
+                    @endcan
+                    @can('pengurus.view')
+                        <flux:navlist.item icon="user-group" :href="route('pengurus.index')" :current="request()->routeIs('pengurus.*')" wire:navigate>{{ __('Pengurus') }}</flux:navlist.item>
+                    @endcan
+                    @can('karyawan.view_list')
+                        <flux:navlist.item icon="user-group" :href="route('karyawan.index')" :current="request()->routeIs('karyawan.*')" wire:navigate>{{ __('Karyawan') }}</flux:navlist.item>
+                    @endcan
+                    @can('kontrak_kerja.view')
+                        <flux:navlist.item icon="document-text" :href="route('kontrak.index')" :current="request()->routeIs('kontrak.*')" wire:navigate>{{ __('Kontrak Kerja') }}</flux:navlist.item>
+                    @endcan
+                    @can('masakerja.view')
+                        <flux:navlist.item icon="document-minus" :href="route('masakerja.index')" :current="request()->routeIs('masakerja.*')" wire:navigate>{{ __('Masa Kerja') }}</flux:navlist.item>
+                    @endcan
                 </flux:navlist.group>
+                @endif
+
+                @if (auth()->user()->can('users.view') || auth()->user()->can('roles.view') || auth()->user()->can('permissions.view'))
+                    <flux:navlist.group :heading="__('Administration')" class="grid">
+                        @can('users.view')
+                            <flux:navlist.item icon="user-group" :href="route('users.index')" :current="request()->routeIs('users.*')" wire:navigate>{{ __('Users') }}</flux:navlist.item>
+                        @endcan
+                        @can('roles.view')
+                            <flux:navlist.item icon="cog-6-tooth" :href="route('roles.index')" :current="request()->routeIs('roles.*')" wire:navigate>{{ __('Roles') }}</flux:navlist.item>
+                        @endcan
+                        @can('permissions.view')
+                            <flux:navlist.item icon="cog-6-tooth" :href="route('permissions.index')" :current="request()->routeIs('permissions.*')" wire:navigate>{{ __('Permissions') }}</flux:navlist.item>
+                        @endcan
+                    </flux:navlist.group>
+                @endif
             </flux:navlist>
 
             <flux:spacer />
@@ -80,6 +115,9 @@
 
                     <flux:menu.radio.group>
                         <flux:menu.item :href="route('settings.profile')" icon="cog" wire:navigate>{{ __('Settings') }}</flux:menu.item>
+                        @if (auth()->user()->karyawan)
+                            <flux:menu.item :href="route('karyawan.profile', auth()->user()->karyawan->id)" icon="user" wire:navigate>{{ __('My Profile') }}</flux:menu.item>
+                        @endif
                     </flux:menu.radio.group>
 
                     <flux:menu.separator />
@@ -130,6 +168,9 @@
 
                     <flux:menu.radio.group>
                         <flux:menu.item :href="route('settings.profile')" icon="cog" wire:navigate>{{ __('Settings') }}</flux:menu.item>
+                        @if (auth()->user()->karyawan)
+                            <flux:menu.item :href="route('karyawan.profile', auth()->user()->karyawan->id)" icon="user" wire:navigate>{{ __('My Profile') }}</flux:menu.item>
+                        @endif
                     </flux:menu.radio.group>
 
                     <flux:menu.separator />

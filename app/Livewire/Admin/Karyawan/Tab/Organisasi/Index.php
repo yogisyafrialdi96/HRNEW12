@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin\Karyawan\Tab\Organisasi;
 
 use App\Models\Employee\KaryawanOrganisasi;
+use App\Traits\HasTabPermission;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
@@ -15,6 +16,7 @@ class Index extends Component
 {
     use WithPagination;
     use WithFileUploads;
+    use HasTabPermission;
 
     // Main properties
     public $karyawan_id; // This should hold the employee ID

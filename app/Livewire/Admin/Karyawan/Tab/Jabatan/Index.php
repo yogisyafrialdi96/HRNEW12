@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin\Karyawan\Tab\Jabatan;
 
 use App\Models\Employee\KaryawanJabatan;
+use App\Traits\HasTabPermission;
 use App\Models\Master\Departments;
 use App\Models\Master\Jabatans;
 use App\Models\Master\Units;
@@ -17,6 +18,7 @@ use Livewire\Attributes\On;
 class Index extends Component
 {
     use WithPagination;
+    use HasTabPermission;
 
     // Main properties
     public $karyawan_id;
@@ -55,6 +57,8 @@ class Index extends Component
 
     public function mount($karyawan = null)
     {
+        $this->authorizeView();
+        
         if ($karyawan) {
             $this->karyawan_id = is_object($karyawan) ? $karyawan->id : $karyawan;
         }
@@ -142,6 +146,8 @@ class Index extends Component
     public function save()
     {
         try {
+            $this->authorizeCreate();
+            
             if (!$this->karyawan_id) {
                 $this->dispatch('toast', [
                     'message' => 'Employee ID is required.',
@@ -253,6 +259,8 @@ class Index extends Component
     public function delete()
     {
         try {
+            $this->authorizeDelete();
+            
             $data = KaryawanJabatan::findOrFail($this->deleteId);
             $data->delete();
 
