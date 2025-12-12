@@ -149,6 +149,24 @@ class PermissionSeeder extends Seeder
             'kontrak_kerja.print' => 'Print contract',
             'kontrak_kerja.approve' => 'Approve contract',
 
+            // Atasan Management (Hirarki Approval)
+            'atasan.view' => 'View approval hierarchy',
+            'atasan.create' => 'Create approval hierarchy',
+            'atasan.edit' => 'Edit approval hierarchy',
+            'atasan.delete' => 'Delete approval hierarchy',
+
+            // Approval Templates
+            'atasan_template.view' => 'View approval templates',
+            'atasan_template.create' => 'Create approval template',
+            'atasan_template.edit' => 'Edit approval template',
+            'atasan_template.delete' => 'Delete approval template',
+
+            // Unit Approval Settings
+            'atasan_unit_setting.view' => 'View unit approval settings',
+            'atasan_unit_setting.create' => 'Create unit approval setting',
+            'atasan_unit_setting.edit' => 'Edit unit approval setting',
+            'atasan_unit_setting.delete' => 'Delete unit approval setting',
+
             // masakerja Management
             'masakerja.view' => 'View masakerja',
 
@@ -173,6 +191,38 @@ class PermissionSeeder extends Seeder
             // Settings
             'settings.view' => 'View settings',
             'settings.edit' => 'Edit settings',
+
+            // Leave Management (Cuti)
+            'cuti.view' => 'View leave requests',
+            'cuti.create' => 'Create leave request',
+            'cuti.edit' => 'Edit leave request',
+            'cuti.delete' => 'Delete leave request',
+            'cuti.submit' => 'Submit leave request',
+            'cuti.cancel' => 'Cancel leave request',
+            'cuti.approve' => 'Approve leave request',
+            'cuti.export' => 'Export leave data',
+
+            // Permission Management (Izin)
+            'izin.view' => 'View permission requests',
+            'izin.create' => 'Create permission request',
+            'izin.edit' => 'Edit permission request',
+            'izin.delete' => 'Delete permission request',
+            'izin.submit' => 'Submit permission request',
+            'izin.cancel' => 'Cancel permission request',
+            'izin.approve' => 'Approve permission request',
+            'izin.export' => 'Export permission data',
+
+            // Leave Setup
+            'cuti_setup.view' => 'View leave setup',
+            'cuti_setup.create' => 'Create leave setup',
+            'cuti_setup.edit' => 'Edit leave setup',
+            'cuti_setup.delete' => 'Delete leave setup',
+
+            // Permission Setup
+            'izin_setup.view' => 'View permission setup',
+            'izin_setup.create' => 'Create permission setup',
+            'izin_setup.edit' => 'Edit permission setup',
+            'izin_setup.delete' => 'Delete permission setup',
         ];
 
         // Create all permissions
@@ -258,6 +308,10 @@ class PermissionSeeder extends Seeder
             'master_data.view',
             'reports.view',
             'reports.export',
+            'cuti.view',
+            'cuti.approve',
+            'izin.view',
+            'izin.approve',
         ];
         $managerRole->syncPermissions($managerPermissions);
 
@@ -306,6 +360,17 @@ class PermissionSeeder extends Seeder
             'karyawan_jabatan.view',
             'karyawan_kontrak.view',
             'karyawan_kontrak.dokumen_download',
+            // Leave & Permission
+            'cuti.view',
+            'cuti.create',
+            'cuti.edit',
+            'cuti.submit',
+            'cuti.cancel',
+            'izin.view',
+            'izin.create',
+            'izin.edit',
+            'izin.submit',
+            'izin.cancel',
         ];
         $staffRole->syncPermissions($staffPermissions);
 

@@ -69,6 +69,41 @@
                         @endcan
                     </flux:navlist.group>
                 @endif
+
+                @if (auth()->user()->can('cuti.view') || auth()->user()->can('izin.view') || auth()->user()->can('cuti.approve') || auth()->user()->can('izin.approve'))
+                    <flux:navlist.group :heading="__('Leave & Permission')" expandable
+                        :expanded="request()->routeIs('cuti.*') || request()->routeIs('izin.*') || request()->routeIs('cuti-approval.*') || request()->routeIs('izin-approval.*')">
+                        @can('cuti.view')
+                            <flux:navlist.item icon="document-plus" :href="route('cuti.index')" :current="request()->routeIs('cuti.*')" wire:navigate>{{ __('Pengajuan Cuti') }}</flux:navlist.item>
+                        @endcan
+                        @can('izin.view')
+                            <flux:navlist.item icon="document-plus" :href="route('izin.index')" :current="request()->routeIs('izin.*')" wire:navigate>{{ __('Pengajuan Izin') }}</flux:navlist.item>
+                        @endcan
+                        @can('cuti.approve')
+                            <flux:navlist.item icon="document-check" :href="route('cuti-approval.index')" :current="request()->routeIs('cuti-approval.*')" wire:navigate>{{ __('Approval Cuti') }}</flux:navlist.item>
+                        @endcan
+                        @can('izin.approve')
+                            <flux:navlist.item icon="document-check" :href="route('izin-approval.index')" :current="request()->routeIs('izin-approval.*')" wire:navigate>{{ __('Approval Izin') }}</flux:navlist.item>
+                        @endcan
+                    </flux:navlist.group>
+                @endif
+
+                @can('master_data.view')
+                    <flux:navlist.group :heading="__('Leave & Permission Setup')" expandable
+                        :expanded="request()->routeIs('setup.*')">
+                        <flux:navlist.item icon="cog" :href="route('setup.cuti')" :current="request()->routeIs('setup.cuti')" wire:navigate>{{ __('Setup Cuti') }}</flux:navlist.item>
+                        <flux:navlist.item icon="cog" :href="route('setup.izin')" :current="request()->routeIs('setup.izin')" wire:navigate>{{ __('Setup Izin') }}</flux:navlist.item>
+                        <flux:navlist.item icon="calendar" :href="route('setup.libur')" :current="request()->routeIs('setup.libur')" wire:navigate>{{ __('Libur Nasional') }}</flux:navlist.item>
+                        <flux:navlist.item icon="clock" :href="route('setup.jam-kerja')" :current="request()->routeIs('setup.jam-kerja')" wire:navigate>{{ __('Jam Kerja Unit') }}</flux:navlist.item>
+                    </flux:navlist.group>
+                @endcan
+
+                @can('users.view')
+                    <flux:navlist.group :heading="__('Approval Hierarchy')" expandable
+                        :expanded="request()->routeIs('atasan.*')">
+                        <flux:navlist.item icon="chart-bar" :href="route('atasan.users.index')" :current="request()->routeIs('atasan.users.*')" wire:navigate>{{ __('Atasan User') }}</flux:navlist.item>
+                    </flux:navlist.group>
+                @endcan
             </flux:navlist>
 
             <flux:spacer />

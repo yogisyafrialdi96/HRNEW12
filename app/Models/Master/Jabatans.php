@@ -2,10 +2,13 @@
 
 namespace App\Models\Master;
 
+use App\Models\Employee\Karyawan;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Jabatans extends Model
@@ -89,5 +92,25 @@ class Jabatans extends Model
     public function updater(): BelongsTo
     {
         return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    public function karyawan(): HasMany
+    {
+        return $this->hasMany(Karyawan::class, 'jabatan_id');
+    }
+
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('is_active', true);
+    }
+
+    public function scopeByLevel(Builder $query, int $level): Builder
+    {
+        return $query->where('level_jabatan', $level);
+    }
+
+    public function scopeMinLevel(Builder $query, int $minLevel): Builder
+    {
+        return $query->where('level_jabatan', '>=', $minLevel);
     }
 }

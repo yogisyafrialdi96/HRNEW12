@@ -59,37 +59,6 @@ class RoleSeeder extends Seeder
             Permission::whereIn('name', $managerPermissions)->pluck('name')->toArray()
         );
 
-        // Staff - view and basic operations
-        $staffRole = Role::updateOrCreate(
-            ['name' => 'staff', 'guard_name' => 'web'],
-            ['description' => 'Staff dengan akses dasar']
-        );
-        $staffPermissions = [
-            'dashboard.view',
-            'karyawan.view',
-            'karyawan.edit_own_profile',
-            'attendance.view',
-            'attendance.create',
-            'attendance.edit',
-        ];
-        $staffRole->syncPermissions(
-            Permission::whereIn('name', $staffPermissions)->pluck('name')->toArray()
-        );
-
-        // Viewer - read-only access
-        $viewerRole = Role::updateOrCreate(
-            ['name' => 'viewer', 'guard_name' => 'web'],
-            ['description' => 'Viewer hanya dapat melihat data']
-        );
-        $viewerPermissions = [
-            'dashboard.view',
-            'karyawan.view',
-            'reports.view',
-        ];
-        $viewerRole->syncPermissions(
-            Permission::whereIn('name', $viewerPermissions)->pluck('name')->toArray()
-        );
-
         // HR Manager - specialized role for HR operations
         $hrManagerRole = Role::updateOrCreate(
             ['name' => 'hr_manager', 'guard_name' => 'web'],
@@ -117,7 +86,14 @@ class RoleSeeder extends Seeder
             'kontrak_kerja.edit',
             'kontrak_kerja.print',
             'kontrak_kerja.approve',
+            'cuti.view',
+            'cuti.approve',
+            'cuti.export',
+            'izin.view',
+            'izin.approve',
             'master_data.view',
+            'atasan.view',
+            'atasan.edit',
             'attendance.view',
             'attendance.export',
             'reports.view',
@@ -125,6 +101,53 @@ class RoleSeeder extends Seeder
         ];
         $hrManagerRole->syncPermissions(
             Permission::whereIn('name', $hrManagerPermissions)->pluck('name')->toArray()
+        );
+
+        // Approval Manager (Kepala Departemen, Manager) - untuk approve cuti bawahan
+        $approvalManagerRole = Role::updateOrCreate(
+            ['name' => 'approval_manager', 'guard_name' => 'web'],
+            ['description' => 'Approval Manager untuk persetujuan cuti karyawan']
+        );
+        $approvalManagerPermissions = [
+            'dashboard.view',
+            'karyawan.view',
+            'karyawan.view_list',
+            'cuti.view',
+            'cuti.approve',
+            'izin.view',
+            'izin.approve',
+            'atasan.view',
+            'reports.view',
+        ];
+        $approvalManagerRole->syncPermissions(
+            Permission::whereIn('name', $approvalManagerPermissions)->pluck('name')->toArray()
+        );
+
+        // Staff - view and basic operations + submit cuti
+        $staffRole = Role::updateOrCreate(
+            ['name' => 'staff', 'guard_name' => 'web'],
+            ['description' => 'Staff dengan akses dasar']
+        );
+        $staffPermissions = [
+            'dashboard.view',
+            'karyawan.view',
+            'karyawan.edit_own_profile',
+            'cuti.view',
+            'cuti.create',
+            'cuti.edit',
+            'cuti.submit',
+            'cuti.cancel',
+            'izin.view',
+            'izin.create',
+            'izin.edit',
+            'izin.submit',
+            'izin.cancel',
+            'attendance.view',
+            'attendance.create',
+            'attendance.edit',
+        ];
+        $staffRole->syncPermissions(
+            Permission::whereIn('name', $staffPermissions)->pluck('name')->toArray()
         );
 
         // Finance Manager - specialized role for finance operations

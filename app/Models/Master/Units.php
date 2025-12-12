@@ -2,10 +2,12 @@
 
 namespace App\Models\Master;
 
+use App\Models\Employee\Karyawan;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Units extends Model
@@ -93,5 +95,10 @@ class Units extends Model
     public function updater(): BelongsTo
     {
         return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    public function karyawan(): HasMany
+    {
+        return $this->hasMany(Karyawan::class, 'unit_id');
     }
 }

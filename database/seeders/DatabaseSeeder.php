@@ -15,13 +15,10 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // 1 user admin
-        User::factory()->create([
+        $admin = User::factory()->create([
             'name' => 'Admin',
-            'email' => 'info@ykpialittihad.or.id',
+            'email' => 'admin@example.com',
         ]);
-
-        // 9 user random
-        User::factory(9)->create();
 
         $this->call([
             WilayahSeeder::class,
@@ -35,8 +32,15 @@ class DatabaseSeeder extends Seeder
             GolonganSeeder::class,
             StatusPegawaiSeeder::class,
             EducationLevelSeeder::class,
-            PengurusSeeder::class,
             TahunAjaranSeeder::class,
+            PermissionSeeder::class,
+            RoleSeeder::class,
+            UserSeeder::class,
+            PengurusSeeder::class,
+            AtasanUserSeeder::class,
         ]);
+
+        // Assign super_admin role to Admin user
+        $admin->assignRole('super_admin');
     }
 }

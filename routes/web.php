@@ -99,6 +99,85 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
             Route::get('/', Admin\Karyawan\Masakerja\Index::class)->name('index');
         });
     });
+
+    // Atasan Management Routes
+    Route::middleware('permission:users.view')->group(function () {
+        Route::prefix('atasan')->name('atasan.')->group(function () {
+            // Atasan Users
+            Route::prefix('users')->name('users.')->group(function () {
+                Route::get('/', \App\Livewire\Admin\Atasan\AtasanUserIndex::class)->name('index');
+            });
+        });
+    });
+    
+    // Cuti Management Routes - untuk admin/superadmin
+    Route::middleware(['permission:cuti.view', 'permission:dashboard_admin.view'])->group(function () {
+        Route::prefix('cuti')->name('cuti.')->group(function () {
+            Route::get('/', \App\Livewire\Admin\Cuti\CutiPengajuanIndex::class)->name('index');
+        });
+    });
+
+    // Izin Management Routes - untuk admin/superadmin
+    Route::middleware(['permission:izin.view', 'permission:dashboard_admin.view'])->group(function () {
+        Route::prefix('izin')->name('izin.')->group(function () {
+            Route::get('/', \App\Livewire\Admin\Izin\IzinPengajuanIndex::class)->name('index');
+        });
+    });
+
+    // Cuti Approval Routes - untuk approver
+    Route::middleware('permission:cuti.approve')->group(function () {
+        Route::prefix('cuti-approval')->name('cuti-approval.')->group(function () {
+            Route::get('/', \App\Livewire\Admin\Cuti\CutiApprovalDashboard::class)->name('index');
+        });
+    });
+
+    // Izin Approval Routes - untuk approver
+    Route::middleware('permission:izin.approve')->group(function () {
+        Route::prefix('izin-approval')->name('izin-approval.')->group(function () {
+            Route::get('/', \App\Livewire\Admin\Izin\IzinApprovalIndex::class)->name('index');
+        });
+    });
+
+    // Setup Routes
+    Route::middleware('permission:master_data.view')->prefix('setup')->name('setup.')->group(function () {
+        Route::get('cuti', \App\Livewire\Admin\Master\CutiSetupIndex::class)->name('cuti');
+        Route::get('izin', \App\Livewire\Admin\Master\IzinSetupIndex::class)->name('izin');
+        Route::get('izin-alasan', \App\Livewire\Admin\Master\IzinAlasanIndex::class)->name('izin-alasan');
+        Route::get('libur', \App\Livewire\Admin\Master\LiburNasionalIndex::class)->name('libur');
+        Route::get('jam-kerja', \App\Livewire\Admin\Master\JamKerjaUnitIndex::class)->name('jam-kerja');
+        Route::get('cuti-saldo', \App\Livewire\Admin\Master\CutiSaldoIndex::class)->name('cuti-saldo');
+    });
+});
+
+// Staff Routes - Cuti & Izin Management (tanpa admin prefix)
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Cuti untuk staff/karyawan (bukan admin/superadmin)
+    Route::middleware('permission:cuti.view')->group(function () {
+        Route::prefix('cuti')->name('cuti.')->group(function () {
+            Route::get('/', \App\Livewire\Cuti\CutiPengajuanIndex::class)->name('index');
+        });
+    });
+
+    // Izin untuk staff/karyawan (bukan admin/superadmin)
+    Route::middleware('permission:izin.view')->group(function () {
+        Route::prefix('izin')->name('izin.')->group(function () {
+            Route::get('/', \App\Livewire\Izin\IzinPengajuanIndex::class)->name('index');
+        });
+    });
+
+    // Approval Routes - untuk approver (bukan admin/superadmin)
+    Route::middleware('permission:cuti.approve')->group(function () {
+        Route::prefix('cuti-approval')->name('cuti-approval.')->group(function () {
+            Route::get('/', \App\Livewire\Admin\Cuti\CutiApprovalDashboard::class)->name('index');
+        });
+    });
+
+    // Izin Approval Routes - untuk approver (bukan admin/superadmin)
+    Route::middleware('permission:izin.approve')->group(function () {
+        Route::prefix('izin-approval')->name('izin-approval.')->group(function () {
+            Route::get('/', \App\Livewire\Izin\IzinApprovalIndex::class)->name('index');
+        });
+    });
 });
 
 // Staff Routes - untuk karyawan mengakses profile mereka sendiri

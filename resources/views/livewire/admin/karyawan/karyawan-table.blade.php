@@ -349,7 +349,7 @@
                                         <img class="w-8 h-8 rounded-full object-cover"
                                             src="{{ $karyawan->foto
                                                 ? asset('storage/' . $karyawan->foto)
-                                                : 'https://ui-avatars.com/api/?name=' . urlencode($karyawan->full_name) }}"
+                                                : 'https://ui-avatars.com/api/?name=' . urlencode($karyawan->full_name) . '&background=1447e6&color=fff' }}"
                                             alt="{{ $karyawan->full_name }}">
                                         <div class="text-sm">
                                             <div class="font-semibold text-gray-900">{{ $karyawan->full_name }}</div>
